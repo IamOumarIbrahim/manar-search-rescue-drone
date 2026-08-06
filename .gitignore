@@ -12,3 +12,6 @@ build/
 *.log
 .vscode/
 .idea/
+
+# Private visualization assets
+assets/Images/Visualization/
