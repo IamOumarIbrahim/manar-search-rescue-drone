@@ -24,6 +24,37 @@ MANAR / منار is a supervised-autonomy, multisensor search-and-rescue
 drone system designed to assist search teams while keeping consequential
 decisions under human supervision.
 
+
+## Project Milestones
+
+- [x] Initial Ideation
+- [x] GitHub Repository creation
+- [x] Initial Branding
+- [ ] Project scope hardening
+- [ ] Project limitations and constraints
+- [ ] Basic web dashboard (dashboard version 1.0)
+- [ ] TO_BE_DETERMINED
+- [ ] TO_BE_DETERMINED
+- [ ] TO_BE_DETERMINED
+- [ ] TO_BE_DETERMINED
+- [ ] TO_BE_DETERMINED
+- [ ] TO_BE_DETERMINED
+- [ ] TO_BE_DETERMINED
+- [ ] TO_BE_DETERMINED
+- [ ] TO_BE_DETERMINED
+- [ ] TO_BE_DETERMINED
+- [ ] TO_BE_DETERMINED
+- [ ] TO_BE_DETERMINED
+- [ ] TO_BE_DETERMINED
+- [ ] TO_BE_DETERMINED
+- [ ] TO_BE_DETERMINED
+- [ ] TO_BE_DETERMINED
+- [ ] TO_BE_DETERMINED
+- [ ] TO_BE_DETERMINED
+- [ ] LaTeX Report, Presentation and Full documentation
+- [ ] Final Publishing & LinkedIn Post
+- [ ] Repository Maintenance 
+
 ## Ownership and License
 
 Copyright © 2026 Oumar Ibrahim. All rights reserved.
