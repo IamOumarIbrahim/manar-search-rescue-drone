@@ -1,8 +1,16 @@
+<p align="center">
+  <img
+    src="assets\Images\Branding\GitHub README Header.png"
+    alt="MANAR supervised-autonomy search-and-rescue drone"
+    width="900"
+  />
+</p>
+
 # MANAR / منار
 
 > **PROPRIETARY PROJECT — PORTFOLIO SHOWCASE**
 >
-> MANAR is independently created and owned by OUMAR IRABHIM.
+> MANAR is independently created and owned by **Oumar Ibrahim**.
 > This repository contains selected demonstrations, documentation, and
 > portfolio materials only.
 >
@@ -12,13 +20,13 @@
 
 ## Project Overview
 
-MANAR / منار is a supervised-autonomy multisensor search-and-rescue
+MANAR / منار is a supervised-autonomy, multisensor search-and-rescue
 drone system designed to assist search teams while keeping consequential
 decisions under human supervision.
 
 ## Ownership and License
 
-Copyright © 2026 OUMAR IRABHIM. All rights reserved.
+Copyright © 2026 Oumar Ibrahim. All rights reserved.
 
 No permission is granted to copy, modify, distribute, reproduce,
 commercialize, or create derivative works from this project without
