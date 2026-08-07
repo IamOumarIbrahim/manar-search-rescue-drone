@@ -59,7 +59,7 @@ decisions under human supervision.
   <img
     src="assets\Temp\currentprogress3.png"
     alt="Dashboard for viewing three concurrent video streams"
-    width="300"
+    width="500"
   />
   <br />
   <em>Terminal-based initial control system designed in C++ </em>
