@@ -52,8 +52,7 @@ decisions under human supervision.
 | **Downward spotlight** | Close-range illumination           |
 | **Heliograph mirrors** | Passive daylight signaling         |
 | **Smoke marker**       | Location/wind marking              |
-## Current Status
-> **Current phase:** System design and prototyping.
+
 
 <p align="center">
   <img
