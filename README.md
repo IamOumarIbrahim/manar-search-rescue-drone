@@ -25,7 +25,7 @@ decisions under human supervision.
 
 ## Landing Page
 
-[MANAR: Supervisied autonomy for search and rescue](https://iamoumaribrahim.github.io/manar-search-rescue-drone/)
+<a href="https://iamoumaribrahim.github.io/manar-search-rescue-drone/" target="_blank">MANAR: Supervisied autonomy for search and rescue</a>
 
 ### Component Overview
 
