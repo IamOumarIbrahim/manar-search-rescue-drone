@@ -18,6 +18,14 @@
 > algorithms, models, and internal project files are maintained privately.
 > This project is not open source.
 
+## Project Status
+
+**Current phase:** System design and prototyping.
+
+MANAR is currently under development. The repository presents selected
+design work, demonstrations, and project progress and does not represent
+a validated or operational search-and-rescue system.
+
 ## Project Overview
 
 MANAR / منار is a supervised-autonomy, multisensor search-and-rescue
@@ -25,32 +33,34 @@ drone system designed to assist search teams while keeping consequential
 decisions under human supervision.
 
 
+
+### Planned System Components
+
+| Component | Primary role |
+|---|---|
+| Thermal | Person and heat detection |
+| RGB/day | Daytime detection and verification |
+| Low-light/IR | Night visual confirmation |
+| 24 GHz FMCW | Presence, range, motion, micro-motion |
+| Speaker + mic | Prompt, listen, and estimate direction |
+| Passive RF | Detect and correlate device emissions |
+| Amber beacon | 360° visual attention cue |
+| White strobe | Directional visual guidance |
+| Downward spotlight | Close-range illumination and inspection |
+| Heliograph mirrors | Three fixed passive daylight reflectors |
+| Smoke marker | Daytime location and wind marking |
+
 ## Project Milestones
 
 - [x] Initial Ideation
 - [x] GitHub Repository creation
 - [x] Initial Branding
-- [ ] Project scope hardening
-- [ ] Project limitations and constraints
-- [ ] Basic web dashboard (dashboard version 1.0)
-- [ ] TO_BE_DETERMINED
-- [ ] TO_BE_DETERMINED
-- [ ] TO_BE_DETERMINED
-- [ ] TO_BE_DETERMINED
-- [ ] TO_BE_DETERMINED
-- [ ] TO_BE_DETERMINED
-- [ ] TO_BE_DETERMINED
-- [ ] TO_BE_DETERMINED
-- [ ] TO_BE_DETERMINED
-- [ ] TO_BE_DETERMINED
-- [ ] TO_BE_DETERMINED
-- [ ] TO_BE_DETERMINED
-- [ ] TO_BE_DETERMINED
-- [ ] TO_BE_DETERMINED
-- [ ] TO_BE_DETERMINED
-- [ ] TO_BE_DETERMINED
-- [ ] TO_BE_DETERMINED
-- [ ] TO_BE_DETERMINED
+- [x] Project scope hardening
+- [x] Project limitations and constraints
+- [ ] Basic web dashboard — v1.0
+- [ ] TO_BE_DETERMINED...
+- [ ] TO_BE_DETERMINED...
+- [ ] TO_BE_DETERMINED...
 - [ ] LaTeX Report, Presentation and Full documentation
 - [ ] Final Publishing & LinkedIn Post
 - [ ] Repository Maintenance 
