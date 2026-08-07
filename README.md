@@ -57,12 +57,12 @@ decisions under human supervision.
 
 <p align="center">
   <img
-    src="assets\Temp\Currentprogress2.png"
+    src="assets\Temp\currentprogress3.png"
     alt="Dashboard for viewing three concurrent video streams"
     width="900"
   />
   <br />
-  <em>MANAR Web Dashboard Parallel Stream Preview </em>
+  <em>Terminal-based initial control system designed in C++ </em>
 </p>
 
 ## Project Milestones
