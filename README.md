@@ -22,6 +22,11 @@ drone system designed to assist search teams while keeping consequential
 decisions under human supervision.
 
 > **Current phase:** System design and prototyping.
+
+## Landing Page
+
+[MANAR: Supervisied autonomy for search and rescue](https://iamoumaribrahim.github.io/manar-search-rescue-drone/)
+
 ### Component Overview
 
 <p align="center">
