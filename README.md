@@ -28,7 +28,17 @@ drone system designed to assist search teams while keeping consequential
 decisions under human supervision.
 
 > **Current phase:** System design and prototyping.
-
+### Component Overview
+---
+<p align="center">
+  <img
+    src="assets/Images/Branding/System Component Overview.png"
+    alt="MANAR multisensor search-and-rescue system component overview"
+    width="900"
+  />
+  <br />
+  <em>MANAR Multisensor System Component Overview</em>
+</p>
 
 | Component              | Primary role                       |
 | ---------------------- | ---------------------------------- |
