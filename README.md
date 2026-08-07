@@ -53,6 +53,8 @@ decisions under human supervision.
 | **Heliograph mirrors** | Passive daylight signaling         |
 | **Smoke marker**       | Location/wind marking              |
 
+## Current Status
+> **Current phase:** Initial deterministic control system design.
 
 <p align="center">
   <img
@@ -65,7 +67,7 @@ decisions under human supervision.
 </p>
 
 ## Project Milestones
-**Current phase:** Initial deterministic control system design.
+
 
 > - [x] Initial Ideation
 > - [x] GitHub Repository creation
