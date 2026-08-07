@@ -15,14 +15,53 @@ the human operator must be capable of executing all of these tasks if required
 
 */
 
+// GLOBAL VARIABLES----------------------------------
+
+bool thermal_camera_status,RGB_camera_status,infrared_camera_status;
+bool fmcw_status,speaker_status,microphone_status,passive_rf_status;
+bool amber_beacon_status,white_strobe_status,downward_spotlight_status;
+bool smoke_marker_status;
+const bool heliograph_mirror_status = true;
+bool return_main = true;
+int return_menu_int;
+
+// GLOBAL VARIABLES----------------------------------
+
+
+
+
 void activateRTH(){}
 void displaystatus(){}
-void displaycomponent(){}
+void displaycomponent(){
+    return_menu_int = 0;
+    cout<<"----------------------------------"<<endl;
+    cout<<"Thermal camera: "<<thermal_camera_status<<endl;
+    cout<<"RGB camera: "<<RGB_camera_status<<endl;
+    cout<<"Low light/Infrared: "<<infrared_camera_status<<endl;
+    cout<<"24Ghz FMCW: "<<fmcw_status<<endl;
+    cout<<"Speaker: "<<speaker_status<<endl;
+    cout<<"Microphone: "<<microphone_status<<endl;
+    cout<<"Passive RF: "<<passive_rf_status<<endl;
+    cout<<"Amber beacon: "<<amber_beacon_status<<endl;
+    cout<<"White strobe: "<<white_strobe_status<<endl;
+    cout<<"Downward spotlight: "<<downward_spotlight_status<<endl;
+    cout<<"Heliograph mirrors: "<<heliograph_mirror_status<<endl;
+    cout<<"Smoke marker: "<<smoke_marker_status<<endl;
+    cout<<"----------------------------------"<<endl;
+    while (return_menu_int != 10)
+    {
+    cout<<"Enter 10 to return to menu."<<endl;
+    cin>>return_menu_int;
+    if (return_menu_int == 10)
+        return_main = true;
+    }
+}
 void displayroute(){}
 void transmitloc(){}
 
 int main(){
     int User_Option;
+    while (return_main == true){
     cout<<"----------------------------------"<<endl;
     cout<<"WELCOME TO MANAR HUMAN CONTROL SYSTEM"<<endl;
     cout<<"----------------------------------"<<endl;
@@ -77,6 +116,13 @@ int main(){
             transmitloc();
             break;
         }
+        case 10:
+        {
+            cout<<"Exiting terminal now..."<<endl;
+            return 0;
+            break;
+        }
     }
+}
     return 0;
 }
