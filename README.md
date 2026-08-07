@@ -66,7 +66,7 @@ decisions under human supervision.
 </p>
 
 ## Project Milestones
-> **Current phase:** Initial deterministic control system design.
+**Current phase:** Initial deterministic control system design.
 
 > - [x] Initial Ideation
 > - [x] GitHub Repository creation
