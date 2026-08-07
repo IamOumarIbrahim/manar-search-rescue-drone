@@ -30,8 +30,8 @@ decisions under human supervision.
 - [x] Initial Ideation
 - [x] GitHub Repository creation
 - [x] Initial Branding
-- [ ] Project scope hardening
-- [ ] Project limitations and constraints
+- [x] Project scope hardening
+- [x] Project limitations and constraints
 - [ ] Basic web dashboard (dashboard version 1.0)
 - [ ] TO_BE_DETERMINED
 - [ ] TO_BE_DETERMINED
