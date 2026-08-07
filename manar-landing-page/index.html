@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0E1726" />
+  <meta name="description" content="MANAR:supervised autonomy for search and rescue." />
+
+  <meta property="og:title" content="MANAR / منار" />
+  <meta property="og:description" content="supervised autonomy for search and rescue." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/Images/Branding/GitHub%20Social%20Preview.png" />
+
+  <title>MANAR / منار — Search-and-Rescue Drone System</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="script.js" defer></script>
+</head>
+
+<body>
+  <div class="page-shell">
+    <header class="site-header container">
+      <a class="brand" href="#top" aria-label="MANAR home">
+        <img src="assets/Images/Branding/Logotransparent.png" alt="MANAR Logo" class="brand-logo-img" />
+      </a>
+
+      <div class="header-actions">
+        <div class="audio-control" aria-label="Background audio control">
+          <button class="audio-mute-button" type="button" id="audioMuteBtn" aria-label="Toggle background sound" title="Mute/Unmute audio">
+            <span class="audio-icon" id="audioIcon">🔊</span>
+          </button>
+          <input class="audio-volume-slider" type="range" id="audioVolumeSlider" min="0" max="1" step="0.05" value="0.3" aria-label="Volume slider" title="Adjust volume" />
+        </div>
+
+        <video id="bgAudio" loop playsinline style="display:none;" preload="auto">
+          <source src="assets/Audio/ambient.mp4" type="video/mp4" />
+        </video>
+
+        <div class="language-switch" aria-label="Language selection">
+          <button class="language-button is-active" type="button" data-language="en" aria-pressed="true">
+            EN
+          </button>
+          <span aria-hidden="true">/</span>
+          <button class="language-button" type="button" data-language="ar" aria-pressed="false">
+            AR
+          </button>
+        </div>
+
+        <a class="header-github" href="https://github.com/IamOumarIbrahim/manar-search-rescue-drone" target="_blank"
+          rel="noopener noreferrer" data-i18n="headerGithub">
+          GitHub
+        </a>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero container">
+        <div class="hero-visual" aria-label="MANAR project visual">
+          <div class="visual-frame">
+            <img src="assets/Images/Branding/GitHub%20README%20Header.png"
+              alt="MANAR search and rescue drone project graphic" />
+          </div>
+        </div>
+
+        <div class="hero-copy">
+          <h1 data-i18n="heroTitle">
+            Supervised autonomy for search and rescue.
+          </h1>
+          <p class="hero-description" data-i18n="heroDescription">
+            MANAR is a search-and-rescue drone project built around multisensor perception,
+            deterministic flight control, and human review for consequential actions.
+          </p>
+
+          <div class="hero-actions">
+            <a class="button button-primary" href="https://github.com/IamOumarIbrahim/manar-search-rescue-drone"
+              target="_blank" rel="noopener noreferrer">
+              <span data-i18n="viewGithub">View on GitHub</span>
+              <span class="button-arrow" aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="principles container" aria-labelledby="principles-title">
+        <div class="section-heading">
+          <p class="eyebrow" data-i18n="approachEyebrow">Project approach</p>
+          <h2 id="principles-title" data-i18n="approachTitle">Designed around accountable rescue assistance.</h2>
+        </div>
+
+        <div class="principle-grid">
+          <article class="principle-card">
+            <div class="card-index">01</div>
+            <h3 data-i18n="card1Title">Multisensor perception</h3>
+            <p data-i18n="card1Text">
+              Combines complementary sensing modalities to improve situational awareness across varied conditions.
+            </p>
+          </article>
+
+          <article class="principle-card">
+            <div class="card-index">02</div>
+            <h3 data-i18n="card2Title">Supervised autonomy</h3>
+            <p data-i18n="card2Text">
+              Automates repeatable search tasks while keeping important operational decisions under human oversight.
+            </p>
+          </article>
+
+          <article class="principle-card">
+            <div class="card-index">03</div>
+            <h3 data-i18n="card3Title">Rescue-first design</h3>
+            <p data-i18n="card3Text">
+              Calm, technically credible, civilian system design focused on search, verification, and guidance.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="components-section container" aria-labelledby="components-title">
+        <div class="section-heading">
+          <p class="eyebrow" data-i18n="componentsEyebrow">Hardware Architecture</p>
+          <h2 id="components-title" data-i18n="componentsTitle">System Component Overview</h2>
+        </div>
+
+        <div class="components-grid">
+          <div class="components-visual visual-frame">
+            <img src="assets/Images/Branding/System%20Component%20Overview.png"
+              alt="MANAR System Component Overview Diagram" />
+          </div>
+
+          <div class="tables-grid">
+            <!-- Hardware Components Table -->
+            <div class="table-wrapper">
+              <table class="stylistic-table">
+                <thead>
+                  <tr>
+                    <th data-i18n="thComponent">Component</th>
+                    <th data-i18n="thRole">Primary role</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td data-i18n="c1Name">Thermal</td>
+                    <td data-i18n="c1Role">Person/heat detection</td>
+                  </tr>
+                  <tr>
+                    <td data-i18n="c2Name">RGB/day</td>
+                    <td data-i18n="c2Role">Daytime detection/verification</td>
+                  </tr>
+                  <tr>
+                    <td data-i18n="c3Name">Low-light/IR</td>
+                    <td data-i18n="c3Role">Night visual confirmation</td>
+                  </tr>
+                  <tr>
+                    <td data-i18n="c4Name">24 GHz FMCW</td>
+                    <td data-i18n="c4Role">Presence, range, motion, breathing</td>
+                  </tr>
+                  <tr>
+                    <td data-i18n="c5Name">Speaker + mic</td>
+                    <td data-i18n="c5Role">Prompt, listen, direction finding</td>
+                  </tr>
+                  <tr>
+                    <td data-i18n="c6Name">Passive RF</td>
+                    <td data-i18n="c6Role">Detect/correlate device emissions</td>
+                  </tr>
+                  <tr>
+                    <td data-i18n="c7Name">Amber beacon</td>
+                    <td data-i18n="c7Role">360° visual alert</td>
+                  </tr>
+                  <tr>
+                    <td data-i18n="c8Name">White strobe</td>
+                    <td data-i18n="c8Role">Directional visual guidance</td>
+                  </tr>
+                  <tr>
+                    <td data-i18n="c9Name">Downward spotlight</td>
+                    <td data-i18n="c9Role">Close-range illumination</td>
+                  </tr>
+                  <tr>
+                    <td data-i18n="c10Name">Heliograph mirrors</td>
+                    <td data-i18n="c10Role">Passive daylight signaling</td>
+                  </tr>
+                  <tr>
+                    <td data-i18n="c11Name">Smoke marker</td>
+                    <td data-i18n="c11Role">Location/wind marking</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Project Milestones Table -->
+            <div class="table-wrapper">
+              <table class="stylistic-table">
+                <thead>
+                  <tr>
+                    <th data-i18n="thMilestone">Milestone</th>
+                    <th data-i18n="thStatus">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td data-i18n="m1">Initial Ideation</td>
+                    <td><span class="status-badge status-done" data-i18n="statusCompleted">Completed ✓</span></td>
+                  </tr>
+                  <tr>
+                    <td data-i18n="m2">GitHub Repository creation</td>
+                    <td><span class="status-badge status-done" data-i18n="statusCompleted">Completed ✓</span></td>
+                  </tr>
+                  <tr>
+                    <td data-i18n="m3">Initial Branding</td>
+                    <td><span class="status-badge status-done" data-i18n="statusCompleted">Completed ✓</span></td>
+                  </tr>
+                  <tr>
+                    <td data-i18n="m4">Project scope hardening</td>
+                    <td><span class="status-badge status-done" data-i18n="statusCompleted">Completed ✓</span></td>
+                  </tr>
+                  <tr>
+                    <td data-i18n="m5">Project limitations and constraints</td>
+                    <td><span class="status-badge status-done" data-i18n="statusCompleted">Completed ✓</span></td>
+                  </tr>
+                  <tr>
+                    <td data-i18n="m6">Basic web dashboard — v1.0</td>
+                    <td><span class="status-badge status-done" data-i18n="statusCompleted">Completed ✓</span></td>
+                  </tr>
+                  <tr>
+                    <td data-i18n="m7">Landing Page</td>
+                    <td><span class="status-badge status-done" data-i18n="statusCompleted">Completed ✓</span></td>
+                  </tr>
+                  <tr>
+                    <td data-i18n="m8">To be determined...</td>
+                    <td><span class="status-badge status-planned" data-i18n="statusPlanned">Planned ⋯</span></td>
+                  </tr>
+                  <tr>
+                    <td data-i18n="m9">To be determined...</td>
+                    <td><span class="status-badge status-planned" data-i18n="statusPlanned">Planned ⋯</span></td>
+                  </tr>
+                  <tr>
+                    <td data-i18n="m10">LaTeX Report, Presentation and Full documentation</td>
+                    <td><span class="status-badge status-planned" data-i18n="statusPlanned">Planned ⋯</span></td>
+                  </tr>
+                  <tr>
+                    <td data-i18n="m11">Final Publishing & LinkedIn Post</td>
+                    <td><span class="status-badge status-planned" data-i18n="statusPlanned">Planned ⋯</span></td>
+                  </tr>
+                  <tr>
+                    <td data-i18n="m12">Repository Maintenance</td>
+                    <td><span class="status-badge status-planned" data-i18n="statusPlanned">Planned ⋯</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="cta-section container">
+        <div class="cta-panel">
+          <div>
+            <p class="eyebrow eyebrow-light" data-i18n="ctaEyebrow">Project repository</p>
+            <h2 data-i18n="ctaTitle">Follow MANAR on GitHub.</h2>
+            <p data-i18n="ctaText">See the current project overview, milestones, and public portfolio materials.</p>
+          </div>
+
+          <a class="button button-light" href="https://github.com/IamOumarIbrahim/manar-search-rescue-drone"
+            target="_blank" rel="noopener noreferrer">
+            <span data-i18n="openRepository">Open repository</span>
+            <span class="button-arrow" aria-hidden="true">↗</span>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer container">
+      <a class="brand footer-brand" href="#top" aria-label="MANAR home">
+        <img src="assets/Images/Branding/Logotransparent.png" alt="MANAR Logo" class="brand-logo-img" />
+      </a>
+      <p data-i18n="footerText">© 2026 Oumar Ibrahim. All rights reserved.</p>
+    </footer>
+  </div>
+</body>
+
+</html>

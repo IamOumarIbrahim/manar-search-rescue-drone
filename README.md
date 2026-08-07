@@ -15,12 +15,6 @@
 > portfolio materials only.
 >
 
-
-
-
-
-
-
 ## Project Overview
 
 MANAR / منار is a supervised-autonomy, multisensor search-and-rescue
@@ -55,6 +49,7 @@ decisions under human supervision.
 | **Smoke marker**       | Location/wind marking              |
 ## Current Status
 > **Current phase:** System design and prototyping.
+
 <p align="center">
   <img
     src="assets\Temp\Currentprogress2.png"
@@ -64,6 +59,7 @@ decisions under human supervision.
   <br />
   <em>MANAR Web Dashboard Parallel Stream Preview </em>
 </p>
+
 ## Project Milestones
 
 > - [x] Initial Ideation
@@ -72,8 +68,8 @@ decisions under human supervision.
 > - [x] Project scope hardening
 > - [x] Project limitations and constraints
 > - [x] Basic web dashboard — v1.0
-- [ ] To be determined...
-- [ ] To be determined...
+> - [x] Landing Page
+- [ ] Initial deterministic control system design
 - [ ] To be determined...
 - [ ] LaTeX Report, Presentation and Full documentation
 - [ ] Final Publishing & LinkedIn Post
