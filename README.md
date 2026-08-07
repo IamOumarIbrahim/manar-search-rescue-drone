@@ -53,8 +53,17 @@ decisions under human supervision.
 | **Downward spotlight** | Close-range illumination           |
 | **Heliograph mirrors** | Passive daylight signaling         |
 | **Smoke marker**       | Location/wind marking              |
-
-
+## Current Status
+> **Current phase:** System design and prototyping.
+<p align="center">
+  <img
+    src="assets\Temp\Currentprogress.png"
+    alt="Dashboard for viewing three concurrent video streams"
+    width="900"
+  />
+  <br />
+  <em>MANAR Web Dashboard Parallel Stream Preview </em>
+</p>
 ## Project Milestones
 
 > - [x] Initial Ideation
@@ -62,7 +71,7 @@ decisions under human supervision.
 > - [x] Initial Branding
 > - [x] Project scope hardening
 > - [x] Project limitations and constraints
-- [ ] Basic web dashboard — v1.0
+> - [x] Basic web dashboard — v1.0
 - [ ] To be determined...
 - [ ] To be determined...
 - [ ] To be determined...
