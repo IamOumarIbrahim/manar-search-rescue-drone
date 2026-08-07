@@ -66,6 +66,18 @@ decisions under human supervision.
   <em>Terminal-based initial control system designed in C++ </em>
 </p>
 
+## Established 
+
+<p align="center">
+  <img
+    src="assets\Temp\Currentprogress2.png"
+    alt="Dashboard for viewing three concurrent video streams"
+    width="900"
+  />
+  <br />
+  <em>Dashboard for viewing three concurrent video streams</em>
+</p>
+
 ## Project Milestones
 
 
