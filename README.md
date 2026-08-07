@@ -57,7 +57,7 @@ decisions under human supervision.
 > **Current phase:** System design and prototyping.
 <p align="center">
   <img
-    src="assets\Temp\Currentprogress.png"
+    src="assets\Temp\Currentprogress2.png"
     alt="Dashboard for viewing three concurrent video streams"
     width="900"
   />
