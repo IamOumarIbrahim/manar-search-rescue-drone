@@ -29,7 +29,7 @@ decisions under human supervision.
 
 > **Current phase:** System design and prototyping.
 ### Component Overview
----
+
 <p align="center">
   <img
     src="assets/Images/Branding/System Component Overview.png"
