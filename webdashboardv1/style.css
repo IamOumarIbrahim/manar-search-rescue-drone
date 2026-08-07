@@ -184,27 +184,7 @@ body {
   box-shadow: 0 0 22px var(--color-stop-glow);
 }
 
-/* Info Card */
-.info-card {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
 
-.info-card h4 {
-  color: var(--text-main);
-  margin-bottom: 0.4rem;
-  font-family: 'Fira Code', monospace;
-}
-
-.info-card ul {
-  padding-left: 1.1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.text-start { color: var(--color-start); }
-.text-stop { color: var(--color-stop); }
 
 /* Right Feeds Grid - 3 Horizontal Columns */
 .feeds-grid {

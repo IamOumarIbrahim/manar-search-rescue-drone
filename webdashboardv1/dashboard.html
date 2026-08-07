@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,9 +9,12 @@
   <!-- Google Fonts for modern tech aesthetic -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
   <div class="dashboard-container">
@@ -28,12 +32,12 @@
 
     <!-- Main Content Area -->
     <div class="dashboard-body">
-      
+
       <!-- Left Controls Panel -->
       <aside class="control-panel">
         <div class="panel-section">
           <h3 class="panel-title">GLOBAL STREAMS</h3>
-          
+
           <button id="btn-start" class="pill-btn btn-start" type="button">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
               <polygon points="5 3 19 12 5 21 5 3"></polygon>
@@ -47,14 +51,7 @@
           </button>
         </div>
 
-        <div class="panel-section info-card">
-          <h4>Instructions</h4>
-          <ul>
-            <li>Select a video file for each sensor channel (Thermal, RGB, Lowlight).</li>
-            <li>Click <strong class="text-start">START</strong> to synchronously stream all channels.</li>
-            <li>Click <strong class="text-stop">STOP</strong> to end streams and clear uploaded video files.</li>
-          </ul>
-        </div>
+
       </aside>
 
       <!-- Right Video Feeds Grid -->
@@ -64,7 +61,12 @@
         <div class="feed-card" id="card-thermal">
           <div class="upload-header">
             <label for="input-thermal" class="pill-btn btn-upload">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
               <span>UPLOAD</span>
             </label>
             <input type="file" id="input-thermal" class="hidden-file-input" accept="video/*">
@@ -75,7 +77,9 @@
             <video id="video-thermal" playsinline loop muted></video>
             <div class="placeholder-overlay" id="placeholder-thermal">
               <div class="channel-badge thermal-badge">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                </svg>
                 <span class="channel-label">THERMAL</span>
               </div>
               <span class="sub-text">Click Upload to assign video</span>
@@ -88,7 +92,12 @@
         <div class="feed-card" id="card-rgb">
           <div class="upload-header">
             <label for="input-rgb" class="pill-btn btn-upload">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
               <span>UPLOAD</span>
             </label>
             <input type="file" id="input-rgb" class="hidden-file-input" accept="video/*">
@@ -99,7 +108,10 @@
             <video id="video-rgb" playsinline loop muted></video>
             <div class="placeholder-overlay" id="placeholder-rgb">
               <div class="channel-badge rgb-badge">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 8v8M8 12h8" />
+                </svg>
                 <span class="channel-label">RGB</span>
               </div>
               <span class="sub-text">Click Upload to assign video</span>
@@ -112,8 +124,13 @@
         <div class="feed-card" id="card-lowlight">
           <div class="upload-header">
             <label for="input-lowlight" class="pill-btn btn-upload">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              <span>UPLOAD VIDEO</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
+              <span>UPLOAD</span>
             </label>
             <input type="file" id="input-lowlight" class="hidden-file-input" accept="video/*">
             <span class="file-name-tag" id="filename-lowlight">No file chosen</span>
@@ -123,7 +140,9 @@
             <video id="video-lowlight" playsinline loop muted></video>
             <div class="placeholder-overlay" id="placeholder-lowlight">
               <div class="channel-badge lowlight-badge">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                </svg>
                 <span class="channel-label">LOWLIGHT</span>
               </div>
               <span class="sub-text">Click Upload to assign video</span>
@@ -138,4 +157,5 @@
 
   <script src="script.js"></script>
 </body>
+
 </html>
