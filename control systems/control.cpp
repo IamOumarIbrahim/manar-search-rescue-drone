@@ -20,7 +20,6 @@
     - Shares confirmed coordinates with rescue teams and handles exceptional emergency decisions.
 
 */
-
 // CLASSES-------------------------------------------
 class components {
     // COMPONENT VARIABLES
@@ -314,13 +313,9 @@ class mission {
 
 
 };
-
-
 // GLOBAL VARIABLES----------------------------------
 bool return_main = true;
 int return_menu_int;
-
-
 // TERMINAL METHODS----------------------------------
 void activateRTH(drone &mydrone, home &myhome){
     return_menu_int = 0;
@@ -528,8 +523,6 @@ void transmitloc(drone mydrone){
         return_main = true;
     }
 }
-
-
 // MAIN METHOD-------------------------------------
 int main(){
     setlocale(LC_ALL, ".UTF-8"); // DEGREE---------
