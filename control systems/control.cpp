@@ -93,6 +93,9 @@ class drone : private home {
         destlon = lon;
         cout<<"Destination set! Routing to "<<destlat<<" N "<<destlon<<" E"<<endl;
     }
+    void printdest(){
+        cout<<"Current destination is: "<<destlat<<" N "<<destlon<<" E"<<endl;
+    }
     drone() : home("Unknown Base", 0.0, 0.0){
 
     }   
@@ -132,7 +135,18 @@ void displaycomponent(drone mydrone){
         return_main = true;
     }
 }
-void displayroute(drone mydrone){}
+void displayroute(drone mydrone){
+    return_menu_int = 0;
+    mydrone.printdest();
+    cout<<"----------------------------------"<<endl;
+    while (return_menu_int != 10)
+    {
+    cout<<"Enter 10 to return to menu."<<endl;
+    cin>>return_menu_int;
+    if (return_menu_int == 10)
+        return_main = true;
+    }
+}
 void transmitloc(drone mydrone){
     return_menu_int = 0;
     mydrone.printcurrent_location();
@@ -159,20 +173,22 @@ int main(){
     cout<<"PLEASE SELECT ONE OF THE FOLLOWING OPTIONS:"<<endl;
     cout<<"- ENTER 1 FOR MISSION STATUS"<<endl;
     cout<<"- ENTER 2 FOR COMPONENTS"<<endl;
-    cout<<"- ENTER 3 TO ALTER ROUTE"<<endl;
+    cout<<"- ENTER 3 TO DISPLAY ROUTE STATUS"<<endl;
     cout<<"- ENTER 4 TO TRANSMIT LOCATION"<<endl;
     cout<<"- ENTER 0 TO ACTIVATE RTH-MODE"<<endl;
+    cout<<"- ENTER 10 TO EXIT TERMINAL"<<endl;
     cout<<"----------------------------------"<<endl;
     cin>>User_Option;
-        while ((User_Option < 0) || (User_Option >= 5))  
+        while (((User_Option < 0) || (User_Option >= 5)) && (User_Option != 10))  
         {
         cout<<"----------------------------------"<<endl;
         cout<<"PLEASE RETRY AND ENTER ONE OF THE FOLLOWING OPTIONS:"<<endl;
         cout<<"- ENTER 1 FOR MISSION STATUS"<<endl;
         cout<<"- ENTER 2 FOR COMPONENTS"<<endl;
-        cout<<"- ENTER 3 TO ALTER ROUTE"<<endl;
+        cout<<"- ENTER 3 TO DISPLAY ROUTE STATUS"<<endl;
         cout<<"- ENTER 4 TO TRANSMIT LOCATION"<<endl;
         cout<<"- ENTER 0 TO ACTIVATE RTH-MODE"<<endl;
+        cout<<"- ENTER 10 TO EXIT TERMINAL"<<endl;
         cout<<"----------------------------------"<<endl;
         cin>>User_Option;
         }  
