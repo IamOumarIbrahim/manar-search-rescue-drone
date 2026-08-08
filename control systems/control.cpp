@@ -3,6 +3,7 @@
     #include <string>
     #include <clocale>
     #include <cmath>
+    #include <iomanip>
     using namespace std;
 
 
@@ -201,16 +202,18 @@ class drone {
     private:
         double latitude = 0;    // latitude of the drone 
         double longitude = 0;   // longitude of the drone 
-        double destlat = 20;  // latitude of the destination 
-        double destlon = 100;  // longitude of the destination 
+        double destlat = 25.276987;  // latitude of the destination 
+        double destlon = 55.296249;  // longitude of the destination 
         double battery = 100;   // Battery of drone default
         double distfromhome = 1000; // safe default
         bool  closefromhome = false;
+        double speed = 0;
     public:
         components comp;
-        home myhome{"Base Station", 20.0, 100.0};
+        home myhome{"Base Station", 25.276987, 55.296249};
     void printcurrent_location(){
-        cout<<"Current drone location: "<<latitude<<" ° N "<<longitude<<" ° E"<<endl;
+        cout<<"Current drone location: "<<fixed << setprecision(6)<<latitude<<" ° N "<<longitude<<" ° E"<<endl<<
+        "- Google Maps: https://www.google.com/maps?q="<<latitude<<","<<longitude<< endl;
     }
     void transmitinfo(){
         // TO BE IMPLEMENTED
@@ -218,13 +221,15 @@ class drone {
     void setdestination(double lat,double lon){
         destlat = lat;
         destlon = lon;
-        cout<<"Destination set! Routing to "<<destlat<<" ° N "<<destlon<<" ° E"<<endl;
+        cout<<"Destination set! Routing to "<< fixed << setprecision(6)<<destlat<<" ° N "<<destlon<<" ° E"<<endl<<
+        "- Google Maps: https://www.google.com/maps?q="<<destlat<<","<<destlon<< endl;
     }
     void printdest(){
-        cout<<"Current destination is: "<<destlat<<" ° N "<<destlon<<" ° E"<<endl;
+        cout<<"Current destination is: "<<fixed << setprecision(6)<<destlat<<" ° N "<<destlon<<" ° E"<<endl<<
+        "- Google Maps: https://www.google.com/maps?q="<<destlat<<","<<destlon<< endl;
     }
     void printbattery(){
-        cout<<battery<<"%"<<endl;
+        cout<<"Battery: "<<battery<<"%"<<endl;
     }
     void updateDistFromHome()
     {
@@ -261,6 +266,17 @@ class drone {
         return closefromhome;
     
     }
+    void printdistfromhome(){
+        updateDistFromHome();
+        cout<<"Current distance to base: "<<fixed<<setprecision(0)<<distfromhome<<" meters."<<endl;
+    }
+    double getdistfromhome(){
+        updateDistFromHome();
+        return distfromhome;
+    }
+    double getspeed(){
+        return speed;
+    }
 };
 class mission {
     private:
@@ -275,6 +291,21 @@ class mission {
                 missionsuccess = true;
                 cout << "----------------------------------" << endl;
                 cout << "Mission Success! Rescuee has been found and the drone is close by to the home station. Well done." << endl;
+            }
+            else if ((rescueefound != true) && (mydrone.getclose() == true)) {
+                missionsuccess = false;
+                cout << "----------------------------------" << endl;
+                cout << "Mission Failed! Rescuee has NOT been found but the drone is close by to the home station." << endl;
+            }
+            else if ((rescueefound != true) && (mydrone.getclose() != true)) {
+                missionsuccess = false;
+                cout << "----------------------------------" << endl;
+                cout << "Mission Failed! Rescuee has NOT been found and the drone is far from the home station." << endl;
+            }
+            else if ((rescueefound == true) && (mydrone.getclose() != true)) {
+                missionsuccess = true;
+                cout << "----------------------------------" << endl;
+                cout << "Mission Success! Rescuee has been found but the drone is far from the home station." << endl;
             }
         }
         void setrescueefound(){
@@ -298,6 +329,13 @@ void activateRTH(drone &mydrone, home &myhome){
     X = myhome.gethomelat();
     Y = myhome.gethomelon();
     mydrone.setdestination(X,Y);
+    double currentspeed = mydrone.getspeed();
+    double distance = mydrone.getdistfromhome();
+    double estimatedtime = 0;
+        if (currentspeed > 0){
+             estimatedtime = distance / currentspeed;
+        }
+        cout<<"Estimated arrival time: "<<estimatedtime<<" seconds."<<endl;
     cout<<"----------------------------------"<<endl;
     while (return_menu_int != 10)
     {
@@ -311,7 +349,9 @@ void displaystatus(drone mydrone){
     return_menu_int = 0;
     //ENTER IMPLEMENTATION
     mydrone.printbattery();
-    
+    mydrone.printcurrent_location();
+    mydrone.printdest();
+    mydrone.printdistfromhome();
     cout<<"----------------------------------"<<endl;
     while (return_menu_int != 10)
     {
@@ -463,7 +503,9 @@ void displaycomponent(drone &mydrone){
 }
 void displayroute(drone mydrone){
     return_menu_int = 0;
+    mydrone.printcurrent_location();
     mydrone.printdest();
+    mydrone.printdistfromhome();
     cout<<"----------------------------------"<<endl;
     while (return_menu_int != 10)
     {
@@ -529,6 +571,7 @@ int main(){
             case 1:
             {
                 cout<<"Displaying mission status..."<<endl;
+                mymission.missionstatus();
                 displaystatus(mymission.mydrone);
                 break;
             }
