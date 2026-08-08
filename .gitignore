@@ -13,7 +13,7 @@ build/
 .vscode/
 .idea/
 
-# Private visualization assets
+
 assets/Images/Visualization/
 
 assets/Images/Visualization/

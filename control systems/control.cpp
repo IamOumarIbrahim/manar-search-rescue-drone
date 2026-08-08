@@ -22,12 +22,14 @@
 
 // CLASSES-------------------------------------------
 class components {
-    public:
-        bool thermal_camera_status,RGB_camera_status,infrared_camera_status;
-        bool fmcw_status,speaker_status,microphone_status,passive_rf_status;
-        bool amber_beacon_status,white_strobe_status,downward_spotlight_status;
-        bool smoke_marker_status;
-        const bool heliograph_mirror_status = true;
+    // COMPONENT VARIABLES
+        public:
+            bool thermal_camera_status,RGB_camera_status,infrared_camera_status;
+            bool fmcw_status,speaker_status,microphone_status,passive_rf_status;
+            bool amber_beacon_status,white_strobe_status,downward_spotlight_status;
+            bool smoke_marker_status;
+            const bool heliograph_mirror_status = true;
+    // CONSTRUCTOR
         components() {
             thermal_camera_status = false;
             RGB_camera_status = false;
@@ -41,6 +43,7 @@ class components {
             downward_spotlight_status = false;
             smoke_marker_status = false;
         }
+    // PRINT METHODS
         void printcomp(){
             cout<<"----------------------------------"<<endl;
             cout<<"Thermal camera: "<<thermal_camera_status<<endl;
@@ -57,6 +60,8 @@ class components {
             cout<<"Smoke marker: "<<smoke_marker_status<<endl;
             cout<<"----------------------------------"<<endl;
         }
+
+    // CONFIGURATION METHODS
         void thermal(int X){
 
             if (X == 1){
@@ -69,7 +74,110 @@ class components {
                 cout<<"Confirmed thermal camera OFF"<<endl;
             }
         }
+        void rgb(int X){
 
+            if (X == 1){
+                RGB_camera_status = true;
+                cout<<"Confirmed RGB camera ON"<<endl;
+            }
+
+            else if (X == 2){
+                RGB_camera_status = false;
+                cout<<"Confirmed RGB camera OFF"<<endl;
+            }
+        }
+        void infrared(int X){
+            if (X == 1){
+                infrared_camera_status = true;
+                cout<<"Confirmed infrared camera ON"<<endl;
+            }
+
+            else if (X == 2){
+                infrared_camera_status = false;
+                cout<<"Confirmed infrared camera OFF"<<endl;
+            }
+        }
+        void fmcw(int X){
+            if (X == 1){
+                fmcw_status = true;
+                cout<<"Confirmed FMCW radar ON"<<endl;
+            }
+
+            else if (X == 2){
+                fmcw_status = false;
+                cout<<"Confirmed FMCW radar OFF"<<endl;
+            }
+        }
+        void speaker(int X){
+            if (X == 1){
+                speaker_status = true;
+                cout<<"Confirmed speaker ON"<<endl;
+            }
+            else if (X == 2){
+                speaker_status = false;
+                cout<<"Confirmed speaker OFF"<<endl;
+            }
+        }
+        void microphone(int X){
+            if (X == 1){
+                microphone_status = true;
+                cout<<"Confirmed microphone ON"<<endl;
+            }
+            else if (X == 2){
+                microphone_status = false;
+                cout<<"Confirmed microphone OFF"<<endl;
+            }
+        }
+        void rf(int X){
+            if (X == 1){
+                passive_rf_status = true;
+                cout<<"Confirmed passive rf ON"<<endl;
+            }
+            else if (X == 2){
+                passive_rf_status = false;
+                cout<<"Confirmed passive rf OFF"<<endl;
+            }
+        }     
+        void beacon(int X){
+            if (X == 1){
+                amber_beacon_status = true;
+                cout<<"Confirmed amber beacon ON"<<endl;
+            }
+            else if (X == 2){
+                amber_beacon_status = false;
+                cout<<"Confirmed amber beacon OFF"<<endl;
+            }
+        }                
+        void strobe(int X){
+            if (X == 1){
+                white_strobe_status = true;
+                cout<<"Confirmed white strobe ON"<<endl;
+            }
+            else if (X == 2){
+                white_strobe_status = false;
+                cout<<"Confirmed white strobe OFF"<<endl;
+            }
+        }                
+        void spotlight(int X){
+            if (X == 1){
+                downward_spotlight_status = true;
+                cout<<"Confirmed spotlight ON"<<endl;
+            }
+            else if (X == 2){
+                downward_spotlight_status = false;
+                cout<<"Confirmed spotlight OFF"<<endl;
+            }
+        }         
+        void smoke(int X){
+            if (X == 1){
+                smoke_marker_status = true;
+                cout<<"Confirmed smoke marker ON"<<endl;
+            }
+            else if (X == 2){
+                smoke_marker_status = false;
+                cout<<"Confirmed smoke marker OFF"<<endl;
+            }
+        }       
 };
 class home {
     private:
@@ -233,33 +341,43 @@ void configurecomponents(drone &mydrone){
                 break;
             case 2:
                 cout << "Initializing RGB camera..." << endl;
+                mydrone.comp.rgb(User_Option2);
                 break;
             case 3:
                 cout << "Initializing Infrared camera..." << endl;
+                mydrone.comp.infrared(User_Option2);
                 break;
             case 4:
                 cout << "Initializing FMCW radar..." << endl;
+                mydrone.comp.fmcw(User_Option2);
                 break;
             case 5:
                 cout << "Activating Speaker..." << endl;
+                mydrone.comp.speaker(User_Option2);
                 break;
             case 6:
                 cout << "Activating Microphone..." << endl;
+                mydrone.comp.microphone(User_Option2);
                 break;
             case 7:
                 cout << "Enabling RF module..." << endl;
+                mydrone.comp.rf(User_Option2);
                 break;
             case 8:
                 cout << "Activating Beacon..." << endl;
+                mydrone.comp.beacon(User_Option2);
                 break;
             case 9:
                 cout << "Activating Strobe light..." << endl;
+                mydrone.comp.strobe(User_Option2);
                 break;
             case 10:
                 cout << "Turning on Spotlight..." << endl;
+                mydrone.comp.spotlight(User_Option2);
                 break;
             case 11:
                 cout << "Deploying Smoke system..." << endl;
+                mydrone.comp.smoke(User_Option2);
                 break;
             default:
                 cout << "Invalid selection. Please choose a number between 1 and 11." << endl;
@@ -274,33 +392,43 @@ void configurecomponents(drone &mydrone){
                 break;
             case 2:
                 cout << "Shutting down RGB camera..." << endl;
+                mydrone.comp.rgb(User_Option2);
                 break;
             case 3:
                 cout << "Shutting down Infrared camera..." << endl;
+                mydrone.comp.infrared(User_Option2);
                 break;
             case 4:
                 cout << "Shutting down FMCW radar..." << endl;
+                mydrone.comp.fmcw(User_Option2);
                 break;
             case 5:
                 cout << "Deactivating Speaker..." << endl;
+                mydrone.comp.speaker(User_Option2);
                 break;
             case 6:
                 cout << "Deactivating Microphone..." << endl;
+                mydrone.comp.microphone(User_Option2);
                 break;
             case 7:
                 cout << "Disabling RF module..." << endl;
+                mydrone.comp.rf(User_Option2);
                 break;
             case 8:
                 cout << "Deactivating Beacon..." << endl;
+                mydrone.comp.beacon(User_Option2);
                 break;
             case 9:
                 cout << "Deactivating Strobe light..." << endl;
+                mydrone.comp.strobe(User_Option2);
                 break;
             case 10:
                 cout << "Turning off Spotlight..." << endl;
+                mydrone.comp.spotlight(User_Option2);
                 break;
             case 11:
                 cout << "Shutting down Smoke system..." << endl;
+                mydrone.comp.smoke(User_Option2);
                 break;
             default:
                 cout << "Invalid selection. Please choose a number between 1 and 11." << endl;
