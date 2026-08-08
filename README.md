@@ -101,6 +101,7 @@ decisions under human supervision.
 > - [x] Basic web dashboard — v1.0
 > - [x] Landing Page
 > - [x] Initial deterministic control system design
+- [ ] Decoupling terminal from control logic
 - [ ] Build a GUI for the terminal-based control center
 - [ ] Build determinsitc controls for components and drone 
 - [ ] To be determined...

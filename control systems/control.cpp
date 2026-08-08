@@ -129,7 +129,7 @@ class flight{
             "- Google Maps: https://www.google.com/maps?q="<<destlat<<","<<destlon<< endl;
         }
         void printdest(){
-            cout<<"Current destination is: "<<fixed << setprecision(6)<<destlat<<" ° N "<<destlon<<" ° E"<<endl<<
+            cout<<"Current destination: "<<fixed << setprecision(6)<<destlat<<" ° N "<<destlon<<" ° E"<<endl<<
             "- Google Maps: https://www.google.com/maps?q="<<destlat<<","<<destlon<< endl;
         }
 };
