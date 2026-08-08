@@ -18,7 +18,7 @@ the human operator must be capable of executing all of these tasks if required
 
 */
 
-// GLOBAL VARIABLES----------------------------------
+// CLASSES-------------------------------------------
 class components {
     public:
         bool thermal_camera_status,RGB_camera_status,infrared_camera_status;
@@ -161,10 +161,14 @@ class mission {
 
 
 };
+// CLASSES-------------------------------------------
+
+// GLOBAL VARIABLES----------------------------------
 bool return_main = true;
 int return_menu_int;
 // GLOBAL VARIABLES----------------------------------
 
+// TERMINAL METHODS----------------------------------
 void activateRTH(drone &mydrone, home &myhome){
     return_menu_int = 0;
     double X,Y;
@@ -232,28 +236,18 @@ void transmitloc(drone mydrone){
         return_main = true;
     }
 }
+// TERMINAL METHODS--------------------------------
 
+// MAIN METHOD-------------------------------------
 int main(){
-    setlocale(LC_ALL, ".UTF-8"); // To render the degree character
-    mission mymission;
-    int User_Option;
+    setlocale(LC_ALL, ".UTF-8"); // DEGREE---------
+    mission mymission; // START MISSION------------
+    int User_Option = -1; // DEFAULT OPTION--------
     while (return_main == true){
-    cout<<"----------------------------------"<<endl;
-    cout<<"WELCOME TO MANAR HUMAN CONTROL SYSTEM"<<endl;
-    cout<<"----------------------------------"<<endl;
-    cout<<"PLEASE SELECT ONE OF THE FOLLOWING OPTIONS:"<<endl;
-    cout<<"- ENTER 1 FOR MISSION STATUS"<<endl;
-    cout<<"- ENTER 2 FOR COMPONENTS"<<endl;
-    cout<<"- ENTER 3 TO DISPLAY ROUTE STATUS"<<endl;
-    cout<<"- ENTER 4 TO TRANSMIT LOCATION"<<endl;
-    cout<<"- ENTER 0 TO ACTIVATE RTH-MODE"<<endl;
-    cout<<"- ENTER 10 TO EXIT TERMINAL"<<endl;
-    cout<<"----------------------------------"<<endl;
-    cin>>User_Option;
-        while (((User_Option < 0) || (User_Option >= 5)) && (User_Option != 10))  
-        {
         cout<<"----------------------------------"<<endl;
-        cout<<"PLEASE RETRY AND ENTER ONE OF THE FOLLOWING OPTIONS:"<<endl;
+        cout<<"WELCOME TO MANAR HUMAN CONTROL SYSTEM"<<endl;
+        cout<<"----------------------------------"<<endl;
+        cout<<"PLEASE SELECT ONE OF THE FOLLOWING OPTIONS:"<<endl;
         cout<<"- ENTER 1 FOR MISSION STATUS"<<endl;
         cout<<"- ENTER 2 FOR COMPONENTS"<<endl;
         cout<<"- ENTER 3 TO DISPLAY ROUTE STATUS"<<endl;
@@ -262,45 +256,58 @@ int main(){
         cout<<"- ENTER 10 TO EXIT TERMINAL"<<endl;
         cout<<"----------------------------------"<<endl;
         cin>>User_Option;
-        }  
-    switch (User_Option){
-        case 0:
-        {
-            cout<<"Activating Return-To-Home mode..."<<endl;
-            activateRTH(mymission.mydrone,mymission.mydrone.myhome);
-            break;
-        }
-        case 1:
-        {
-            cout<<"Displaying mission status..."<<endl;
-            displaystatus(mymission.mydrone);
-            break;
-        }
-        case 2:
-        {
-            cout<<"Displaying current component configuration..."<<endl;
-            displaycomponent(mymission.mydrone); // Done
-            break;
-        }
-        case 3:
-        {
-            cout<<"Displaying route tracker system..."<<endl;
-            displayroute(mymission.mydrone);
-            break;
-        }
-        case 4:
-        {
-            cout<<"Transmitting current location to station..."<<endl;
-            transmitloc(mymission.mydrone);
-            break;
-        }
-        case 10:
-        {
-            cout<<"Exiting terminal now..."<<endl;
-            return 0;
-            break;
+            while (((User_Option < 0) || (User_Option >= 5)) && (User_Option != 10))  
+            {
+            cout<<"----------------------------------"<<endl;
+            cout<<"PLEASE RETRY AND ENTER ONE OF THE FOLLOWING OPTIONS:"<<endl;
+            cout<<"- ENTER 1 FOR MISSION STATUS"<<endl;
+            cout<<"- ENTER 2 FOR COMPONENTS"<<endl;
+            cout<<"- ENTER 3 TO DISPLAY ROUTE STATUS"<<endl;
+            cout<<"- ENTER 4 TO TRANSMIT LOCATION"<<endl;
+            cout<<"- ENTER 0 TO ACTIVATE RTH-MODE"<<endl;
+            cout<<"- ENTER 10 TO EXIT TERMINAL"<<endl;
+            cout<<"----------------------------------"<<endl;
+            cin>>User_Option;
+            }  
+        switch (User_Option){
+            case 0:
+            {
+                cout<<"Activating Return-To-Home mode..."<<endl;
+                activateRTH(mymission.mydrone,mymission.mydrone.myhome);
+                break;
+            }
+            case 1:
+            {
+                cout<<"Displaying mission status..."<<endl;
+                displaystatus(mymission.mydrone);
+                break;
+            }
+            case 2:
+            {
+                cout<<"Displaying current component configuration..."<<endl;
+                displaycomponent(mymission.mydrone); // Done
+                break;
+            }
+            case 3:
+            {
+                cout<<"Displaying route tracker system..."<<endl;
+                displayroute(mymission.mydrone);
+                break;
+            }
+            case 4:
+            {
+                cout<<"Transmitting current location to station..."<<endl;
+                transmitloc(mymission.mydrone);
+                break;
+            }
+            case 10:
+            {
+                cout<<"Exiting terminal now..."<<endl;
+                return 0;
+                break;
+            }
         }
     }
-}
     return 0;
 }
+// MAIN METHOD-------------------------------------
