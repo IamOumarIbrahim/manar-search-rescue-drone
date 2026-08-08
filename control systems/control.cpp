@@ -4,7 +4,7 @@
     #include <clocale>
     #include <cmath>
     using namespace std;
-// LIBRARIES-----------------------------------------
+
 
 /* RESPONSIBILITY
     According to Section 2.4 (Responsibility Allocation) of the Version 1 specification,
@@ -56,6 +56,18 @@ class components {
             cout<<"Heliograph mirrors: "<<heliograph_mirror_status<<endl;
             cout<<"Smoke marker: "<<smoke_marker_status<<endl;
             cout<<"----------------------------------"<<endl;
+        }
+        void thermal(int X){
+
+            if (X == 1){
+                thermal_camera_status = true;
+                cout<<"Confirmed thermal camera ON"<<endl;
+            }
+
+            else if (X == 2){
+                thermal_camera_status = false;
+                cout<<"Confirmed thermal camera OFF"<<endl;
+            }
         }
 
 };
@@ -163,12 +175,12 @@ class mission {
 
 
 };
-// CLASSES-------------------------------------------
+
 
 // GLOBAL VARIABLES----------------------------------
 bool return_main = true;
 int return_menu_int;
-// GLOBAL VARIABLES----------------------------------
+
 
 // TERMINAL METHODS----------------------------------
 void activateRTH(drone &mydrone, home &myhome){
@@ -201,9 +213,100 @@ void displaystatus(drone mydrone){
         return_main = true;
     }
 }
-void displaycomponent(drone mydrone){
+void configurecomponents(drone &mydrone){
     return_menu_int = 0;
-    mydrone.comp.printcomp();
+    int User_Option = -1;
+    int User_Option2 = -1;
+    cout<<"----------------------------------"<<endl;
+    cout << "Select a payload option:\n"<< "1. Thermal\n"<< "2. RGB\n"<< "3. Infrared\n"<< "4. FMCW\n"<< "5. Speaker\n"<< "6. Mic\n"<< "7. RF\n"<< "8. Beacon\n"
+    << "9. Strobe\n"<< "10. Spotlight\n"<< "11. Smoke\n\n"<< "Enter your choice (1-11): ";
+    cin>>User_Option;
+    cout<<"----------------------------------"<<endl;
+    cout << "Select an option:\n"<< "1. TURN IT ON\n"<< "2. TURN IT OFF\n"<< "Enter your choice (1-2): ";
+    cin>>User_Option2;
+
+    if (User_Option2 == 1){
+        switch (User_Option){
+            case 1:
+                cout << "Initializing Thermal camera..." << endl;
+                mydrone.comp.thermal(User_Option2);
+                break;
+            case 2:
+                cout << "Initializing RGB camera..." << endl;
+                break;
+            case 3:
+                cout << "Initializing Infrared camera..." << endl;
+                break;
+            case 4:
+                cout << "Initializing FMCW radar..." << endl;
+                break;
+            case 5:
+                cout << "Activating Speaker..." << endl;
+                break;
+            case 6:
+                cout << "Activating Microphone..." << endl;
+                break;
+            case 7:
+                cout << "Enabling RF module..." << endl;
+                break;
+            case 8:
+                cout << "Activating Beacon..." << endl;
+                break;
+            case 9:
+                cout << "Activating Strobe light..." << endl;
+                break;
+            case 10:
+                cout << "Turning on Spotlight..." << endl;
+                break;
+            case 11:
+                cout << "Deploying Smoke system..." << endl;
+                break;
+            default:
+                cout << "Invalid selection. Please choose a number between 1 and 11." << endl;
+                break;
+        }
+    }
+    else if (User_Option2 == 2){
+        switch (User_Option){
+            case 1:
+                cout << "Shutting down Thermal camera..." << endl;
+                mydrone.comp.thermal(User_Option2);
+                break;
+            case 2:
+                cout << "Shutting down RGB camera..." << endl;
+                break;
+            case 3:
+                cout << "Shutting down Infrared camera..." << endl;
+                break;
+            case 4:
+                cout << "Shutting down FMCW radar..." << endl;
+                break;
+            case 5:
+                cout << "Deactivating Speaker..." << endl;
+                break;
+            case 6:
+                cout << "Deactivating Microphone..." << endl;
+                break;
+            case 7:
+                cout << "Disabling RF module..." << endl;
+                break;
+            case 8:
+                cout << "Deactivating Beacon..." << endl;
+                break;
+            case 9:
+                cout << "Deactivating Strobe light..." << endl;
+                break;
+            case 10:
+                cout << "Turning off Spotlight..." << endl;
+                break;
+            case 11:
+                cout << "Shutting down Smoke system..." << endl;
+                break;
+            default:
+                cout << "Invalid selection. Please choose a number between 1 and 11." << endl;
+                break;
+        }
+    }
     cout<<"----------------------------------"<<endl;
     while (return_menu_int != 10)
     {
@@ -211,6 +314,23 @@ void displaycomponent(drone mydrone){
     cin>>return_menu_int;
     if (return_menu_int == 10)
         return_main = true;
+    }
+}
+void displaycomponent(drone &mydrone){
+    return_menu_int = 0;
+    mydrone.comp.printcomp();
+
+    while (return_menu_int != 10)
+    {
+    cout<<"Select an option."<<endl<<"- 2: Configure components"<<endl<<"- 10: Return to Main Menu."<<endl<<"Enter your choice (2, 10)..."<<endl;
+    cin>>return_menu_int;
+    if (return_menu_int == 10)
+        return_main = true;
+    else if (return_menu_int == 2){
+        configurecomponents(mydrone);
+        break;
+    }
+
     }
 }
 void displayroute(drone mydrone){
@@ -238,7 +358,7 @@ void transmitloc(drone mydrone){
         return_main = true;
     }
 }
-// TERMINAL METHODS--------------------------------
+
 
 // MAIN METHOD-------------------------------------
 int main(){
@@ -312,4 +432,3 @@ int main(){
     }
     return 0;
 }
-// MAIN METHOD-------------------------------------
