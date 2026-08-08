@@ -21,6 +21,118 @@
 
 */
 // CLASSES-------------------------------------------
+class flight{
+    private:
+        double speed = 0;
+        double altitude = 0;
+        double destlat = 25.276987;  // latitude of the destination 
+        double destlon = 55.296249;  // longitude of the destination 
+    public:
+        void setspeed(double setspeed){
+            if ((setspeed <= 15) && (setspeed >= 0)){
+                if (speed < setspeed)
+                {
+                    while (speed < setspeed)
+                    {
+                        speed = speed + 1;
+                    }
+                }
+                else if (speed > setspeed)
+                {
+                    while (speed > setspeed)
+                    {
+                        speed = speed - 1;
+                    }
+                }
+            cout<<"----------------------------------"<<endl;
+            cout<<"Speed manually set to "<<speed<<endl;
+            }
+        }
+        void setaltitude(double setaltitude){
+            if ((setaltitude <= 2000) && (setaltitude >= 0)){
+                if (altitude < setaltitude)
+                {
+                    while (altitude < setaltitude)
+                    {
+                        altitude = altitude + 1;
+                    }
+                }
+                else if (altitude > setaltitude)
+                {
+                    while (altitude > setaltitude)
+                    {
+                        altitude = altitude - 1;
+                    }
+                }
+            cout<<"----------------------------------"<<endl;
+            cout<<"Altitude manually set to "<<altitude<<endl;
+            }
+        }
+        double getspeed()
+        {
+            return speed;
+        }
+        double getaltitude(){
+            return altitude;
+        }
+        void stopflight(){
+            cout<<"----------------------------------"<<endl;
+            cout<<"Descending and reducing speed..."<<endl;
+            while(speed > 0){
+                speed = speed - 1;
+            }
+            while(altitude > 0){
+                altitude = altitude - 1;
+            }
+            cout << "Successfully stopped." << endl;
+        }
+        void launch(){
+            cout<<"----------------------------------"<<endl;
+            cout<<"Initating launch..."<<endl;
+            cout<<"Climbing to 10m..."<<endl;
+            while (altitude < 10){
+                altitude = altitude + 1;
+            }
+            cout<<"Successfully launched, drone hovering at 10m altitude"<<endl;
+        }
+        void setmode(int User_Option2){
+            if (User_Option2 == 1)
+            {
+                cout<<"Flight mode: Quick -- Enabled"<<endl;
+                setspeed(15);
+            }
+            else if (User_Option2 == 2)
+            {
+                cout<<"Flight mode: Active -- Enabled"<<endl;
+                setspeed(5);
+            }
+            else if (User_Option2 == 4)
+            {
+                cout<<"Flight mode: Hover -- Enabled"<<endl;
+                setspeed(0);
+            }
+            else if (User_Option2 == 3)
+            {
+                cout<<"Flight mode: Inspect -- Enabled"<<endl;
+                setspeed(1);
+            }
+        }
+        void printflightstatus(){
+            cout<<"----------------------------------"<<endl;
+            cout<<"Current Speed: "<<getspeed()<<" m/s"<<endl;
+            cout<<"Current Altitude: "<<getaltitude()<<" m"<<endl;
+        }
+        void setdestination(double lat,double lon){
+            destlat = lat;
+            destlon = lon;
+            cout<<"Destination set! Routing to "<< fixed << setprecision(6)<<destlat<<" ° N "<<destlon<<" ° E"<<endl<<
+            "- Google Maps: https://www.google.com/maps?q="<<destlat<<","<<destlon<< endl;
+        }
+        void printdest(){
+            cout<<"Current destination is: "<<fixed << setprecision(6)<<destlat<<" ° N "<<destlon<<" ° E"<<endl<<
+            "- Google Maps: https://www.google.com/maps?q="<<destlat<<","<<destlon<< endl;
+        }
+};
 class components {
     // COMPONENT VARIABLES
         public:
@@ -201,14 +313,13 @@ class drone {
     private:
         double latitude = 0;    // latitude of the drone 
         double longitude = 0;   // longitude of the drone 
-        double destlat = 25.276987;  // latitude of the destination 
-        double destlon = 55.296249;  // longitude of the destination 
         double battery = 100;   // Battery of drone default
         double distfromhome = 1000; // safe default
         bool  closefromhome = false;
-        double speed = 0;
+
     public:
         components comp;
+        flight mydroneflight;
         home myhome{"Base Station", 25.276987, 55.296249};
     void printcurrent_location(){
         cout<<"Current drone location: "<<fixed << setprecision(6)<<latitude<<" ° N "<<longitude<<" ° E"<<endl<<
@@ -216,16 +327,6 @@ class drone {
     }
     void transmitinfo(){
         // TO BE IMPLEMENTED
-    }
-    void setdestination(double lat,double lon){
-        destlat = lat;
-        destlon = lon;
-        cout<<"Destination set! Routing to "<< fixed << setprecision(6)<<destlat<<" ° N "<<destlon<<" ° E"<<endl<<
-        "- Google Maps: https://www.google.com/maps?q="<<destlat<<","<<destlon<< endl;
-    }
-    void printdest(){
-        cout<<"Current destination is: "<<fixed << setprecision(6)<<destlat<<" ° N "<<destlon<<" ° E"<<endl<<
-        "- Google Maps: https://www.google.com/maps?q="<<destlat<<","<<destlon<< endl;
     }
     void printbattery(){
         cout<<"Battery: "<<battery<<"%"<<endl;
@@ -273,9 +374,7 @@ class drone {
         updateDistFromHome();
         return distfromhome;
     }
-    double getspeed(){
-        return speed;
-    }
+
 };
 class mission {
     private:
@@ -313,6 +412,8 @@ class mission {
 
 
 };
+
+
 // GLOBAL VARIABLES----------------------------------
 bool return_main = true;
 int return_menu_int;
@@ -323,8 +424,8 @@ void activateRTH(drone &mydrone, home &myhome){
     mydrone.printcurrent_location();
     X = myhome.gethomelat();
     Y = myhome.gethomelon();
-    mydrone.setdestination(X,Y);
-    double currentspeed = mydrone.getspeed();
+    mydrone.mydroneflight.setdestination(X,Y);
+    double currentspeed = mydrone.mydroneflight.getspeed();
     double distance = mydrone.getdistfromhome();
     double estimatedtime = 0;
         if (currentspeed > 0){
@@ -344,8 +445,6 @@ void displaystatus(drone mydrone){
     return_menu_int = 0;
     //ENTER IMPLEMENTATION
     mydrone.printbattery();
-    mydrone.printcurrent_location();
-    mydrone.printdest();
     mydrone.printdistfromhome();
     cout<<"----------------------------------"<<endl;
     while (return_menu_int != 10)
@@ -496,18 +595,73 @@ void displaycomponent(drone &mydrone){
 
     }
 }
-void displayroute(drone mydrone){
+void configureroute(drone &mydrone){
+    return_menu_int = 0;
+    int User_Option = -1;
+    int User_Option2 = -1;
+    double setspeed = 0;
+    double setaltitude = 0;
+    cout<<"----------------------------------"<<endl;
+    cout << "Select an option:\n"<< "1. Set mode\n"<< "2. Set speed\n"<< "3. Set altitude\n"<< "4. Launch\n"<< "5. Stop flight\n";
+    cout << "Enter your choice (1-5): ";
+    cin>>User_Option;
+    switch (User_Option){
+        case 1:
+            {
+                cout<<"Enter the type of mode:\n"<<"1. Quick\n"<<"2. Active\n"<<"3. Inspect\n"<<"4. Hover\n";
+                cin>>User_Option2;
+                mydrone.mydroneflight.setmode(User_Option2);
+                break;
+            }
+        case 2:
+            {
+                cout<<"Enter speed between 0-15m/s:\n";
+                cin>>setspeed;
+                mydrone.mydroneflight.setspeed(setspeed);
+                break;
+            }
+        case 3:
+            {
+                cout<<"Enter altitude between 0-2000m:\n";
+                cin>>setaltitude;
+                mydrone.mydroneflight.setaltitude(setaltitude);
+                break;
+            }
+        case 4:
+            {
+                mydrone.mydroneflight.launch();
+                break;
+            }
+        case 5:
+            {
+                mydrone.mydroneflight.stopflight();
+                break;
+            }
+        default:
+            {
+                cout<<"Please retry, only enter options (1-5)\n";
+                break;
+            }
+
+    }
+}
+void displayroute(drone &mydrone){
     return_menu_int = 0;
     mydrone.printcurrent_location();
-    mydrone.printdest();
+    mydrone.mydroneflight.printdest();
     mydrone.printdistfromhome();
+    mydrone.mydroneflight.printflightstatus();
     cout<<"----------------------------------"<<endl;
     while (return_menu_int != 10)
     {
-    cout<<"Enter 10 to return to menu."<<endl;
+    cout<<"Select an option."<<endl<<"- 2: Configure flight options"<<endl<<"- 10: Return to Main Menu."<<endl<<"Enter your choice (2, 10)..."<<endl;
     cin>>return_menu_int;
     if (return_menu_int == 10)
         return_main = true;
+    else if (return_menu_int == 2){
+        configureroute(mydrone);
+        break;
+    }
     }
 }
 void transmitloc(drone mydrone){
@@ -523,6 +677,7 @@ void transmitloc(drone mydrone){
         return_main = true;
     }
 }
+
 // MAIN METHOD-------------------------------------
 int main(){
     setlocale(LC_ALL, ".UTF-8"); // DEGREE---------
