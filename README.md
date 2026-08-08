@@ -67,7 +67,6 @@ decisions under human supervision.
       <br />
       <em>MANAR Version 1.0 Operator Dashboard — Multisensor Live Feed Interface</em>
     </td>
-
     <td align="center" width="50%">
       <img
         src="assets\Temp\currentprogress4.png"
