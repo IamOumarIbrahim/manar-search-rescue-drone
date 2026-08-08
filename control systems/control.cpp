@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <clocale>
 using namespace std;
 
 /*
@@ -55,30 +56,74 @@ public:
     }
 
 };
-class drone {
+class home {
     private:
-        string current_location_coordinates;
+        string homelocationname;
+        double latitude ,longitude;
+    public:
+        home(string homelocname,double lat,double lon){
+           homelocationname = homelocname;
+           latitude = lat;
+           longitude = lon;
+        }
+        double gethomelat(){
+            return latitude;
+        }
+        double gethomelon(){
+            return longitude;
+        }
+
+};
+class drone : private home {
+    private:
+        double latitude = 0;    // latitude of the drone 
+        double longitude = 0;   // longitude of the drone 
+        double destlat = 1000;  // latitude of the destination 
+        double destlon = 1000;  // longitude of the destination 
     public:
         components comp;
     void printcurrent_location(){
-        cout<<"Current drone location: "<<current_location_coordinates<<endl;
+        cout<<"Current drone location: "<<latitude<<" N "<<longitude<<" E"<<endl;
     }
     void transmitinfo(){
         // TO BE IMPLEMENTED
     }
-    drone(){
-        current_location_coordinates = "";
+    void setdestination(double lat,double lon){
+        destlat = lat;
+        destlon = lon;
+        cout<<"Destination set! Routing to "<<destlat<<" N "<<destlon<<" E"<<endl;
     }
+    drone() : home("Unknown Base", 0.0, 0.0){
+
+    }   
 };
+
+
 bool return_main = true;
 int return_menu_int;
 // GLOBAL VARIABLES----------------------------------
 
-void activateRTH(drone mydrone){}
+void activateRTH(drone &mydrone, home &myhome){
+    return_menu_int = 0;
+    double X,Y;
+    mydrone.printcurrent_location();
+    X = myhome.gethomelat();
+    Y = myhome.gethomelon();
+    mydrone.setdestination(X,Y);
+    cout<<"----------------------------------"<<endl;
+    while (return_menu_int != 10)
+    {
+    cout<<"Enter 10 to return to menu."<<endl;
+    cin>>return_menu_int;
+    if (return_menu_int == 10)
+        return_main = true;
+    }
+}
 void displaystatus(drone mydrone){}
 void displaycomponent(drone mydrone){
     return_menu_int = 0;
     mydrone.comp.printcomp();
+    cout<<"----------------------------------"<<endl;
     while (return_menu_int != 10)
     {
     cout<<"Enter 10 to return to menu."<<endl;
@@ -103,6 +148,8 @@ void transmitloc(drone mydrone){
 }
 
 int main(){
+    setlocale(LC_ALL, ".UTF-8"); // To render the degree character
+    home myhome("Base Station",40.7128,74.0060);
     drone mydrone;
     int User_Option;
     while (return_main == true){
@@ -133,7 +180,7 @@ int main(){
         case 0:
         {
             cout<<"Activating Return-To-Home mode..."<<endl;
-            activateRTH(mydrone);
+            activateRTH(mydrone,myhome);
             break;
         }
         case 1:
