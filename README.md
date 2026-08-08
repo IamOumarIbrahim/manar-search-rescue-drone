@@ -65,7 +65,7 @@ decisions under human supervision.
         width="100%"
       />
       <br />
-      <em>MANAR Version 1.0 Operator Dashboard — Multisensor Live Feed Interface</em>
+      <em>MANAR Human Control System — Terminal-Based Component Status Interface</em>
     </td>
     <td align="center" width="50%">
       <img
@@ -74,7 +74,7 @@ decisions under human supervision.
         width="100%"
       />
       <br />
-      <em>MANAR Human Control System — Terminal-Based Component Status Interface</em>
+      <em>MANAR Human Control System — High-Level C++ Software Architecture</em>
     </td>
   </tr>
 </table>
@@ -87,7 +87,7 @@ decisions under human supervision.
     width="900"
   />
   <br />
-  <em>Dashboard for viewing three concurrent video streams</em>
+  <em>MANAR Version 1.0 Operator Dashboard — Multisensor Live Feed Interface</em>
 </p>
 
 ## Project Milestones
