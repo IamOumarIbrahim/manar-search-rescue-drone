@@ -56,22 +56,35 @@ decisions under human supervision.
 ## Current Status
 > **Current phase:** Initial deterministic control system design.
 
-<p align="center">
-  <img
-    src="assets\Temp\currentprogress3.png"
-    alt="Dashboard for viewing three concurrent video streams"
-    width="500"
-  />
-  <br />
-  <em>Terminal-based initial control system designed in C++ </em>
-</p>
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img
+        src="assets\Temp\currentprogress3.png"
+        alt="MANAR Version 1.0 Operator Dashboard"
+        width="100%"
+      />
+      <br />
+      <em>MANAR Version 1.0 Operator Dashboard — Multisensor Live Feed Interface</em>
+    </td>
 
-## Established 
+    <td align="center" width="50%">
+      <img
+        src="assets\Temp\currentprogress4.png"
+        alt="MANAR Human Control System"
+        width="100%"
+      />
+      <br />
+      <em>MANAR Human Control System — Terminal-Based Component Status Interface</em>
+    </td>
+  </tr>
+</table>
 
+## Established
 <p align="center">
   <img
     src="assets\Temp\Currentprogress2.png"
-    alt="Dashboard for viewing three concurrent video streams"
+    alt="MANAR Human Control System — Terminal-Based Component Status Interface"
     width="900"
   />
   <br />
