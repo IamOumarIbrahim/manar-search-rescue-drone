@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 using namespace std;
 
 /*
@@ -16,37 +17,81 @@ the human operator must be capable of executing all of these tasks if required
 */
 
 // GLOBAL VARIABLES----------------------------------
+class components {
+public:
+    bool thermal_camera_status,RGB_camera_status,infrared_camera_status;
+    bool fmcw_status,speaker_status,microphone_status,passive_rf_status;
+    bool amber_beacon_status,white_strobe_status,downward_spotlight_status;
+    bool smoke_marker_status;
+    const bool heliograph_mirror_status = true;
+    components() {
+        thermal_camera_status = false;
+        RGB_camera_status = false;
+        infrared_camera_status = false;
+        fmcw_status = false;
+        speaker_status = false;
+        microphone_status = false;
+        passive_rf_status = false;
+        amber_beacon_status = false;
+        white_strobe_status = false;
+        downward_spotlight_status = false;
+        smoke_marker_status = false;
+    }
+    void printcomp(){
+        cout<<"----------------------------------"<<endl;
+        cout<<"Thermal camera: "<<thermal_camera_status<<endl;
+        cout<<"RGB camera: "<<RGB_camera_status<<endl;
+        cout<<"Low light/Infrared: "<<infrared_camera_status<<endl;
+        cout<<"24Ghz FMCW: "<<fmcw_status<<endl;
+        cout<<"Speaker: "<<speaker_status<<endl;
+        cout<<"Microphone: "<<microphone_status<<endl;
+        cout<<"Passive RF: "<<passive_rf_status<<endl;
+        cout<<"Amber beacon: "<<amber_beacon_status<<endl;
+        cout<<"White strobe: "<<white_strobe_status<<endl;
+        cout<<"Downward spotlight: "<<downward_spotlight_status<<endl;
+        cout<<"Heliograph mirrors: "<<heliograph_mirror_status<<endl;
+        cout<<"Smoke marker: "<<smoke_marker_status<<endl;
+        cout<<"----------------------------------"<<endl;
+    }
 
-bool thermal_camera_status,RGB_camera_status,infrared_camera_status;
-bool fmcw_status,speaker_status,microphone_status,passive_rf_status;
-bool amber_beacon_status,white_strobe_status,downward_spotlight_status;
-bool smoke_marker_status;
-const bool heliograph_mirror_status = true;
+};
+class drone {
+    private:
+        string current_location_coordinates;
+    public:
+        components comp;
+    void printcurrent_location(){
+        cout<<"Current drone location: "<<current_location_coordinates<<endl;
+    }
+    void transmitinfo(){
+        // TO BE IMPLEMENTED
+    }
+    drone(){
+        current_location_coordinates = "";
+    }
+};
 bool return_main = true;
 int return_menu_int;
-
 // GLOBAL VARIABLES----------------------------------
 
-
-
-
-void activateRTH(){}
-void displaystatus(){}
-void displaycomponent(){
+void activateRTH(drone mydrone){}
+void displaystatus(drone mydrone){}
+void displaycomponent(drone mydrone){
     return_menu_int = 0;
-    cout<<"----------------------------------"<<endl;
-    cout<<"Thermal camera: "<<thermal_camera_status<<endl;
-    cout<<"RGB camera: "<<RGB_camera_status<<endl;
-    cout<<"Low light/Infrared: "<<infrared_camera_status<<endl;
-    cout<<"24Ghz FMCW: "<<fmcw_status<<endl;
-    cout<<"Speaker: "<<speaker_status<<endl;
-    cout<<"Microphone: "<<microphone_status<<endl;
-    cout<<"Passive RF: "<<passive_rf_status<<endl;
-    cout<<"Amber beacon: "<<amber_beacon_status<<endl;
-    cout<<"White strobe: "<<white_strobe_status<<endl;
-    cout<<"Downward spotlight: "<<downward_spotlight_status<<endl;
-    cout<<"Heliograph mirrors: "<<heliograph_mirror_status<<endl;
-    cout<<"Smoke marker: "<<smoke_marker_status<<endl;
+    mydrone.comp.printcomp();
+    while (return_menu_int != 10)
+    {
+    cout<<"Enter 10 to return to menu."<<endl;
+    cin>>return_menu_int;
+    if (return_menu_int == 10)
+        return_main = true;
+    }
+}
+void displayroute(drone mydrone){}
+void transmitloc(drone mydrone){
+    return_menu_int = 0;
+    mydrone.printcurrent_location();
+    mydrone.transmitinfo();
     cout<<"----------------------------------"<<endl;
     while (return_menu_int != 10)
     {
@@ -56,10 +101,9 @@ void displaycomponent(){
         return_main = true;
     }
 }
-void displayroute(){}
-void transmitloc(){}
 
 int main(){
+    drone mydrone;
     int User_Option;
     while (return_main == true){
     cout<<"----------------------------------"<<endl;
@@ -89,31 +133,31 @@ int main(){
         case 0:
         {
             cout<<"Activating Return-To-Home mode..."<<endl;
-            activateRTH();
+            activateRTH(mydrone);
             break;
         }
         case 1:
         {
             cout<<"Displaying mission status..."<<endl;
-            displaystatus();
+            displaystatus(mydrone);
             break;
         }
         case 2:
         {
             cout<<"Displaying current component configuration..."<<endl;
-            displaycomponent();
+            displaycomponent(mydrone); // Done
             break;
         }
         case 3:
         {
             cout<<"Displaying route tracker system..."<<endl;
-            displayroute();
+            displayroute(mydrone);
             break;
         }
         case 4:
         {
             cout<<"Transmitting current location to station..."<<endl;
-            transmitloc();
+            transmitloc(mydrone);
             break;
         }
         case 10:
