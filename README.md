@@ -100,7 +100,9 @@ decisions under human supervision.
 > - [x] Project limitations and constraints
 > - [x] Basic web dashboard — v1.0
 > - [x] Landing Page
-- [ ] Initial deterministic control system design
+> - [x] Initial deterministic control system design
+- [ ] Build a GUI for the terminal-based control center
+- [ ] Build determinsitc controls for components and drone 
 - [ ] To be determined...
 - [ ] LaTeX Report, Presentation and Full documentation
 - [ ] Final Publishing & LinkedIn Post
