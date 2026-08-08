@@ -1,20 +1,22 @@
-#include <iostream>
-#include <string>
-#include <clocale>
-#include <cmath>
-using namespace std;
+// LIBRARIES-----------------------------------------
+    #include <iostream>
+    #include <string>
+    #include <clocale>
+    #include <cmath>
+    using namespace std;
+// LIBRARIES-----------------------------------------
 
-/*
-According to Section 2.4 (Responsibility Allocation) of the Version 1 specification,
-the human operator must be capable of executing all of these tasks if required
+/* RESPONSIBILITY
+    According to Section 2.4 (Responsibility Allocation) of the Version 1 specification,
+    the human operator must be capable of executing all of these tasks if required
 
-- Defines the search area, objective, launch point, route, altitude, geofence, and safety limits.
-- Approves takeoff and may start, pause, abort, command RTH, or manually control the aircraft.
-- Monitors flight status, map position, and sensor feeds.
-- May cancel any automatic candidate approach or verification sequence.
-- Reviews Mamba-triggered alerts and makes the final Probable rescuee determination.
-- Approves beacon, strobe, smoke, and other consequential guidance actions.
-- Shares confirmed coordinates with rescue teams and handles exceptional emergency decisions.
+    - Defines the search area, objective, launch point, route, altitude, geofence, and safety limits.
+    - Approves takeoff and may start, pause, abort, command RTH, or manually control the aircraft.
+    - Monitors flight status, map position, and sensor feeds.
+    - May cancel any automatic candidate approach or verification sequence.
+    - Reviews Mamba-triggered alerts and makes the final Probable rescuee determination.
+    - Approves beacon, strobe, smoke, and other consequential guidance actions.
+    - Shares confirmed coordinates with rescue teams and handles exceptional emergency decisions.
 
 */
 
