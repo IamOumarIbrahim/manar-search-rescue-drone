@@ -536,8 +536,6 @@ class mission {
             }
         }
 };
-
-
 // GLOBAL VARIABLES----------------------------------
 bool return_main = true;
 int return_menu_int;
