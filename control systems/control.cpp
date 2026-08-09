@@ -380,34 +380,56 @@ class mission {
     private:
         bool rescueefound = false;
         bool missionsuccess = false;
+        bool missionstarted = false;
+        bool missionabort = false;
     public:
         drone mydrone;
         void missionstatus(){
             mydrone.determineifclose();
+            if ((missionstarted == true) && (missionabort == true)) {
+                missionsuccess = false;
+                cout << "----------------------------------" << endl;
+                cout<< "Mission Failed! Mission has been aborted."<<endl;
+            }
+            else if ((missionstarted == true) && (missionabort == false)){
+                if ((rescueefound == true) && (mydrone.getclose() == true)){
+                    missionsuccess = true;
+                    cout << "----------------------------------" << endl;
+                    cout << "Mission Success! Rescuee has been found and the drone is close by to the home station. Well done." << endl;
+                }
+                else if ((rescueefound != true) && (mydrone.getclose() == true)) {
+                    missionsuccess = false;
+                    cout << "----------------------------------" << endl;
+                    cout << "Mission Failed! Rescuee has NOT been found but the drone is close by to the home station." << endl;
+                }
+                else if ((rescueefound != true) && (mydrone.getclose() != true)) {
+                    missionsuccess = false;
+                    cout << "----------------------------------" << endl;
+                    cout << "Mission Failed! Rescuee has NOT been found and the drone is far from the home station." << endl;
+                }
+                else if ((rescueefound == true) && (mydrone.getclose() != true)) {
+                    missionsuccess = true;
+                    cout << "----------------------------------" << endl;
+                    cout << "Mission Success! Rescuee has been found but the drone is far from the home station." << endl;
+                }
+            }
+            else if ((missionstarted == false) && (missionabort == false))
+            {
+                cout << "----------------------------------" << endl;
+                cout<<"Mission has not started yet."<<endl;
+            }
 
-            if ((rescueefound == true) && (mydrone.getclose() == true)){
-                missionsuccess = true;
-                cout << "----------------------------------" << endl;
-                cout << "Mission Success! Rescuee has been found and the drone is close by to the home station. Well done." << endl;
-            }
-            else if ((rescueefound != true) && (mydrone.getclose() == true)) {
-                missionsuccess = false;
-                cout << "----------------------------------" << endl;
-                cout << "Mission Failed! Rescuee has NOT been found but the drone is close by to the home station." << endl;
-            }
-            else if ((rescueefound != true) && (mydrone.getclose() != true)) {
-                missionsuccess = false;
-                cout << "----------------------------------" << endl;
-                cout << "Mission Failed! Rescuee has NOT been found and the drone is far from the home station." << endl;
-            }
-            else if ((rescueefound == true) && (mydrone.getclose() != true)) {
-                missionsuccess = true;
-                cout << "----------------------------------" << endl;
-                cout << "Mission Success! Rescuee has been found but the drone is far from the home station." << endl;
-            }
         }
-        void setrescueefound(){
+        void configurerescueestate(){
             rescueefound = true;
+        }
+        void startmission(){
+            missionstarted = true;
+            cout<<"Missions successfully started."<<endl;
+        }
+        void abortmission(){
+            missionabort = true;
+            cout<<"Mission is aborted."<<endl;
         }
 
 
@@ -677,6 +699,64 @@ void transmitloc(drone mydrone){
         return_main = true;
     }
 }
+void configuremission(mission &mymission){
+    return_menu_int = 0;
+    string answer;
+    int confirmation;
+    int User_Option;
+    // IMPLEMENTATION
+    cout<<"----------------------------------"<<endl;
+    cout << "Select an option:\n"<< "1. Launch mission\n"<< "2. Configure rescuee status\n"<< "0. Abort mission (RTH)\n";
+    cout << "Enter your choice (1,2,0): ";
+    cin>>User_Option;
+    switch (User_Option)
+    {
+        case 1:
+            {   
+                cout<<"Starting mission..."<<endl;
+                mymission.startmission();
+                break;
+            }
+        case 2:
+            {
+                cout<<"Has a rescuee been found? (Y/N) "<<endl;
+                cin>>answer;
+                if ((answer == "Y" )||(answer == "y")){
+                    mymission.configurerescueestate();
+                    cout<<"Rescuee state set to found."<<endl;
+                }
+                break;
+            }
+        case 0:
+            {
+                cout<<"ARE YOU SURE YOU WANT TO ABORT THIS MISSION? ENTER 10 IF YOU WANT TO ABORT."<<endl;
+                cin>>confirmation;
+                if (confirmation == 10)
+                {
+                    cout<<"Aborting mission..."<<endl;
+                    mymission.abortmission();
+                }
+                else{
+                    cout<<"Mission has NOT been aborted."<<endl;
+                }
+                break;
+            }
+        default:
+            {
+                cout<<"Please either enter 1 or 2 or 0..."<<endl;
+                break;
+            }
+    }
+    // RETURN TO MENU
+    cout<<"----------------------------------"<<endl;
+    while (return_menu_int != 10)
+    {
+    cout<<"Enter 10 to return to menu."<<endl;
+    cin>>return_menu_int;
+    if (return_menu_int == 10)
+        return_main = true;
+    }
+}
 
 // MAIN METHOD-------------------------------------
 int main(){
@@ -688,22 +768,24 @@ int main(){
         cout<<"WELCOME TO MANAR HUMAN CONTROL SYSTEM"<<endl;
         cout<<"----------------------------------"<<endl;
         cout<<"PLEASE SELECT ONE OF THE FOLLOWING OPTIONS:"<<endl;
-        cout<<"- ENTER 1 FOR MISSION STATUS"<<endl;
-        cout<<"- ENTER 2 FOR COMPONENTS"<<endl;
-        cout<<"- ENTER 3 TO DISPLAY ROUTE STATUS"<<endl;
-        cout<<"- ENTER 4 TO TRANSMIT LOCATION"<<endl;
+        cout<<"- ENTER 1 TO DISPLAY MISSION STATUS"<<endl;
+        cout<<"- ENTER 2 TO CONFIGURE MISSION"<<endl;
+        cout<<"- ENTER 3 FOR COMPONENTS"<<endl;
+        cout<<"- ENTER 4 TO DISPLAY ROUTE STATUS"<<endl;
+        cout<<"- ENTER 5 TO TRANSMIT LOCATION"<<endl;
         cout<<"- ENTER 0 TO ACTIVATE RTH-MODE"<<endl;
         cout<<"- ENTER 10 TO EXIT TERMINAL"<<endl;
         cout<<"----------------------------------"<<endl;
         cin>>User_Option;
-            while (((User_Option < 0) || (User_Option >= 5)) && (User_Option != 10))  
+            while (((User_Option < 0) || (User_Option >= 6)) && (User_Option != 10))  
             {
             cout<<"----------------------------------"<<endl;
             cout<<"PLEASE RETRY AND ENTER ONE OF THE FOLLOWING OPTIONS:"<<endl;
-            cout<<"- ENTER 1 FOR MISSION STATUS"<<endl;
-            cout<<"- ENTER 2 FOR COMPONENTS"<<endl;
-            cout<<"- ENTER 3 TO DISPLAY ROUTE STATUS"<<endl;
-            cout<<"- ENTER 4 TO TRANSMIT LOCATION"<<endl;
+            cout<<"- ENTER 1 TO DISPLAY MISSION STATUS"<<endl;
+            cout<<"- ENTER 2 TO CONFIGURE MISSION"<<endl;
+            cout<<"- ENTER 3 FOR COMPONENTS"<<endl;
+            cout<<"- ENTER 4 TO DISPLAY ROUTE STATUS"<<endl;
+            cout<<"- ENTER 5 TO TRANSMIT LOCATION"<<endl;
             cout<<"- ENTER 0 TO ACTIVATE RTH-MODE"<<endl;
             cout<<"- ENTER 10 TO EXIT TERMINAL"<<endl;
             cout<<"----------------------------------"<<endl;
@@ -725,17 +807,23 @@ int main(){
             }
             case 2:
             {
+                cout<<"Launching mission configuration..."<<endl;
+                configuremission(mymission); // Done
+                break;
+            }
+            case 3:
+            {
                 cout<<"Displaying current component configuration..."<<endl;
                 displaycomponent(mymission.mydrone); // Done
                 break;
             }
-            case 3:
+            case 4:
             {
                 cout<<"Displaying route tracker system..."<<endl;
                 displayroute(mymission.mydrone);
                 break;
             }
-            case 4:
+            case 5:
             {
                 cout<<"Transmitting current location to station..."<<endl;
                 transmitloc(mymission.mydrone);
