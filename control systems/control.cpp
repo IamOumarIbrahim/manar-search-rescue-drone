@@ -27,8 +27,10 @@ class flight{
         double altitude = 0;
         double destlat = 25.276987;  // latitude of the destination 
         double destlon = 55.296249;  // longitude of the destination 
+        string mode = "None";
     public:
-        void setspeed(double setspeed){
+        void setspeed(double setspeed)
+        {
             if ((setspeed <= 15) && (setspeed >= 0)){
                 if (speed < setspeed)
                 {
@@ -48,7 +50,8 @@ class flight{
             cout<<"Speed manually set to "<<speed<<endl;
             }
         }
-        void setaltitude(double setaltitude){
+        void setaltitude(double setaltitude)
+        {
             if ((setaltitude <= 2000) && (setaltitude >= 0)){
                 if (altitude < setaltitude)
                 {
@@ -72,10 +75,12 @@ class flight{
         {
             return speed;
         }
-        double getaltitude(){
+        double getaltitude()
+        {
             return altitude;
         }
-        void stopflight(){
+        void stopflight()
+        {
             cout<<"----------------------------------"<<endl;
             cout<<"Descending and reducing speed..."<<endl;
             while(speed > 0){
@@ -86,7 +91,8 @@ class flight{
             }
             cout << "Successfully stopped." << endl;
         }
-        void launch(){
+        void launch()
+        {
             cout<<"----------------------------------"<<endl;
             cout<<"Initating launch..."<<endl;
             cout<<"Climbing to 10m..."<<endl;
@@ -95,40 +101,57 @@ class flight{
             }
             cout<<"Successfully launched, drone hovering at 10m altitude"<<endl;
         }
-        void setmode(int User_Option2){
+        void setmodename(string m)
+        {
+            mode = m;
+        }
+        string getmodename()
+        {
+            return mode;
+        }
+        void setmode(int User_Option2)
+        {
             if (User_Option2 == 1)
             {
                 cout<<"Flight mode: Quick -- Enabled"<<endl;
                 setspeed(15);
+                setmodename("Quick");
             }
             else if (User_Option2 == 2)
             {
                 cout<<"Flight mode: Active -- Enabled"<<endl;
                 setspeed(5);
+                setmodename("Active");
             }
             else if (User_Option2 == 4)
             {
                 cout<<"Flight mode: Hover -- Enabled"<<endl;
                 setspeed(0);
+                setmodename("Hover");
             }
             else if (User_Option2 == 3)
             {
                 cout<<"Flight mode: Inspect -- Enabled"<<endl;
                 setspeed(1);
+                setmodename("Inspect");
             }
         }
-        void printflightstatus(){
+        void printflightstatus()
+        {
             cout<<"----------------------------------"<<endl;
             cout<<"Current Speed: "<<getspeed()<<" m/s"<<endl;
             cout<<"Current Altitude: "<<getaltitude()<<" m"<<endl;
+            cout<<"Current Mode: "<<getmodename()<<endl;
         }
-        void setdestination(double lat,double lon){
+        void setdestination(double lat,double lon)
+        {
             destlat = lat;
             destlon = lon;
             cout<<"Destination set! Routing to "<< fixed << setprecision(6)<<destlat<<" ° N "<<destlon<<" ° E"<<endl<<
             "- Google Maps: https://www.google.com/maps?q="<<destlat<<","<<destlon<< endl;
         }
-        void printdest(){
+        void printdest()
+        {
             cout<<"Current destination: "<<fixed << setprecision(6)<<destlat<<" ° N "<<destlon<<" ° E"<<endl<<
             "- Google Maps: https://www.google.com/maps?q="<<destlat<<","<<destlon<< endl;
         }
@@ -322,10 +345,12 @@ class drone {
         flight mydroneflight;
         home myhome{"Base Station", 25.276987, 55.296249};
     void printcurrent_location(){
+        cout<<"----------------------------------"<<endl;
         cout<<"Current drone location: "<<fixed << setprecision(6)<<latitude<<" ° N "<<longitude<<" ° E"<<endl<<
         "- Google Maps: https://www.google.com/maps?q="<<latitude<<","<<longitude<< endl;
     }
     void transmitinfo(){
+        printcurrent_location();
         // TO BE IMPLEMENTED
     }
     void printbattery(){
@@ -374,65 +399,142 @@ class drone {
         updateDistFromHome();
         return distfromhome;
     }
+    double getbattery() {
+        return battery;
+    }
 
 };
 class mission {
     private:
-        bool rescueefound = false;
+        bool rescueefound = false; // if found then transmit location, hover in that place and save battery till manual help
+                                        // if not found generate report and RTH if battery 
         bool missionsuccess = false;
         bool missionstarted = false;
         bool missionabort = false;
+        bool missionfinished = false;
+        bool onroute = false;
+        bool returning = false;
+        bool emergencyrth = false;
+        bool checkedlocation = false;
     public:
         drone mydrone;
-        void missionstatus(){
-            mydrone.determineifclose();
-            if ((missionstarted == true) && (missionabort == true)) {
-                missionsuccess = false;
-                cout << "----------------------------------" << endl;
-                cout<< "Mission Failed! Mission has been aborted."<<endl;
-            }
-            else if ((missionstarted == true) && (missionabort == false)){
-                if ((rescueefound == true) && (mydrone.getclose() == true)){
-                    missionsuccess = true;
-                    cout << "----------------------------------" << endl;
-                    cout << "Mission Success! Rescuee has been found and the drone is close by to the home station. Well done." << endl;
-                }
-                else if ((rescueefound != true) && (mydrone.getclose() == true)) {
-                    missionsuccess = false;
-                    cout << "----------------------------------" << endl;
-                    cout << "Mission Failed! Rescuee has NOT been found but the drone is close by to the home station." << endl;
-                }
-                else if ((rescueefound != true) && (mydrone.getclose() != true)) {
-                    missionsuccess = false;
-                    cout << "----------------------------------" << endl;
-                    cout << "Mission Failed! Rescuee has NOT been found and the drone is far from the home station." << endl;
-                }
-                else if ((rescueefound == true) && (mydrone.getclose() != true)) {
-                    missionsuccess = true;
-                    cout << "----------------------------------" << endl;
-                    cout << "Mission Success! Rescuee has been found but the drone is far from the home station." << endl;
-                }
-            }
-            else if ((missionstarted == false) && (missionabort == false))
+        void missionstatus() // DISPLAY UNIT
+        {   if (rescueefound == true)
             {
                 cout << "----------------------------------" << endl;
-                cout<<"Mission has not started yet."<<endl;
+                cout<<"A rescuee has been found."<<endl;
             }
-
+            else
+            {
+                cout << "----------------------------------" << endl;               
+                cout<<"No rescuees has been found yet."<<endl;
+            }
+            mydrone.determineifclose();
+            if (missionstarted == false)
+                {
+                    cout<<"Mission has not started yet."<<endl;
+                }
+            else if ((missionstarted == true) && (missionabort == true)) 
+                {
+                    missionsuccess = false;
+                    cout<< "Mission Failed! Mission has been aborted."<<endl;
+                }
+            else if ((missionstarted == true) && (missionabort == false))
+            {
+                if (onroute == true)
+                {
+                    cout<< "Mission ongoing. Drone is on route."<<endl;
+                }
+                else if ( returning == true)
+                {
+                    cout<< "Mission ongoing. Drone is returning to base."<<endl;
+                }
+            }
         }
-        void configurerescueestate(){
+        void missionstatusupdater() // CONTROL UNIT
+        {
+            while (missionstarted == true)
+            {
+                if (missionabort == false)
+                {
+                    if (checkedlocation == false)
+                        {
+                            onroute = true;
+                            returning = false;
+                        }
+                    else
+                        {
+                            returning = true;
+                            onroute = false;
+                        }
+                    while (returning == true) // ALWAYS CHECK IF CLOSE BY TO FINALIZE MISSION
+                    {
+                        mydrone.determineifclose();
+                        if (mydrone.getclose() == true)
+                        {
+                            missionfinished = true;
+                        }
+                    }
+                }
+                else if (missionabort == true)
+                {
+                    returning = true;
+                    onroute = false;
+                    while (returning == true) // CHECK IF CLOSE BY, IN AN ABORT SITUATION TO FINALIZE MISSION
+                    {
+                        mydrone.determineifclose();
+                        if (mydrone.getclose() == true)
+                        {
+                            missionfinished = true;
+                        }
+                    }
+                }
+            }
+        }
+        void configurerescueestate() // MANUALLY SET BY THE OPERATOR
+        {
             rescueefound = true;
         }
-        void startmission(){
+        void startmission() // MANUALL LAUNCH
+        {
             missionstarted = true;
-            cout<<"Missions successfully started."<<endl;
+            onroute = true;
+            cout<<"Missions successfully started. Drone is currently onroute"<<endl;
         }
-        void abortmission(){
+        void abortmission() // MANUALL ABORT
+        {
             missionabort = true;
             cout<<"Mission is aborted."<<endl;
         }
-
-
+        void batterysystem() // DETERMINISTIC BATTERY BEHAVIOUR
+        {
+            if (mydrone.getbattery() <= 30)
+            {
+                cout<<"Battery is currently under 30%, Consider enabling energy save-mode."<<endl;
+            }
+            else if (mydrone.getbattery() <= 20)
+            {
+                cout<<"Battery is currently under 20%, Transmitting current location... Please consider ENABLING RTH"<<endl;
+                mydrone.transmitinfo();
+            }
+            else if (mydrone.getbattery() <= 10)
+            {
+                if (rescueefound == false){
+                    emergencyrth = true;
+                    mydrone.transmitinfo();
+                    cout<<"[Battery: CRITICAL] -- Enabling emergency rth"<<endl;
+                    if (mydrone.getbattery() <= 5) // HAUL FLIGHT OPERATION, LAND SAFELY
+                    {
+                        cout<<"[Battery: CRITICAL] -- Transmitting current location..."<<endl;
+                        mydrone.transmitinfo();
+                        cout<<"[Battery: CRITICAL] -- Landing safely..."<<endl;
+                        mydrone.mydroneflight.stopflight();
+                        cout<<"[Battery: CRITICAL] -- Transmitting current location..."<<endl;
+                        mydrone.transmitinfo();
+                    }
+                }
+            }
+        }
 };
 
 
@@ -669,6 +771,7 @@ void configureroute(drone &mydrone){
 }
 void displayroute(drone &mydrone){
     return_menu_int = 0;
+
     mydrone.printcurrent_location();
     mydrone.mydroneflight.printdest();
     mydrone.printdistfromhome();
@@ -688,7 +791,6 @@ void displayroute(drone &mydrone){
 }
 void transmitloc(drone mydrone){
     return_menu_int = 0;
-    mydrone.printcurrent_location();
     mydrone.transmitinfo();
     cout<<"----------------------------------"<<endl;
     while (return_menu_int != 10)
