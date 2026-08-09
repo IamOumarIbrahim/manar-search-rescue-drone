@@ -339,7 +339,7 @@ class drone {
         double battery = 100;   // Battery of drone default
         double distfromhome = 1000; // safe default
         bool  closefromhome = false;
-
+        bool savebattery = false; // TO BE IMPLEMENTED
     public:
         components comp;
         flight mydroneflight;
@@ -402,7 +402,17 @@ class drone {
     double getbattery() {
         return battery;
     }
-
+    void savebatterymode(int num)
+    {
+        if (num == 0 )
+        {
+            savebattery = false;
+        }
+        else if (num == 1)
+        {
+            savebattery = true;
+        }
+    }
 };
 class mission {
     private:
@@ -412,14 +422,17 @@ class mission {
         bool missionstarted = false;
         bool missionabort = false;
         bool missionfinished = false;
-        bool onroute = false;
+        bool enroute = false;
         bool returning = false;
         bool emergencyrth = false;
         bool checkedlocation = false;
+        bool waitingforhelp = false;
     public:
         drone mydrone;
         void missionstatus() // DISPLAY UNIT
-        {   if (rescueefound == true)
+        {   
+            missionstatusupdater();
+            if (rescueefound == true)
             {
                 cout << "----------------------------------" << endl;
                 cout<<"A rescuee has been found."<<endl;
@@ -441,33 +454,64 @@ class mission {
                 }
             else if ((missionstarted == true) && (missionabort == false))
             {
-                if (onroute == true)
+                if (enroute == true)
                 {
                     cout<< "Mission ongoing. Drone is on route."<<endl;
                 }
-                else if ( returning == true)
+                else if (returning == true)
                 {
                     cout<< "Mission ongoing. Drone is returning to base."<<endl;
+                }
+                else if (waitingforhelp == true)
+                {
+                    cout<<"Mission ongoing. Manual help is underway..."<<endl;
                 }
             }
         }
         void missionstatusupdater() // CONTROL UNIT
-        {
-            while (missionstarted == true)
+        {   
+            if (missionstarted == true)
             {
                 if (missionabort == false)
                 {
                     if (checkedlocation == false)
                         {
-                            onroute = true;
+                            enroute = true;
                             returning = false;
+                            if (rescueefound == true)
+                            {
+                                mydrone.transmitinfo(); // TRANSMIT INFO
+                                mydrone.mydroneflight.setmode(4); // SET TO HOVER
+                                mydrone.savebatterymode(1); // SAVE BATTERY
+                                mydrone.mydroneflight.stopflight(); // LAND DRONE
+                                enroute = false;
+                                waitingforhelp = true;
+                            }
+
                         }
-                    else
+                    else if (checkedlocation == true)
                         {
-                            returning = true;
-                            onroute = false;
+                            if (rescueefound == false)
+                            {
+                                returning = true; 
+                                enroute = false; 
+                                double X,Y;
+                                X = mydrone.myhome.gethomelat();
+                                Y = mydrone.myhome.gethomelon();
+                                mydrone.mydroneflight.setdestination(X,Y);
+
+                            }
+                            else if (rescueefound == true)
+                            {
+                                waitingforhelp = true;
+                                mydrone.transmitinfo(); // TRANSMIT INFO
+                                mydrone.mydroneflight.setmode(4); // SET TO HOVER
+                                mydrone.savebatterymode(1); // SAVE BATTERY
+                                mydrone.mydroneflight.stopflight(); // LAND DRONE
+                            }
+
                         }
-                    while (returning == true) // ALWAYS CHECK IF CLOSE BY TO FINALIZE MISSION
+                    if (returning == true) 
                     {
                         mydrone.determineifclose();
                         if (mydrone.getclose() == true)
@@ -479,8 +523,8 @@ class mission {
                 else if (missionabort == true)
                 {
                     returning = true;
-                    onroute = false;
-                    while (returning == true) // CHECK IF CLOSE BY, IN AN ABORT SITUATION TO FINALIZE MISSION
+                    enroute = false;
+                    if (returning == true) 
                     {
                         mydrone.determineifclose();
                         if (mydrone.getclose() == true)
@@ -493,17 +537,24 @@ class mission {
         }
         void configurerescueestate() // MANUALLY SET BY THE OPERATOR
         {
-            rescueefound = true;
+            if (missionstarted == true)
+            {
+                rescueefound = true;
+                missionstatusupdater();     
+            }
+
         }
         void startmission() // MANUALL LAUNCH
         {
             missionstarted = true;
-            onroute = true;
-            cout<<"Missions successfully started. Drone is currently onroute"<<endl;
+            missionstatusupdater();
+            cout<<"Missions successfully started. Drone is currently enroute"<<endl;
+
         }
         void abortmission() // MANUALL ABORT
         {
             missionabort = true;
+            missionstatusupdater();
             cout<<"Mission is aborted."<<endl;
         }
         void batterysystem() // DETERMINISTIC BATTERY BEHAVIOUR
@@ -533,6 +584,40 @@ class mission {
                         mydrone.transmitinfo();
                     }
                 }
+            }
+        }
+        void setcheckedloc(string ans)
+        {   
+            if (missionstarted == true)
+            {
+                if ((ans == "Y")||(ans == "y"))
+                {
+                    checkedlocation = true;
+                    cout<<"Location has been checked."<<endl;
+                }
+
+                else if ((ans == "N")||(ans == "n"))
+                {
+                    checkedlocation = false;
+                    cout<<"Location has NOT been checked."<<endl;
+                }
+            }
+
+            missionstatusupdater();
+        }
+        void printflightpath()
+        {
+            if (returning == true)
+            {
+                cout<<"Current flight status: Returning.\n";
+            }
+            else if (enroute == true)
+            {
+                cout<<"Current flight status: Enroute.\n";
+            }
+            else if (waitingforhelp == true)
+            {
+                cout<<"Current flight status: Waiting for help.\n";
             }
         }
 };
@@ -583,10 +668,10 @@ void configurecomponents(drone &mydrone){
     int User_Option2 = -1;
     cout<<"----------------------------------"<<endl;
     cout << "Select a payload option:\n"<< "1. Thermal\n"<< "2. RGB\n"<< "3. Infrared\n"<< "4. FMCW\n"<< "5. Speaker\n"<< "6. Mic\n"<< "7. RF\n"<< "8. Beacon\n"
-    << "9. Strobe\n"<< "10. Spotlight\n"<< "11. Smoke\n\n"<< "Enter your choice (1-11): ";
+    << "9. Strobe\n"<< "10. Spotlight\n"<< "11. Smoke\n\n"<< "Select an option (1-11): ";
     cin>>User_Option;
     cout<<"----------------------------------"<<endl;
-    cout << "Select an option:\n"<< "1. TURN IT ON\n"<< "2. TURN IT OFF\n"<< "Enter your choice (1-2): ";
+    cout << "Select an option:\n"<< "1. TURN IT ON\n"<< "2. TURN IT OFF\n"<< "Select an option (1-2): ";
     cin>>User_Option2;
 
     if (User_Option2 == 1){
@@ -706,7 +791,7 @@ void displaycomponent(drone &mydrone){
 
     while (return_menu_int != 10)
     {
-    cout<<"Select an option."<<endl<<"- 2: Configure components"<<endl<<"- 10: Return to Main Menu."<<endl<<"Enter your choice (2, 10)..."<<endl;
+    cout<<"Select an option."<<endl<<"- 2: Configure components"<<endl<<"- 10: Return to Main Menu."<<endl<<"Select an option (2, 10)..."<<endl;
     cin>>return_menu_int;
     if (return_menu_int == 10)
         return_main = true;
@@ -724,8 +809,8 @@ void configureroute(drone &mydrone){
     double setspeed = 0;
     double setaltitude = 0;
     cout<<"----------------------------------"<<endl;
-    cout << "Select an option:\n"<< "1. Set mode\n"<< "2. Set speed\n"<< "3. Set altitude\n"<< "4. Launch\n"<< "5. Stop flight\n";
-    cout << "Enter your choice (1-5): ";
+    cout << "Select an option:\n"<< "1. Set mode\n"<< "2. Set speed\n"<< "3. Set altitude\n"<< "4. Launch\n"<< "5. Stop flight\n"<<"10. Return to menu.\n";
+    cout << "Select an option (1-5,10): ";
     cin>>User_Option;
     switch (User_Option){
         case 1:
@@ -759,6 +844,11 @@ void configureroute(drone &mydrone){
                 mydrone.mydroneflight.stopflight();
                 break;
             }
+        case 10:
+            {
+                return_main = true;
+                break;
+            }
         default:
             {
                 cout<<"Please retry, only enter options (1-5)\n";
@@ -767,17 +857,18 @@ void configureroute(drone &mydrone){
 
     }
 }
-void displayroute(drone &mydrone){
+void displayroute(drone &mydrone, mission &mymission){
     return_menu_int = 0;
 
     mydrone.printcurrent_location();
     mydrone.mydroneflight.printdest();
     mydrone.printdistfromhome();
     mydrone.mydroneflight.printflightstatus();
+    mymission.printflightpath();
     cout<<"----------------------------------"<<endl;
     while (return_menu_int != 10)
     {
-    cout<<"Select an option."<<endl<<"- 2: Configure flight options"<<endl<<"- 10: Return to Main Menu."<<endl<<"Enter your choice (2, 10)..."<<endl;
+    cout<<"Select an option."<<endl<<"- 2: Configure flight options"<<endl<<"- 10: Return to Main Menu."<<endl<<"Select an option (2, 10)..."<<endl;
     cin>>return_menu_int;
     if (return_menu_int == 10)
         return_main = true;
@@ -802,12 +893,13 @@ void transmitloc(drone mydrone){
 void configuremission(mission &mymission){
     return_menu_int = 0;
     string answer;
+    string User_Option2;
     int confirmation;
     int User_Option;
     // IMPLEMENTATION
     cout<<"----------------------------------"<<endl;
-    cout << "Select an option:\n"<< "1. Launch mission\n"<< "2. Configure rescuee status\n"<< "0. Abort mission (RTH)\n";
-    cout << "Enter your choice (1,2,0): ";
+    cout << "Select an option:\n"<< "1. Launch mission\n"<< "2. Configure rescuee status\n"<<"3. Configure location checked status\n"<< "0. Abort mission (RTH)\n"<<"10. Return to menu\n";
+    cout << "Select an option (1,2,0,10): ";
     cin>>User_Option;
     switch (User_Option)
     {
@@ -841,20 +933,22 @@ void configuremission(mission &mymission){
                 }
                 break;
             }
+        case 10:
+            {
+                return_main = true;
+                break;
+            }
+        case 3:
+            {   cout<<"Has the drone checked the location? (Y/n)?\n";
+                cin>>User_Option2;
+                cout<<"Changing status..."<<endl;
+                mymission.setcheckedloc(User_Option2);
+            }
         default:
             {
                 cout<<"Please either enter 1 or 2 or 0..."<<endl;
                 break;
             }
-    }
-    // RETURN TO MENU
-    cout<<"----------------------------------"<<endl;
-    while (return_menu_int != 10)
-    {
-    cout<<"Enter 10 to return to menu."<<endl;
-    cin>>return_menu_int;
-    if (return_menu_int == 10)
-        return_main = true;
     }
 }
 
@@ -863,31 +957,32 @@ int main(){
     setlocale(LC_ALL, ".UTF-8"); // DEGREE---------
     mission mymission; // START MISSION------------
     int User_Option = -1; // DEFAULT OPTION--------
+    
     while (return_main == true){
         cout<<"----------------------------------"<<endl;
         cout<<"WELCOME TO MANAR HUMAN CONTROL SYSTEM"<<endl;
         cout<<"----------------------------------"<<endl;
-        cout<<"PLEASE SELECT ONE OF THE FOLLOWING OPTIONS:"<<endl;
-        cout<<"- ENTER 1 TO DISPLAY MISSION STATUS"<<endl;
-        cout<<"- ENTER 2 TO CONFIGURE MISSION"<<endl;
-        cout<<"- ENTER 3 FOR COMPONENTS"<<endl;
-        cout<<"- ENTER 4 TO DISPLAY ROUTE STATUS"<<endl;
-        cout<<"- ENTER 5 TO TRANSMIT LOCATION"<<endl;
-        cout<<"- ENTER 0 TO ACTIVATE RTH-MODE"<<endl;
-        cout<<"- ENTER 10 TO EXIT TERMINAL"<<endl;
+        cout<<"Select an option (1-5,0,10):"<<endl;
+        cout<<"- 1. DISPLAY MISSION STATUS"<<endl;
+        cout<<"- 2. CONFIGURE MISSION"<<endl;
+        cout<<"- 3. COMPONENTS"<<endl;
+        cout<<"- 4. DISPLAY ROUTE STATUS"<<endl;
+        cout<<"- 5. TRANSMIT LOCATION"<<endl;
+        cout<<"- 0. ACTIVATE RTH-MODE"<<endl;
+        cout<<"- 10. EXIT TERMINAL"<<endl;
         cout<<"----------------------------------"<<endl;
         cin>>User_Option;
             while (((User_Option < 0) || (User_Option >= 6)) && (User_Option != 10))  
             {
             cout<<"----------------------------------"<<endl;
-            cout<<"PLEASE RETRY AND ENTER ONE OF THE FOLLOWING OPTIONS:"<<endl;
-            cout<<"- ENTER 1 TO DISPLAY MISSION STATUS"<<endl;
-            cout<<"- ENTER 2 TO CONFIGURE MISSION"<<endl;
-            cout<<"- ENTER 3 FOR COMPONENTS"<<endl;
-            cout<<"- ENTER 4 TO DISPLAY ROUTE STATUS"<<endl;
-            cout<<"- ENTER 5 TO TRANSMIT LOCATION"<<endl;
-            cout<<"- ENTER 0 TO ACTIVATE RTH-MODE"<<endl;
-            cout<<"- ENTER 10 TO EXIT TERMINAL"<<endl;
+            cout<<"Select an option (1-5,0,10):"<<endl;
+            cout<<"- 1. DISPLAY MISSION STATUS"<<endl;
+            cout<<"- 2. CONFIGURE MISSION"<<endl;
+            cout<<"- 3. COMPONENTS"<<endl;
+            cout<<"- 4. DISPLAY ROUTE STATUS"<<endl;
+            cout<<"- 5. TRANSMIT LOCATION"<<endl;
+            cout<<"- 0. ACTIVATE RTH-MODE"<<endl;
+            cout<<"- 10. EXIT TERMINAL"<<endl;
             cout<<"----------------------------------"<<endl;
             cin>>User_Option;
             }  
@@ -920,7 +1015,7 @@ int main(){
             case 4:
             {
                 cout<<"Displaying route tracker system..."<<endl;
-                displayroute(mymission.mydrone);
+                displayroute(mymission.mydrone,mymission);
                 break;
             }
             case 5:
