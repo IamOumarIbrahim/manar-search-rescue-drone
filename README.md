@@ -119,6 +119,22 @@ decisions under human supervision.
 - [ ] Final Publishing & LinkedIn Post
 - [ ] Repository Maintenance
 
+## Architecture
+
+```mermaid
+flowchart TD
+    GUI["TypeScript / React<br/>Operator GUI"]
+    CORE["C++<br/>Deterministic Control Core"]
+    ML["Python<br/>Machine Learning"]
+
+    GUI <-->|"HTTP / localhost"| CORE
+    CORE <-->|"Detection / Sensor Data"| ML
+```
+
+**C++** owns system state and deterministic control.
+**Python** handles machine learning and sensor analysis.
+**TypeScript / React** provides the operator interface.
+
 ## Ownership and License
 
 Copyright © 2026 Oumar Ibrahim. All rights reserved.
