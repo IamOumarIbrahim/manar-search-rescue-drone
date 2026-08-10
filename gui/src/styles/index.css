@@ -1,19 +1,5 @@
-:root {
-  --bg-dark: #0f172a;
-  --panel-bg: #1e293b;
-  --text-main: #f8fafc;
-  --accent-color: #38bdf8;
-  --border-color: #334155;
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-}
-
-body {
-  margin: 0;
-  background-color: var(--bg-dark);
-  color: var(--text-main);
-  min-height: 100vh;
-}
-
-.manar-gui {
-  padding: 1.5rem;
-}
+/*
+ * MANAR Operator Interface Styles
+ *
+ * Visual implementation intentionally omitted.
+ */
