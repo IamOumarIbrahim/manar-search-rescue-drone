@@ -101,13 +101,23 @@ decisions under human supervision.
 > - [x] Basic web dashboard — v1.0
 > - [x] Landing Page
 > - [x] Initial deterministic control system design
-- [ ] Decoupling terminal from control logic
-- [ ] Build a GUI for the terminal-based control center
-- [ ] Build determinsitc controls for components and drone 
+- [ ] Decouple terminal from control logic
+- [ ] Build deterministic controls for components and drone
+- [ ] Build the engine control system
+- [ ] Build the component controls
+- [ ] Test and design final drone configuration
+- [ ] Model drone movement in Blender
+- [ ] Build the TypeScript GUI
+- [ ] Couple the TypeScript GUI with C++ control system
+- [ ] Build the Python machine-learning algorithm
+- [ ] Couple TypeScript GUI and C++
+- [ ] Couple Python ML with TS and C++
+- [ ] Test and train models
+- [ ] System integration and end-to-end testing
 - [ ] To be determined...
-- [ ] LaTeX Report, Presentation and Full documentation
+- [ ] LaTeX Report, Presentation and Full Documentation
 - [ ] Final Publishing & LinkedIn Post
-- [ ] Repository Maintenance 
+- [ ] Repository Maintenance
 
 ## Ownership and License
 
