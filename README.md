@@ -1,19 +1,12 @@
-<p align="center">
-  <img
-    src="assets\Images\Branding\GitHub README Header.png"
-    alt="MANAR supervised-autonomy search-and-rescue drone"
-    width="900"
-  />
-</p>
+
 
 # MANAR / منار
 
-> **PROPRIETARY PROJECT SHOWCASE**
+> **PROPRIETARY CORE · SELECTED OPEN-SOURCE COMPONENTS**
 >
 > MANAR is independently created and owned by **Oumar Ibrahim**.
 > This repository contains selected demonstrations, documentation, and
 > portfolio materials only.
->
 
 ## Project Overview
 
@@ -135,12 +128,17 @@ flowchart TD
 **Python** handles machine learning and sensor analysis.
 **TypeScript / React** provides the operator interface.
 
+
 ## Ownership and License
 
 Copyright © 2026 Oumar Ibrahim. All rights reserved.
 
-No permission is granted to copy, modify, distribute, reproduce,
-commercialize, or create derivative works from this project without
-prior written authorization.
+Unless explicitly stated otherwise, all materials in this repository are
+proprietary and governed by the MANAR Proprietary Software and Materials License.
 
-See the [LICENSE](LICENSE) file for the complete terms.
+Selected files, components, or directories may be released under separate
+open-source licenses. Any such license applies only to the material explicitly
+identified as being covered by it.
+
+See the [LICENSE](LICENSE) and any applicable file or directory license notices for
+the complete terms.
