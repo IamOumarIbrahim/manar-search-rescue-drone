@@ -118,15 +118,16 @@ decisions under human supervision.
 flowchart TD
     GUI["TypeScript / React<br/>Operator GUI"]
     CORE["C++<br/>Deterministic Control Core"]
-    ML["Python<br/>Machine Learning"]
+    ML["Python / PyTorch<br/>Machine Learning"]
 
     GUI <-->|"HTTP / localhost"| CORE
     CORE <-->|"Detection / Sensor Data"| ML
 ```
 
 **C++** owns system state and deterministic control.
-**Python** handles machine learning and sensor analysis.
+**Python / PyTorch** handles machine learning and sensor analysis.
 **TypeScript / React** provides the operator interface.
+
 
 
 ## Ownership and License
