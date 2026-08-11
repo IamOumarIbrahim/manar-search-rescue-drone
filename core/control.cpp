@@ -8,7 +8,14 @@
     #include <chrono>  
     #include <fstream>
     #include <ctime> 
+    #include <nlohmann/json.hpp>
     using namespace std;
+
+
+
+using json = nlohmann::json;
+
+json config;
 
 ofstream fout("logs.txt");
 /* RESPONSIBILITY
@@ -43,25 +50,25 @@ class flight
     private:
         double speed = 0;
         double altitude = 0;
-        double destlat = 25.276987;  // default latitude of the destination 
-        double destlon = 55.296249;  // default longitude of the destination 
+        double destlat = config["home_base_latitude"];  // default latitude of the destination 
+        double destlon = config["home_base_longitude"];  // default longitude of the destination 
         string mode = "Stall";
         bool flightlaunched = false;
     public:
         void setspeed(double setspeed)
         {
-            if ((setspeed <= 15) && (setspeed >= 0)){
+            if ((setspeed <= config["maximum_speed"]) && (setspeed >= 0)){
                 speed = setspeed;
             cout<<"----------------------------------"<<endl;
-            cout<<"Speed goal manually set to "<<speed<<endl;
+            cout<<"Speed goal manually set to "<<speed<<"m/s"<<endl;
             }
         }
         void setaltitude(double setaltitude)
         {
-            if ((setaltitude <= 2000) && (setaltitude >= 0)){
+            if ((setaltitude <= config["maximum_altitude"]) && (setaltitude >= 0)){
                 altitude = setaltitude;
             cout<<"----------------------------------"<<endl;
-            cout<<"Altitude goal manually set to "<<altitude<<endl;
+            cout<<"Altitude goal manually set to "<<altitude<<"m."<<endl;
             }
         }
         double getspeed()
@@ -78,12 +85,8 @@ class flight
             cout<<"Descending and reducing speed..."<<endl;
             flightlaunched = false;
             this_thread::sleep_for(chrono::seconds(1));
-            while(speed > 0){
-                speed = speed - 1;
-            }
-            while(altitude > 0){
-                altitude = altitude - 1;
-            }
+            speed = 0;
+            altitude = 0;
             cout << "Successfully stopped." << endl;
             mode = "Stall";
         }
@@ -92,11 +95,9 @@ class flight
             cout<<"----------------------------------"<<endl;
             cout<<"Initating launch..."<<endl;
             flightlaunched = true;
-            cout<<"Climbing to 10m..."<<endl;
-            while (altitude < 10){
-                altitude = altitude + 1;
-            }
-            cout<<"Successfully launched, drone hovering at 10m altitude"<<endl;
+            cout<<"Climbing to "<<config["launch_altitude"]<<" m."<<endl;
+            altitude = config["launch_altitude"];
+            cout<<"Successfully launched, drone hovering at "<<config["launch_altitude"]<<" m altitude."<<endl;
             mode = "Hover";
         }
         void setmodename(string m)
@@ -112,25 +113,25 @@ class flight
             if (User_Option2 == 1)
             {
                 cout<<"Flight mode: Quick -- Enabled"<<endl;
-                setspeed(15);
+                setspeed(config["quick_speed"]);
                 setmodename("Quick");
             }
             else if (User_Option2 == 2)
             {
                 cout<<"Flight mode: Active -- Enabled"<<endl;
-                setspeed(5);
+                setspeed(config["active_speed"]);
                 setmodename("Active");
             }
             else if (User_Option2 == 4)
             {
                 cout<<"Flight mode: Hover -- Enabled"<<endl;
-                setspeed(0);
+                setspeed(config["hover_speed"]);
                 setmodename("Hover");
             }
             else if (User_Option2 == 3)
             {
                 cout<<"Flight mode: Inspect -- Enabled"<<endl;
-                setspeed(1);
+                setspeed(config["inspect_speed"]);
                 setmodename("Inspect");
             }
         }
@@ -357,7 +358,7 @@ class drone
     public:
         components comp;
         flight mydroneflight;
-        home myhome{"Base Station", 25.276987, 55.296249};
+        home myhome{config["home_base_name"], config["home_base_latitude"], config["home_base_longitude"]};
     void printcurrent_location(){
         cout<<"----------------------------------"<<endl;
         this_thread::sleep_for(chrono::seconds(1));
@@ -395,11 +396,11 @@ class drone
         distfromhome = EARTH_RADIUS * c;
     }
     void determineifclose(){
-        updateDistFromHome();
-        if (distfromhome <= 100){
+        updateDistFromHome(); 
+        if (distfromhome <= config["home_arrival_radius"]){
             closefromhome = true;
         }
-        else if (distfromhome > 100)
+        else if (distfromhome > config["home_arrival_radius"])
             closefromhome = false;
     }
     bool getclose(){
@@ -575,22 +576,22 @@ class mission
         }
         void batterysystem() // DETERMINISTIC BATTERY BEHAVIOUR
         {
-            if (mydrone.getbattery() <= 30)
+            if (mydrone.getbattery() <= config["battery_warning"])
             {
-                cout<<"Battery is currently under 30%, Consider enabling energy save-mode."<<endl;
+                cout<<"Battery is currently under "<<config["battery_warning"]<<"%, Consider enabling energy save-mode."<<endl;
             }
-            else if (mydrone.getbattery() <= 20)
+            else if (mydrone.getbattery() <= config["battery_rth_warning"])
             {
-                cout<<"Battery is currently under 20%, Transmitting current location... Please consider ENABLING RTH"<<endl;
+                cout<<"Battery is currently under "<<config["battery_rth_warning"]<<"%, Transmitting current location... Please consider ENABLING RTH."<<endl;
                 mydrone.transmitinfo();
             }
-            else if (mydrone.getbattery() <= 10)
+            else if (mydrone.getbattery() <= config["battery_emergency_rth"])
             {
                 if (rescueefound == false){
                     emergencyrth = true;
                     mydrone.transmitinfo();
                     cout<<"[Battery: CRITICAL] -- Enabling emergency rth"<<endl;
-                    if (mydrone.getbattery() <= 5) // HAUL FLIGHT OPERATION, LAND SAFELY
+                    if (mydrone.getbattery() <= config["battery_emergency_land"]) // HAUL FLIGHT OPERATION, LAND SAFELY
                     {
                         cout<<"[Battery: CRITICAL] -- Transmitting current location..."<<endl;
                         mydrone.transmitinfo();
@@ -884,7 +885,7 @@ void configureroute(drone &mydrone)
             {
                 if (mydrone.mydroneflight.getlaunched())
                 {
-                    cout<<"Enter speed between 0-15m/s:\n";
+                    cout<<"Enter speed between 0-"<<config["maximum_speed"]<<"m/s."<<endl;
                     cin>>setspeed;
                     double currentsp = mydrone.mydroneflight.getspeed();
                     mydrone.mydroneflight.setspeed(setspeed);
@@ -900,7 +901,7 @@ void configureroute(drone &mydrone)
             {
                 if (mydrone.mydroneflight.getlaunched())
                 {
-                    cout<<"Enter altitude between 0-2000m:\n";
+                    cout<<"Enter altitude between 0-"<<config["maximum_altitude"]<<"m"<<endl;
                     cin>>setaltitude;
                     double currental = mydrone.mydroneflight.getaltitude();
                     mydrone.mydroneflight.setaltitude(setaltitude);
@@ -1088,6 +1089,8 @@ void configuremission(mission &mymission)
 // MAIN METHOD-------------------------------------
 int main()
 {
+    ifstream configfile("config.json"); 
+    configfile >> config;
     setlocale(LC_ALL, ".UTF-8"); // DEGREE---------
     mission mymission; // START MISSION------------
     int User_Option = -1; // DEFAULT OPTION--------

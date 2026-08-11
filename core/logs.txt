@@ -1,4 +1,1 @@
-[15:26:43] Terminal started
-[15:26:54] FLIGHT: launched
-[15:27:37] FLIGHT: mode configured Hover -> Quick
-[15:27:56] FLIGHT: stopped
+[20:06:46] Terminal started
