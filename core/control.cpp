@@ -5,10 +5,12 @@
     #include <cmath>
     #include <iomanip>
     #include <thread>
-    #include <chrono>   
+    #include <chrono>  
+    #include <fstream>
+    #include <ctime> 
     using namespace std;
 
-
+ofstream fout("output.txt");
 /* RESPONSIBILITY
     According to Section 2.4 (Responsibility Allocation) of the Version 1 specification,
     the human operator must be capable of executing all of these tasks if required
@@ -22,14 +24,29 @@
     - Shares confirmed coordinates with rescue teams and handles exceptional emergency decisions.
 
 */
+string getTimestamp()
+{
+    auto now = chrono::system_clock::now();
+    time_t currentTime = chrono::system_clock::to_time_t(now);
+
+    tm* localTime = localtime(&currentTime);
+
+    char buffer[20];
+
+    strftime(buffer, sizeof(buffer), "%H:%M:%S", localTime);
+
+    return buffer;
+}
 // CLASSES-------------------------------------------
-class flight{
+class flight
+{
     private:
         double speed = 0;
         double altitude = 0;
         double destlat = 25.276987;  // latitude of the destination 
         double destlon = 55.296249;  // longitude of the destination 
         string mode = "None";
+        bool flightlaunched = false;
     public:
         void setspeed(double setspeed)
         {
@@ -85,6 +102,8 @@ class flight{
         {
             cout<<"----------------------------------"<<endl;
             cout<<"Descending and reducing speed..."<<endl;
+            flightlaunched = false;
+            this_thread::sleep_for(chrono::seconds(1));
             while(speed > 0){
                 speed = speed - 1;
             }
@@ -97,6 +116,7 @@ class flight{
         {
             cout<<"----------------------------------"<<endl;
             cout<<"Initating launch..."<<endl;
+            flightlaunched = true;
             cout<<"Climbing to 10m..."<<endl;
             while (altitude < 10){
                 altitude = altitude + 1;
@@ -144,6 +164,7 @@ class flight{
             cout<<"Current Speed: "<<getspeed()<<" m/s"<<endl;
             cout<<"Current Altitude: "<<getaltitude()<<" m"<<endl;
             cout<<"Current Mode: "<<getmodename()<<endl;
+            cout<<"Current Status: "<<getlaunched()<<endl;
         }
         void setdestination(double lat,double lon)
         {
@@ -157,8 +178,12 @@ class flight{
             cout<<"Current destination: "<<fixed << setprecision(6)<<destlat<<" ° N "<<destlon<<" ° E"<<endl<<
             "- Google Maps: https://www.google.com/maps?q="<<destlat<<","<<destlon<< endl;
         }
+        bool getlaunched(){
+            return flightlaunched;
+        }
 };
-class components {
+class components 
+{
     // COMPONENT VARIABLES
         public:
             bool thermal_camera_status,RGB_camera_status,infrared_camera_status;
@@ -317,7 +342,8 @@ class components {
             }
         }       
 };
-class home {
+class home 
+{
     private:
         string homelocationname;
         double latitude ,longitude;
@@ -335,7 +361,8 @@ class home {
         }
 
 };
-class drone {
+class drone 
+{
     private:
         double latitude = 0;    // latitude of the drone 
         double longitude = 0;   // longitude of the drone 
@@ -418,7 +445,8 @@ class drone {
         }
     }
 };
-class mission {
+class mission 
+{
     private:
         bool rescueefound = false; // if found then transmit location, hover in that place and save battery till manual help
                                         // if not found generate report and RTH if battery 
@@ -554,7 +582,6 @@ class mission {
             missionstarted = true;
             missionstatusupdater();
             cout<<"Missions successfully started. Drone is currently enroute"<<endl;
-
         }
         void abortmission() // MANUALL ABORT
         {
@@ -633,7 +660,9 @@ class mission {
 bool return_main = true;
 int return_menu_int;
 // TERMINAL METHODS----------------------------------
-void activateRTH(drone &mydrone, home &myhome){
+void activateRTH(drone &mydrone, home &myhome)
+{
+    fout << "[" << getTimestamp() << "] RTH: disabled -> enabled" << endl;
     return_menu_int = 0;
     double X,Y;
     mydrone.printcurrent_location();
@@ -656,7 +685,8 @@ void activateRTH(drone &mydrone, home &myhome){
         return_main = true;
     }
 }
-void displaystatus(drone mydrone){
+void displaystatus(drone mydrone)
+{
     return_menu_int = 0;
     //ENTER IMPLEMENTATION
     mydrone.printbattery();
@@ -670,7 +700,8 @@ void displaystatus(drone mydrone){
         return_main = true;
     }
 }
-void configurecomponents(drone &mydrone){
+void configurecomponents(drone &mydrone)
+{
     return_menu_int = 0;
     int User_Option = -1;
     int User_Option2 = -1;
@@ -689,46 +720,57 @@ void configurecomponents(drone &mydrone){
             case 1:
                 cout << "Initializing Thermal camera..." << endl;
                 mydrone.comp.thermal(User_Option2);
+                fout << "[" << getTimestamp() << "] COMPONENTS: thermal camera ON" << endl;
                 break;
             case 2:
                 cout << "Initializing RGB camera..." << endl;
                 mydrone.comp.rgb(User_Option2);
+                fout << "[" << getTimestamp() << "] COMPONENTS: RGB camera ON" << endl;
                 break;
             case 3:
                 cout << "Initializing Infrared camera..." << endl;
                 mydrone.comp.infrared(User_Option2);
+                fout << "[" << getTimestamp() << "] COMPONENTS: Infrared camera ON" << endl;
                 break;
             case 4:
                 cout << "Initializing FMCW radar..." << endl;
                 mydrone.comp.fmcw(User_Option2);
+                fout << "[" << getTimestamp() << "] COMPONENTS: FMCW radar ON" << endl;
                 break;
             case 5:
                 cout << "Activating Speaker..." << endl;
                 mydrone.comp.speaker(User_Option2);
+                fout << "[" << getTimestamp() << "] COMPONENTS: speaker ON" << endl;
                 break;
             case 6:
                 cout << "Activating Microphone..." << endl;
                 mydrone.comp.microphone(User_Option2);
+                fout << "[" << getTimestamp() << "] COMPONENTS: microphone ON" << endl;
                 break;
             case 7:
                 cout << "Enabling RF module..." << endl;
                 mydrone.comp.rf(User_Option2);
+                fout << "[" << getTimestamp() << "] COMPONENTS: rf module ON" << endl;
                 break;
             case 8:
                 cout << "Activating Beacon..." << endl;
                 mydrone.comp.beacon(User_Option2);
+                fout << "[" << getTimestamp() << "] COMPONENTS: beacon ON" << endl;
                 break;
             case 9:
                 cout << "Activating Strobe light..." << endl;
                 mydrone.comp.strobe(User_Option2);
+                fout << "[" << getTimestamp() << "] COMPONENTS: strobe ON" << endl;
                 break;
             case 10:
                 cout << "Turning on Spotlight..." << endl;
                 mydrone.comp.spotlight(User_Option2);
+                fout << "[" << getTimestamp() << "] COMPONENTS: spotlight ON" << endl;
                 break;
             case 11:
                 cout << "Deploying Smoke system..." << endl;
                 mydrone.comp.smoke(User_Option2);
+                fout << "[" << getTimestamp() << "] COMPONENTS: smoke ON" << endl;
                 break;
             default:
                 cout << "Invalid selection. Please choose a number between 1 and 11." << endl;
@@ -740,45 +782,56 @@ void configurecomponents(drone &mydrone){
             case 1:
                 cout << "Shutting down Thermal camera..." << endl;
                 mydrone.comp.thermal(User_Option2);
+                fout << "[" << getTimestamp() << "] COMPONENTS: thermal camera OFF " << endl;
                 break;
             case 2:
                 cout << "Shutting down RGB camera..." << endl;
                 mydrone.comp.rgb(User_Option2);
+                fout << "[" << getTimestamp() << "] COMPONENTS: RGB camera OFF " << endl;
                 break;
             case 3:
                 cout << "Shutting down Infrared camera..." << endl;
                 mydrone.comp.infrared(User_Option2);
+                fout << "[" << getTimestamp() << "] COMPONENTS: Infrared camera OFF " << endl;
                 break;
             case 4:
                 cout << "Shutting down FMCW radar..." << endl;
+                fout << "[" << getTimestamp() << "] COMPONENTS: FMCW radar OFF " << endl;
                 mydrone.comp.fmcw(User_Option2);
                 break;
             case 5:
                 cout << "Deactivating Speaker..." << endl;
+                fout << "[" << getTimestamp() << "] COMPONENTS: speaker OFF " << endl;
                 mydrone.comp.speaker(User_Option2);
                 break;
             case 6:
                 cout << "Deactivating Microphone..." << endl;
+                fout << "[" << getTimestamp() << "] COMPONENTS: microphone OFF " << endl;
                 mydrone.comp.microphone(User_Option2);
                 break;
             case 7:
                 cout << "Disabling RF module..." << endl;
+                fout << "[" << getTimestamp() << "] COMPONENTS: RF module OFF " << endl;
                 mydrone.comp.rf(User_Option2);
                 break;
             case 8:
                 cout << "Deactivating Beacon..." << endl;
+                fout << "[" << getTimestamp() << "] COMPONENTS: beacon OFF " << endl;
                 mydrone.comp.beacon(User_Option2);
                 break;
             case 9:
                 cout << "Deactivating Strobe light..." << endl;
+                fout << "[" << getTimestamp() << "] COMPONENTS: strobe OFF " << endl;
                 mydrone.comp.strobe(User_Option2);
                 break;
             case 10:
                 cout << "Turning off Spotlight..." << endl;
+                fout << "[" << getTimestamp() << "] COMPONENTS: spotlight OFF " << endl;
                 mydrone.comp.spotlight(User_Option2);
                 break;
             case 11:
                 cout << "Shutting down Smoke system..." << endl;
+                fout << "[" << getTimestamp() << "] COMPONENTS: smoke OFF " << endl;
                 mydrone.comp.smoke(User_Option2);
                 break;
             default:
@@ -795,7 +848,8 @@ void configurecomponents(drone &mydrone){
         return_main = true;
     }
 }
-void displaycomponent(drone &mydrone){
+void displaycomponent(drone &mydrone)
+{
     return_menu_int = 0;
     mydrone.comp.printcomp();
     this_thread::sleep_for(chrono::seconds(1));
@@ -813,7 +867,8 @@ void displaycomponent(drone &mydrone){
 
     }
 }
-void configureroute(drone &mydrone){
+void configureroute(drone &mydrone)
+{
     return_menu_int = 0;
     int User_Option = -1;
     int User_Option2 = -1;
@@ -826,33 +881,77 @@ void configureroute(drone &mydrone){
     switch (User_Option){
         case 1:
             {
-                cout<<"Enter the type of mode:\n"<<"1. Quick\n"<<"2. Active\n"<<"3. Inspect\n"<<"4. Hover\n";
-                cin>>User_Option2;
-                mydrone.mydroneflight.setmode(User_Option2);
+                if (mydrone.mydroneflight.getlaunched())
+                {
+                    cout<<"Enter the type of mode:\n"<<"1. Quick\n"<<"2. Active\n"<<"3. Inspect\n"<<"4. Hover\n";
+                    cin>>User_Option2;
+                    string currentmode = mydrone.mydroneflight.getmodename();
+                    mydrone.mydroneflight.setmode(User_Option2);
+                    fout << "[" << getTimestamp() << "] FLIGHT: mode configured " <<currentmode<<" -> "<<mydrone.mydroneflight.getmodename() << endl;
+                }
+                else
+                {
+                    cout<<"Flight has NOT been launched yet, cannot modify mode."<<endl;
+                }
+ 
                 break;
             }
         case 2:
             {
-                cout<<"Enter speed between 0-15m/s:\n";
-                cin>>setspeed;
-                mydrone.mydroneflight.setspeed(setspeed);
+                if (mydrone.mydroneflight.getlaunched())
+                {
+                    cout<<"Enter speed between 0-15m/s:\n";
+                    cin>>setspeed;
+                    double currentsp = mydrone.mydroneflight.getspeed();
+                    mydrone.mydroneflight.setspeed(setspeed);
+                    fout << "[" << getTimestamp() << "] FLIGHT: speed configured " << currentsp <<"m/s -> "<< setspeed<<"m/s."<< endl;
+                }
+                else
+                {
+                    cout<<"Flight has NOT been launched yet, cannot modify speed."<<endl;
+                }
                 break;
             }
         case 3:
             {
-                cout<<"Enter altitude between 0-2000m:\n";
-                cin>>setaltitude;
-                mydrone.mydroneflight.setaltitude(setaltitude);
+                if (mydrone.mydroneflight.getlaunched())
+                {
+                    cout<<"Enter altitude between 0-2000m:\n";
+                    cin>>setaltitude;
+                    double currental = mydrone.mydroneflight.getaltitude();
+                    mydrone.mydroneflight.setaltitude(setaltitude);
+                    fout << "[" << getTimestamp() << "] FLIGHT: altitude configured" << currental <<"m -> "<< setaltitude<<"m."<< endl;
+                }
+                else
+                {
+                    cout<<"Flight has NOT been launched yet, cannot modify altitude."<<endl;
+                }
                 break;
             }
         case 4:
             {
-                mydrone.mydroneflight.launch();
+                if (!mydrone.mydroneflight.getlaunched())
+                {
+                    mydrone.mydroneflight.launch();
+                    fout << "[" << getTimestamp() << "] FLIGHT: launched" << endl;
+                }
+                else
+                {
+                    cout<<"Flight already launched!"<<endl;
+                }
                 break;
             }
         case 5:
             {
-                mydrone.mydroneflight.stopflight();
+                if (mydrone.mydroneflight.getlaunched())
+                {
+                    mydrone.mydroneflight.stopflight();
+                    fout << "[" << getTimestamp() << "] FLIGHT: stopped" << endl;
+                }
+                else
+                {
+                    cout<<"Flight already stopped!"<<endl;
+                }
                 break;
             }
         case 10:
@@ -868,7 +967,8 @@ void configureroute(drone &mydrone){
 
     }
 }
-void displayroute(drone &mydrone, mission &mymission){
+void displayroute(drone &mydrone, mission &mymission)
+{
     return_menu_int = 0;
 
     mydrone.printcurrent_location();
@@ -889,9 +989,11 @@ void displayroute(drone &mydrone, mission &mymission){
     }
     }
 }
-void transmitloc(drone mydrone){
+void transmitloc(drone mydrone)
+{
     return_menu_int = 0;
     mydrone.transmitinfo();
+    fout << "[" << getTimestamp() << "] INFO: transmitted" << endl;
     cout<<"----------------------------------"<<endl;
     while (return_menu_int != 10)
     {
@@ -901,7 +1003,8 @@ void transmitloc(drone mydrone){
         return_main = true;
     }
 }
-void configuremission(mission &mymission){
+void configuremission(mission &mymission)
+{
     return_menu_int = 0;
     string returntohomeans = "";
     string answer;
@@ -920,6 +1023,7 @@ void configuremission(mission &mymission){
             {   
                 cout<<"Starting mission..."<<endl;
                 mymission.startmission();
+                fout << "[" << getTimestamp() << "] MISSION: stalled -> launched" << endl;
                 break;
             }
         case 2:
@@ -929,6 +1033,8 @@ void configuremission(mission &mymission){
                 if ((answer == "Y" )||(answer == "y")){
                     mymission.configurerescueestate();
                     cout<<"Rescuee state set to found."<<endl;
+                    this_thread::sleep_for(chrono::seconds(1));
+                    fout << "[" << getTimestamp() << "] RESCUEE: lost -> found" << endl;
                 }
                 break;
             }
@@ -939,6 +1045,7 @@ void configuremission(mission &mymission){
                 if (confirmation == 10)
                 {
                     if (mymission.getmissionstarted()){
+                        fout << "[" << getTimestamp() << "] MISSION: ongoing -> aborted" << endl;
                         cout<<"Aborting mission..."<<endl;
                         mymission.abortmission();
                         cout<<"Return to home? (Y/n)"<<endl;
@@ -947,6 +1054,7 @@ void configuremission(mission &mymission){
                         {
                             cout<<"Activating Return-To-Home mode..."<<endl;
                             activateRTH(mymission.mydrone,mymission.mydrone.myhome);
+                            fout << "[" << getTimestamp() << "] RTH: disabled -> enabled" << endl;
                         }
                         else
                         {
@@ -973,6 +1081,7 @@ void configuremission(mission &mymission){
                 cin>>User_Option2;
                 cout<<"Changing status..."<<endl;
                 mymission.setcheckedloc(User_Option2);
+                fout << "[" << getTimestamp() << "] LOCATION: unchecked -> checked" << endl;
             }
         default:
             {
@@ -983,11 +1092,13 @@ void configuremission(mission &mymission){
 }
 
 // MAIN METHOD-------------------------------------
-int main(){
+int main()
+{
     setlocale(LC_ALL, ".UTF-8"); // DEGREE---------
     mission mymission; // START MISSION------------
     int User_Option = -1; // DEFAULT OPTION--------
-    
+    string confirmationrth = "";
+    fout << "[" << getTimestamp() << "] Terminal started" << endl;
     while (return_main == true){
         this_thread::sleep_for(chrono::seconds(1));
         cout<<"----------------------------------"<<endl;
@@ -1021,8 +1132,17 @@ int main(){
         switch (User_Option){
             case 0:
             {
-                cout<<"Activating Return-To-Home mode..."<<endl;
-                activateRTH(mymission.mydrone,mymission.mydrone.myhome);
+                cout<<"ARE YOU SURE YOU WANT TO ACTIVATE RETURN TO HOME OPERATION? (Y/N): "<<endl;
+                cin>>confirmationrth;
+                if ((confirmationrth == "y")||(confirmationrth =="Y"))
+                {
+                    cout<<"Activating Return-To-Home mode..."<<endl;
+                    activateRTH(mymission.mydrone,mymission.mydrone.myhome);
+                }
+                else 
+                {
+                    cout<<"RTH has NOT been activated."<<endl;
+                }
                 break;
             }
             case 1:
@@ -1059,6 +1179,7 @@ int main(){
             case 10:
             {
                 cout<<"Exiting terminal now..."<<endl;
+                fout << "[" << getTimestamp() << "] Exiting terminal" << endl;
                 return 0;
                 break;
             }
