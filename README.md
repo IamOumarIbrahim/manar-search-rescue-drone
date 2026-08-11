@@ -48,10 +48,8 @@ decisions under human supervision.
 
 ## Current Status
 > **Current phase:** Developing JSON runtime state database and configuration.
-<video controls>
-  <source src="assets/Videos/demo.mp4" type="video/mp4">
-</video>
 
+[▶ Watch demo](assets/Videos/demo.mp4)
 
 ## Established
 <table>
