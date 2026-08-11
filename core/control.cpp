@@ -4,6 +4,8 @@
     #include <clocale>
     #include <cmath>
     #include <iomanip>
+    #include <thread>
+    #include <chrono>   
     using namespace std;
 
 
@@ -180,6 +182,7 @@ class components {
         }
     // PRINT METHODS
         void printcomp(){
+            this_thread::sleep_for(chrono::seconds(1));
             cout<<"----------------------------------"<<endl;
             cout<<"Thermal camera: "<<thermal_camera_status<<endl;
             cout<<"RGB camera: "<<RGB_camera_status<<endl;
@@ -346,6 +349,7 @@ class drone {
         home myhome{"Base Station", 25.276987, 55.296249};
     void printcurrent_location(){
         cout<<"----------------------------------"<<endl;
+        this_thread::sleep_for(chrono::seconds(1));
         cout<<"Current drone location: "<<fixed << setprecision(6)<<latitude<<" ° N "<<longitude<<" ° E"<<endl<<
         "- Google Maps: https://www.google.com/maps?q="<<latitude<<","<<longitude<< endl;
     }
@@ -432,6 +436,7 @@ class mission {
         void missionstatus() // DISPLAY UNIT
         {   
             missionstatusupdater();
+            this_thread::sleep_for(chrono::seconds(1));
             if (rescueefound == true)
             {
                 cout << "----------------------------------" << endl;
@@ -620,6 +625,9 @@ class mission {
                 cout<<"Current flight status: Waiting for help.\n";
             }
         }
+        bool getmissionstarted(){
+            return missionstarted;
+        }
 };
 // GLOBAL VARIABLES----------------------------------
 bool return_main = true;
@@ -667,10 +675,12 @@ void configurecomponents(drone &mydrone){
     int User_Option = -1;
     int User_Option2 = -1;
     cout<<"----------------------------------"<<endl;
+    this_thread::sleep_for(chrono::seconds(1));
     cout << "Select a payload option:\n"<< "1. Thermal\n"<< "2. RGB\n"<< "3. Infrared\n"<< "4. FMCW\n"<< "5. Speaker\n"<< "6. Mic\n"<< "7. RF\n"<< "8. Beacon\n"
     << "9. Strobe\n"<< "10. Spotlight\n"<< "11. Smoke\n\n"<< "Select an option (1-11): ";
     cin>>User_Option;
     cout<<"----------------------------------"<<endl;
+    this_thread::sleep_for(chrono::seconds(1));
     cout << "Select an option:\n"<< "1. TURN IT ON\n"<< "2. TURN IT OFF\n"<< "Select an option (1-2): ";
     cin>>User_Option2;
 
@@ -788,9 +798,10 @@ void configurecomponents(drone &mydrone){
 void displaycomponent(drone &mydrone){
     return_menu_int = 0;
     mydrone.comp.printcomp();
-
+    this_thread::sleep_for(chrono::seconds(1));
     while (return_menu_int != 10)
     {
+    
     cout<<"Select an option."<<endl<<"- 2: Configure components"<<endl<<"- 10: Return to Main Menu."<<endl<<"Select an option (2, 10)..."<<endl;
     cin>>return_menu_int;
     if (return_menu_int == 10)
@@ -892,12 +903,14 @@ void transmitloc(drone mydrone){
 }
 void configuremission(mission &mymission){
     return_menu_int = 0;
+    string returntohomeans = "";
     string answer;
     string User_Option2;
     int confirmation;
     int User_Option;
     // IMPLEMENTATION
     cout<<"----------------------------------"<<endl;
+    this_thread::sleep_for(chrono::seconds(1));
     cout << "Select an option:\n"<< "1. Launch mission\n"<< "2. Configure rescuee status\n"<<"3. Configure location checked status\n"<< "0. Abort mission (RTH)\n"<<"10. Return to menu\n";
     cout << "Select an option (1,2,0,10): ";
     cin>>User_Option;
@@ -920,13 +933,30 @@ void configuremission(mission &mymission){
                 break;
             }
         case 0:
-            {
+            {   
                 cout<<"ARE YOU SURE YOU WANT TO ABORT THIS MISSION? ENTER 10 IF YOU WANT TO ABORT."<<endl;
                 cin>>confirmation;
                 if (confirmation == 10)
                 {
-                    cout<<"Aborting mission..."<<endl;
-                    mymission.abortmission();
+                    if (mymission.getmissionstarted()){
+                        cout<<"Aborting mission..."<<endl;
+                        mymission.abortmission();
+                        cout<<"Return to home? (Y/n)"<<endl;
+                        cin>>returntohomeans;
+                        if ((returntohomeans == "Y") || (returntohomeans == "y"))
+                        {
+                            cout<<"Activating Return-To-Home mode..."<<endl;
+                            activateRTH(mymission.mydrone,mymission.mydrone.myhome);
+                        }
+                        else
+                        {
+                            cout<<"Return to home has NOT been activated."<<endl;
+                        }
+                    }
+                    else {
+                        cout<<"Cannot abort a mission that did NOT start."<<endl;
+                    }
+
                 }
                 else{
                     cout<<"Mission has NOT been aborted."<<endl;
@@ -959,6 +989,7 @@ int main(){
     int User_Option = -1; // DEFAULT OPTION--------
     
     while (return_main == true){
+        this_thread::sleep_for(chrono::seconds(1));
         cout<<"----------------------------------"<<endl;
         cout<<"WELCOME TO MANAR HUMAN CONTROL SYSTEM"<<endl;
         cout<<"----------------------------------"<<endl;
@@ -974,6 +1005,7 @@ int main(){
         cin>>User_Option;
             while (((User_Option < 0) || (User_Option >= 6)) && (User_Option != 10))  
             {
+            this_thread::sleep_for(chrono::seconds(1));
             cout<<"----------------------------------"<<endl;
             cout<<"Select an option (1-5,0,10):"<<endl;
             cout<<"- 1. DISPLAY MISSION STATUS"<<endl;
