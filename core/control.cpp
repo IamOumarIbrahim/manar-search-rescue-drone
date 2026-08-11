@@ -351,7 +351,7 @@ class drone
     private:
         double latitude = 0;    // latitude of the drone 
         double longitude = 0;   // longitude of the drone 
-        double battery = 100;   // Battery of drone default
+        double battery = config["starting_battery_percent"];   // Battery of drone default
         double distfromhome = 1000; // safe default
         bool  closefromhome = false;
         bool savebattery = false; // TO BE IMPLEMENTED
