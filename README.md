@@ -49,7 +49,9 @@ decisions under human supervision.
 ## Current Status
 > **Current phase:** Developing JSON runtime state database and configuration.
 
-[▶ Watch demo](assets/Videos/demo.mp4)
+<p align="center">
+  <img src="assets/Videos/demo.gif" alt="MANAR Demo" width="900">
+</p>
 
 ## Established
 <table>
