@@ -10,7 +10,7 @@
     #include <ctime> 
     using namespace std;
 
-ofstream fout("output.txt");
+ofstream fout("logs.txt");
 /* RESPONSIBILITY
     According to Section 2.4 (Responsibility Allocation) of the Version 1 specification,
     the human operator must be capable of executing all of these tasks if required
