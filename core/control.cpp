@@ -8,7 +8,9 @@
     #include <chrono>  
     #include <fstream>
     #include <ctime> 
+    #include <cstdio>
     #include <nlohmann/json.hpp>
+    #include <cctype>
     using namespace std;
 
 
@@ -16,8 +18,8 @@
 using json = nlohmann::json;
 
 json config;
-
-ofstream fout("logs.txt");
+json runtime;
+ofstream fout("logs.txt", ios::app);
 /* RESPONSIBILITY
     According to Section 2.4 (Responsibility Allocation) of the Version 1 specification,
     the human operator must be capable of executing all of these tasks if required
@@ -44,6 +46,85 @@ string getTimestamp()
 
     return buffer;
 }
+void saveRuntime()
+{
+    ofstream out("runtime.json");
+    out << runtime.dump(4);
+    out.close();
+}
+bool parseCoordinates(string input, double &lat, double &lon)
+{
+    // DECIMAL:
+    // 25.336421042699826, 55.344470601876345
+
+    if (input.find(',') != string::npos)
+    {
+        try
+        {
+            size_t comma = input.find(',');
+
+            lat = stod(input.substr(0, comma));
+            lon = stod(input.substr(comma + 1));
+
+            lat = round(lat * 1000000.0) / 1000000.0;
+            lon = round(lon * 1000000.0) / 1000000.0;
+
+            return true;
+        }
+        catch (...)
+        {
+            return false;
+        }
+    }
+
+    // DMS:
+    // 25°13'10.91"N 55°27'13.60"E
+
+    string cleaned = input;
+
+    // Replace every separator with a space.
+    // Keep only numbers, decimal points, minus signs, and N/S/E/W.
+    for (char &c : cleaned)
+    {
+        if (!isdigit((unsigned char)c) &&
+            c != '.' &&
+            c != '-' &&
+            c != 'N' && c != 'n' &&
+            c != 'S' && c != 's' &&
+            c != 'E' && c != 'e' &&
+            c != 'W' && c != 'w')
+        {
+            c = ' ';
+        }
+    }
+
+    stringstream ss(cleaned);
+
+    double latDeg, latMin, latSec;
+    double lonDeg, lonMin, lonSec;
+    char latDirection, lonDirection;
+
+    if (!(ss >> latDeg >> latMin >> latSec >> latDirection
+            >> lonDeg >> lonMin >> lonSec >> lonDirection))
+    {
+        return false;
+    }
+
+    lat = latDeg + latMin / 60.0 + latSec / 3600.0;
+    lon = lonDeg + lonMin / 60.0 + lonSec / 3600.0;
+
+    if (latDirection == 'S' || latDirection == 's')
+        lat = -lat;
+
+    if (lonDirection == 'W' || lonDirection == 'w')
+        lon = -lon;
+
+    lat = round(lat * 1000000.0) / 1000000.0;
+    lon = round(lon * 1000000.0) / 1000000.0;
+
+    return true;
+}
+
 // CLASSES-------------------------------------------
 class flight
 {
@@ -59,16 +140,21 @@ class flight
         {
             if ((setspeed <= config["maximum_speed"]) && (setspeed >= 0)){
                 speed = setspeed;
-            cout<<"----------------------------------"<<endl;
-            cout<<"Speed goal manually set to "<<speed<<"m/s"<<endl;
+                cout<<"----------------------------------"<<endl;
+                runtime["flight"]["speed"] = speed;
+                saveRuntime();
+                cout<<"Speed goal manually set to "<<speed<<"m/s"<<endl;
             }
         }
         void setaltitude(double setaltitude)
         {
             if ((setaltitude <= config["maximum_altitude"]) && (setaltitude >= 0)){
+                
                 altitude = setaltitude;
-            cout<<"----------------------------------"<<endl;
-            cout<<"Altitude goal manually set to "<<altitude<<"m."<<endl;
+                runtime["flight"]["altitude"] = altitude;
+                saveRuntime();
+                cout<<"----------------------------------"<<endl;
+                cout<<"Altitude goal manually set to "<<altitude<<"m."<<endl;
             }
         }
         double getspeed()
@@ -89,6 +175,11 @@ class flight
             altitude = 0;
             cout << "Successfully stopped." << endl;
             mode = "Stall";
+            runtime["flight"]["launched"] = flightlaunched;
+            runtime["flight"]["speed"] = speed;
+            runtime["flight"]["altitude"] = altitude;
+            runtime["flight"]["mode"] = mode;
+            saveRuntime();
         }
         void launch()
         {
@@ -99,10 +190,17 @@ class flight
             altitude = config["launch_altitude"];
             cout<<"Successfully launched, drone hovering at "<<config["launch_altitude"]<<" m altitude."<<endl;
             mode = "Hover";
+            runtime["flight"]["launched"] = flightlaunched;
+            runtime["flight"]["speed"] = speed;
+            runtime["flight"]["altitude"] = altitude;
+            runtime["flight"]["mode"] = mode;
+            saveRuntime();
         }
         void setmodename(string m)
         {
             mode = m;
+            runtime["flight"]["mode"] = mode;
+            saveRuntime();
         }
         string getmodename()
         {
@@ -158,6 +256,7 @@ class flight
             cout<<"Destination set! Routing to "<< fixed << setprecision(6)<<destlat<<" ° N "<<destlon<<" ° E"<<endl<<
             "- Google Maps: https://www.google.com/maps?q="<<destlat<<","<<destlon<< endl;
         }
+        
         void printdest()
         {
             cout<<"Current destination: "<<fixed << setprecision(6)<<destlat<<" ° N "<<destlon<<" ° E"<<endl<<
@@ -165,6 +264,14 @@ class flight
         }
         bool getlaunched(){
             return flightlaunched;
+        }
+        double getdestlat()
+        {
+            return destlat;
+        }
+        double getdestlong()
+        {
+            return destlon;
         }
 };
 class components 
@@ -221,6 +328,7 @@ class components
                 thermal_camera_status = false;
                 cout<<"Confirmed thermal camera OFF"<<endl;
             }
+            runtime["components"]["thermal_camera"] = thermal_camera_status; saveRuntime();
         }
         void rgb(int X){
 
@@ -233,6 +341,7 @@ class components
                 RGB_camera_status = false;
                 cout<<"Confirmed RGB camera OFF"<<endl;
             }
+            runtime["components"]["rgb_camera"] = RGB_camera_status; saveRuntime();
         }
         void infrared(int X){
             if (X == 1){
@@ -244,6 +353,7 @@ class components
                 infrared_camera_status = false;
                 cout<<"Confirmed infrared camera OFF"<<endl;
             }
+            runtime["components"]["infrared_camera"] = infrared_camera_status; saveRuntime();
         }
         void fmcw(int X){
             if (X == 1){
@@ -255,6 +365,7 @@ class components
                 fmcw_status = false;
                 cout<<"Confirmed FMCW radar OFF"<<endl;
             }
+            runtime["components"]["fmcw_radar"] = fmcw_status; saveRuntime();
         }
         void speaker(int X){
             if (X == 1){
@@ -265,6 +376,7 @@ class components
                 speaker_status = false;
                 cout<<"Confirmed speaker OFF"<<endl;
             }
+            runtime["components"]["speaker"] = speaker_status; saveRuntime();
         }
         void microphone(int X){
             if (X == 1){
@@ -275,6 +387,7 @@ class components
                 microphone_status = false;
                 cout<<"Confirmed microphone OFF"<<endl;
             }
+            runtime["components"]["microphone"] = microphone_status; saveRuntime();
         }
         void rf(int X){
             if (X == 1){
@@ -285,6 +398,7 @@ class components
                 passive_rf_status = false;
                 cout<<"Confirmed passive rf OFF"<<endl;
             }
+            runtime["components"]["passive_rf"] = passive_rf_status; saveRuntime();
         }     
         void beacon(int X){
             if (X == 1){
@@ -295,6 +409,7 @@ class components
                 amber_beacon_status = false;
                 cout<<"Confirmed amber beacon OFF"<<endl;
             }
+            runtime["components"]["amber_beacon"] = amber_beacon_status; saveRuntime();
         }                
         void strobe(int X){
             if (X == 1){
@@ -305,6 +420,7 @@ class components
                 white_strobe_status = false;
                 cout<<"Confirmed white strobe OFF"<<endl;
             }
+            runtime["components"]["white_strobe"] = white_strobe_status; saveRuntime();
         }                
         void spotlight(int X){
             if (X == 1){
@@ -315,6 +431,7 @@ class components
                 downward_spotlight_status = false;
                 cout<<"Confirmed spotlight OFF"<<endl;
             }
+            runtime["components"]["downward_spotlight"] = downward_spotlight_status; saveRuntime();
         }         
         void smoke(int X){
             if (X == 1){
@@ -325,6 +442,7 @@ class components
                 smoke_marker_status = false;
                 cout<<"Confirmed smoke marker OFF"<<endl;
             }
+            runtime["components"]["smoke_marker"] = smoke_marker_status; saveRuntime();
         }       
 };
 class home 
@@ -429,13 +547,30 @@ class drone
             savebattery = true;
         }
     }
+    double getdronelat ()
+    {
+        return latitude;
+    }
+    double getdronelong()
+    {
+        return longitude;
+    }
+    void landwhereyouare()
+    {
+        double X = getdronelat();
+        double Y = getdronelong();
+        mydroneflight.setdestination(X,Y);
+        transmitinfo(); // TRANSMIT INFO
+        mydroneflight.setmode(4); // SET TO HOVER
+        savebatterymode(1); // SAVE BATTERY
+        mydroneflight.stopflight(); // LAND DRONE
+    }
 };
 class mission 
 {
     private:
         bool rescueefound = false; // if found then transmit location, hover in that place and save battery till manual help
                                         // if not found generate report and RTH if battery 
-        bool missionsuccess = false;
         bool missionstarted = false;
         bool missionabort = false;
         bool missionfinished = false;
@@ -448,7 +583,6 @@ class mission
         drone mydrone;
         void missionstatus() // DISPLAY UNIT
         {   
-            missionstatusupdater();
             this_thread::sleep_for(chrono::seconds(1));
             if (rescueefound == true)
             {
@@ -467,7 +601,7 @@ class mission
                 }
             else if ((missionstarted == true) && (missionabort == true)) 
                 {
-                    missionsuccess = false;
+
                     cout<< "Mission Failed! Mission has been aborted."<<endl;
                 }
             else if ((missionstarted == true) && (missionabort == false))
@@ -494,16 +628,18 @@ class mission
                 {
                     if (checkedlocation == false)
                         {
-                            enroute = true;
-                            returning = false;
+                            enroute = true; runtime["mission"]["enroute"] = enroute; 
+                            returning = false; runtime["mission"]["returning"] = returning; saveRuntime();
                             if (rescueefound == true)
                             {
-                                mydrone.transmitinfo(); // TRANSMIT INFO
-                                mydrone.mydroneflight.setmode(4); // SET TO HOVER
-                                mydrone.savebatterymode(1); // SAVE BATTERY
-                                mydrone.mydroneflight.stopflight(); // LAND DRONE
+                                mydrone.landwhereyouare();
                                 enroute = false;
                                 waitingforhelp = true;
+                                runtime["mission"]["enroute"] = enroute; 
+                                runtime["mission"]["waitingforhelp"] = waitingforhelp; 
+                                runtime["destination"]["latitude"] = mydrone.mydroneflight.getdestlat();
+                                runtime["destination"]["longtitude"] = mydrone.mydroneflight.getdestlong(); 
+                                saveRuntime();
                             }
 
                         }
@@ -513,19 +649,27 @@ class mission
                             {
                                 returning = true; 
                                 enroute = false; 
+                                runtime["mission"]["returning"] = returning; 
+                                runtime["mission"]["enroute"] = enroute; 
                                 double X,Y;
                                 X = mydrone.myhome.gethomelat();
                                 Y = mydrone.myhome.gethomelon();
                                 mydrone.mydroneflight.setdestination(X,Y);
-
+                                runtime["destination"]["latitude"] = mydrone.mydroneflight.getdestlat();
+                                runtime["destination"]["longtitude"] = mydrone.mydroneflight.getdestlong(); 
+                                saveRuntime();
                             }
                             else if (rescueefound == true)
                             {
+                                mydrone.landwhereyouare();
                                 waitingforhelp = true;
-                                mydrone.transmitinfo(); // TRANSMIT INFO
-                                mydrone.mydroneflight.setmode(4); // SET TO HOVER
-                                mydrone.savebatterymode(1); // SAVE BATTERY
-                                mydrone.mydroneflight.stopflight(); // LAND DRONE
+                                returning = false;
+                                runtime["mission"]["returning"] = returning;
+                                runtime["mission"]["waitingforhelp"] = waitingforhelp; 
+                                runtime["destination"]["latitude"] = mydrone.mydroneflight.getdestlat();
+                                runtime["destination"]["longtitude"] = mydrone.mydroneflight.getdestlong(); 
+                                saveRuntime();
+
                             }
 
                         }
@@ -535,6 +679,7 @@ class mission
                         if (mydrone.getclose() == true)
                         {
                             missionfinished = true;
+                            runtime["mission"]["finished"] = missionfinished; saveRuntime();
                         }
                     }
                 }
@@ -542,14 +687,15 @@ class mission
                 {
                     returning = true;
                     enroute = false;
-                    if (returning == true) 
+                    runtime["mission"]["returning"] = returning; 
+                    runtime["mission"]["enroute"] = enroute; 
+                    mydrone.determineifclose();
+                    if (mydrone.getclose() == true)
                     {
-                        mydrone.determineifclose();
-                        if (mydrone.getclose() == true)
-                        {
-                            missionfinished = true;
-                        }
+                        missionfinished = true;
+                        runtime["mission"]["finished"] = missionfinished; 
                     }
+                    saveRuntime();
                 }
             }
         }
@@ -558,6 +704,7 @@ class mission
             if (missionstarted == true)
             {
                 rescueefound = true;
+                runtime["mission"]["rescueefound"] = rescueefound; saveRuntime();
                 missionstatusupdater();     
             }
 
@@ -566,13 +713,22 @@ class mission
         {
             missionstarted = true;
             missionstatusupdater();
-            cout<<"Missions successfully started. Drone is currently enroute"<<endl;
+            cout<<"Missions successfully started. Drone is currently enroute to:"<<endl;
+            mydrone.mydroneflight.printdest();
+            runtime["mission"]["started"] = missionstarted; 
+            runtime["destination"]["latitude"] = mydrone.mydroneflight.getdestlat();
+            runtime["destination"]["longtitude"] = mydrone.mydroneflight.getdestlong();
+            saveRuntime();
         }
         void abortmission() // MANUALL ABORT
         {
             missionabort = true;
             missionstatusupdater();
             cout<<"Mission is aborted."<<endl;
+            runtime["mission"]["aborted"] = missionabort;
+            runtime["destination"]["latitude"] = mydrone.mydroneflight.getdestlat();
+            runtime["destination"]["longtitude"] = mydrone.mydroneflight.getdestlong(); 
+            saveRuntime(); 
         }
         void batterysystem() // DETERMINISTIC BATTERY BEHAVIOUR
         {
@@ -613,13 +769,16 @@ class mission
                 {
                     checkedlocation = true;
                     cout<<"Location has been checked."<<endl;
+                    
                 }
 
                 else if ((ans == "N")||(ans == "n"))
                 {
                     checkedlocation = false;
                     cout<<"Location has NOT been checked."<<endl;
+                    
                 }
+                runtime["mission"]["checked_location"] = checkedlocation; saveRuntime();
             }
 
             missionstatusupdater();
@@ -642,15 +801,21 @@ class mission
         bool getmissionstarted(){
             return missionstarted;
         }
+        void setreturningON()
+        {
+            returning = true;
+            runtime["mission"]["returning"] = returning; saveRuntime();
+        }
 };
 // GLOBAL VARIABLES----------------------------------
 bool return_main = true;
 int return_menu_int;
 // TERMINAL METHODS----------------------------------
-void activateRTH(drone &mydrone, home &myhome)
+void activateRTH(drone &mydrone, home &myhome, mission &mymission)
 {
     fout << "[" << getTimestamp() << "] RTH: disabled -> enabled" << endl;
     return_menu_int = 0;
+    mymission.setreturningON();
     double X,Y;
     mydrone.printcurrent_location();
     X = myhome.gethomelat();
@@ -658,12 +823,16 @@ void activateRTH(drone &mydrone, home &myhome)
     mydrone.mydroneflight.setdestination(X,Y);
     double currentspeed = mydrone.mydroneflight.getspeed();
     double distance = mydrone.getdistfromhome();
+    runtime["destination"]["latitude"] = mydrone.mydroneflight.getdestlat();
+    runtime["destination"]["longtitude"] = mydrone.mydroneflight.getdestlong();
+    saveRuntime();
     double estimatedtime = 0;
         if (currentspeed > 0){
              estimatedtime = distance / currentspeed;
         }
         cout<<"Estimated arrival time: "<<estimatedtime<<" seconds."<<endl;
-    cout<<"----------------------------------"<<endl;
+    
+        cout<<"----------------------------------"<<endl;
     while (return_menu_int != 10)
     {
     cout<<"Enter 10 to return to menu."<<endl;
@@ -942,15 +1111,36 @@ void configureroute(drone &mydrone)
                 break;
             }
         case 6:
+        {
+            string coordinateinput;
+            double destlatset, destlongset;
+
+            cout << "Enter destination coordinates:\n";
+            cout << "Examples:\n";
+            cout << "25.336421, 55.344471\n";
+            cout << "25°13'05.40\"N 55°27'09.67\"E\n";
+
+            getline(cin >> ws, coordinateinput);
+
+            if (parseCoordinates(coordinateinput, destlatset, destlongset))
             {
-                double destlatset,destlongset;
-                cout<<"Enter the destination latitude (Up to 6 decimal places):\n";
-                cin>>destlatset;
-                cout<<"Enter the destination longtitude (Up to 6 decimal places):\n";
-                cin>>destlongset;
-                mydrone.mydroneflight.setdestination(destlatset,destlongset);
-                break;
+                mydrone.mydroneflight.setdestination(destlatset, destlongset);
+
+                fout << "[" << getTimestamp()
+                    << "] FLIGHT: destination configured "
+                    << fixed << setprecision(6)
+                    << destlatset << ", " << destlongset << endl;
+                runtime["destination"]["latitude"] = destlatset;
+                runtime["destination"]["longtitude"] = destlongset;
+                saveRuntime();
             }
+            else
+            {
+                cout << "Invalid coordinate format." << endl;
+            }
+
+            break;
+        }
         case 10:
             {
                 return_main = true;
@@ -1003,7 +1193,6 @@ void transmitloc(drone mydrone)
 void configuremission(mission &mymission)
 {
     return_menu_int = 0;
-    string returntohomeans = "";
     string answer;
     string User_Option2;
     int confirmation;
@@ -1045,18 +1234,10 @@ void configuremission(mission &mymission)
                         fout << "[" << getTimestamp() << "] MISSION: ongoing -> aborted" << endl;
                         cout<<"Aborting mission..."<<endl;
                         mymission.abortmission();
-                        cout<<"Return to home? (Y/n)"<<endl;
-                        cin>>returntohomeans;
-                        if ((returntohomeans == "Y") || (returntohomeans == "y"))
-                        {
-                            cout<<"Activating Return-To-Home mode..."<<endl;
-                            activateRTH(mymission.mydrone,mymission.mydrone.myhome);
-                            fout << "[" << getTimestamp() << "] RTH: disabled -> enabled" << endl;
-                        }
-                        else
-                        {
-                            cout<<"Return to home has NOT been activated."<<endl;
-                        }
+                        cout<<"Activating Return-To-Home mode..."<<endl;
+                        activateRTH(mymission.mydrone,mymission.mydrone.myhome,mymission);
+                        fout << "[" << getTimestamp() << "] RTH: disabled -> enabled" << endl;
+
                     }
                     else {
                         cout<<"Cannot abort a mission that did NOT start."<<endl;
@@ -1079,6 +1260,7 @@ void configuremission(mission &mymission)
                 cout<<"Changing status..."<<endl;
                 mymission.setcheckedloc(User_Option2);
                 fout << "[" << getTimestamp() << "] LOCATION: unchecked -> checked" << endl;
+                break;
             }
         default:
             {
@@ -1093,6 +1275,8 @@ int main()
 {
     ifstream configfile("config.json"); 
     configfile >> config;
+    runtime = json::object();
+    saveRuntime();
     setlocale(LC_ALL, ".UTF-8"); // DEGREE---------
     mission mymission; // START MISSION------------
     int User_Option = -1; // DEFAULT OPTION--------
@@ -1136,7 +1320,7 @@ int main()
                 if ((confirmationrth == "y")||(confirmationrth =="Y"))
                 {
                     cout<<"Activating Return-To-Home mode..."<<endl;
-                    activateRTH(mymission.mydrone,mymission.mydrone.myhome);
+                    activateRTH(mymission.mydrone,mymission.mydrone.myhome,mymission);
                 }
                 else 
                 {
@@ -1147,6 +1331,7 @@ int main()
             case 1:
             {
                 cout<<"Displaying mission status..."<<endl;
+                 this_thread::sleep_for(chrono::seconds(1));
                 mymission.missionstatus();
                 displaystatus(mymission.mydrone);
                 break;
@@ -1154,30 +1339,35 @@ int main()
             case 2:
             {
                 cout<<"Launching mission configuration..."<<endl;
+                 this_thread::sleep_for(chrono::seconds(1));
                 configuremission(mymission); // Done
                 break;
             }
             case 3:
             {
                 cout<<"Displaying current component configuration..."<<endl;
+                 this_thread::sleep_for(chrono::seconds(1));
                 displaycomponent(mymission.mydrone); // Done
                 break;
             }
             case 4:
             {
                 cout<<"Displaying route tracker system..."<<endl;
+                 this_thread::sleep_for(chrono::seconds(1));
                 displayroute(mymission.mydrone,mymission);
                 break;
             }
             case 5:
             {
                 cout<<"Transmitting current location to station..."<<endl;
+                 this_thread::sleep_for(chrono::seconds(1));
                 transmitloc(mymission.mydrone);
                 break;
             }
             case 10:
             {
                 cout<<"Exiting terminal now..."<<endl;
+                 this_thread::sleep_for(chrono::seconds(1));
                 fout << "[" << getTimestamp() << "] Exiting terminal" << endl;
                 return 0;
                 break;

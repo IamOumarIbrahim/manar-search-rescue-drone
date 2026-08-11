@@ -47,8 +47,13 @@ decisions under human supervision.
 | **Smoke marker**       | Location/wind marking              |
 
 ## Current Status
-> **Current phase:** Initial deterministic control system design.
+> **Current phase:** Developing JSON runtime state database and configuration.
+<video controls>
+  <source src="assets/Videos/demo.mp4" type="video/mp4">
+</video>
 
+
+## Established
 <table>
   <tr>
     <td align="center" width="50%">
@@ -71,8 +76,6 @@ decisions under human supervision.
     </td>
   </tr>
 </table>
-
-## Established
 <p align="center">
   <img
     src="assets\Temp\Currentprogress2.png"
@@ -129,7 +132,7 @@ flowchart TD
 **Python / PyTorch** handles machine learning and sensor analysis.
 **TypeScript / React** provides the operator interface.
 
-## File Structure
+
 ## Project Structure
 
 ```text
