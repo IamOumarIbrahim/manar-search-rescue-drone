@@ -576,16 +576,7 @@ class mission
         }
         void batterysystem() // DETERMINISTIC BATTERY BEHAVIOUR
         {
-            if (mydrone.getbattery() <= config["battery_warning"])
-            {
-                cout<<"Battery is currently under "<<config["battery_warning"]<<"%, Consider enabling energy save-mode."<<endl;
-            }
-            else if (mydrone.getbattery() <= config["battery_rth_warning"])
-            {
-                cout<<"Battery is currently under "<<config["battery_rth_warning"]<<"%, Transmitting current location... Please consider ENABLING RTH."<<endl;
-                mydrone.transmitinfo();
-            }
-            else if (mydrone.getbattery() <= config["battery_emergency_rth"])
+            if (mydrone.getbattery() <= config["battery_emergency_rth"])
             {
                 if (rescueefound == false){
                     emergencyrth = true;
@@ -602,6 +593,17 @@ class mission
                     }
                 }
             }
+            if (mydrone.getbattery() <= config["battery_rth_warning"])
+            {
+                cout<<"Battery is currently under "<<config["battery_rth_warning"]<<"%, Transmitting current location... Please consider ENABLING RTH."<<endl;
+                mydrone.transmitinfo();
+            }
+            if (mydrone.getbattery() <= config["battery_warning"])
+            {
+                cout<<"Battery is currently under "<<config["battery_warning"]<<"%, Consider enabling energy save-mode."<<endl;
+            }
+
+
         }
         void setcheckedloc(string ans)
         {   
