@@ -43,51 +43,25 @@ class flight
     private:
         double speed = 0;
         double altitude = 0;
-        double destlat = 25.276987;  // latitude of the destination 
-        double destlon = 55.296249;  // longitude of the destination 
-        string mode = "None";
+        double destlat = 25.276987;  // default latitude of the destination 
+        double destlon = 55.296249;  // default longitude of the destination 
+        string mode = "Stall";
         bool flightlaunched = false;
     public:
         void setspeed(double setspeed)
         {
             if ((setspeed <= 15) && (setspeed >= 0)){
-                if (speed < setspeed)
-                {
-                    while (speed < setspeed)
-                    {
-                        speed = speed + 1;
-                    }
-                }
-                else if (speed > setspeed)
-                {
-                    while (speed > setspeed)
-                    {
-                        speed = speed - 1;
-                    }
-                }
+                speed = setspeed;
             cout<<"----------------------------------"<<endl;
-            cout<<"Speed manually set to "<<speed<<endl;
+            cout<<"Speed goal manually set to "<<speed<<endl;
             }
         }
         void setaltitude(double setaltitude)
         {
             if ((setaltitude <= 2000) && (setaltitude >= 0)){
-                if (altitude < setaltitude)
-                {
-                    while (altitude < setaltitude)
-                    {
-                        altitude = altitude + 1;
-                    }
-                }
-                else if (altitude > setaltitude)
-                {
-                    while (altitude > setaltitude)
-                    {
-                        altitude = altitude - 1;
-                    }
-                }
+                altitude = setaltitude;
             cout<<"----------------------------------"<<endl;
-            cout<<"Altitude manually set to "<<altitude<<endl;
+            cout<<"Altitude goal manually set to "<<altitude<<endl;
             }
         }
         double getspeed()
@@ -111,6 +85,7 @@ class flight
                 altitude = altitude - 1;
             }
             cout << "Successfully stopped." << endl;
+            mode = "Stall";
         }
         void launch()
         {
@@ -122,6 +97,7 @@ class flight
                 altitude = altitude + 1;
             }
             cout<<"Successfully launched, drone hovering at 10m altitude"<<endl;
+            mode = "Hover";
         }
         void setmodename(string m)
         {
@@ -160,11 +136,19 @@ class flight
         }
         void printflightstatus()
         {
+            string stat;
             cout<<"----------------------------------"<<endl;
             cout<<"Current Speed: "<<getspeed()<<" m/s"<<endl;
             cout<<"Current Altitude: "<<getaltitude()<<" m"<<endl;
             cout<<"Current Mode: "<<getmodename()<<endl;
-            cout<<"Current Status: "<<getlaunched()<<endl;
+            if (getlaunched())
+            {
+                stat = "Launched";
+            }
+            else{
+                stat = "Stalled";
+            }
+            cout<<"Current Status: "<<stat<<endl;
         }
         void setdestination(double lat,double lon)
         {
@@ -875,8 +859,8 @@ void configureroute(drone &mydrone)
     double setspeed = 0;
     double setaltitude = 0;
     cout<<"----------------------------------"<<endl;
-    cout << "Select an option:\n"<< "1. Set mode\n"<< "2. Set speed\n"<< "3. Set altitude\n"<< "4. Launch\n"<< "5. Stop flight\n"<<"10. Return to menu.\n";
-    cout << "Select an option (1-5,10): ";
+    cout << "Select an option:\n"<< "1. Set mode\n"<< "2. Set speed\n"<< "3. Set altitude\n"<< "4. Launch\n"<< "5. Stop flight\n"<<"6. Set target location\n"<<"10. Return to menu.\n";
+    cout << "Select an option (1-6,10): ";
     cin>>User_Option;
     switch (User_Option){
         case 1:
@@ -952,6 +936,16 @@ void configureroute(drone &mydrone)
                 {
                     cout<<"Flight already stopped!"<<endl;
                 }
+                break;
+            }
+        case 6:
+            {
+                double destlatset,destlongset;
+                cout<<"Enter the destination latitude (Up to 6 decimal places):\n";
+                cin>>destlatset;
+                cout<<"Enter the destination longtitude (Up to 6 decimal places):\n";
+                cin>>destlongset;
+                mydrone.mydroneflight.setdestination(destlatset,destlongset);
                 break;
             }
         case 10:
