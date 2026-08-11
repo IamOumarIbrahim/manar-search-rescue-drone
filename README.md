@@ -94,6 +94,7 @@ decisions under human supervision.
 > - [x] Basic web dashboard — v1.0
 > - [x] Landing Page
 > - [x] Initial deterministic control system design
+> - [x] JSON Configuration and Setup exe
 - [ ] Decouple terminal from control logic
 - [ ] Build deterministic controls for components and drone
 - [ ] Build the engine control system
@@ -128,6 +129,53 @@ flowchart TD
 **Python / PyTorch** handles machine learning and sensor analysis.
 **TypeScript / React** provides the operator interface.
 
+## File Structure
+## Project Structure
+
+```text
+manar-search-rescue-drone/
+│
+├── core/                       # Deterministic control prototype
+│   ├── config.json             # Persistent system configuration
+│   ├── control.cpp             # Main control system
+│   ├── setup.cpp               # Configuration setup utility
+│   ├── logs.txt                # Runtime logs
+│   └── nlohmann/
+│       └── json.hpp            # JSON library
+│
+├── webdashboardv1/             # Prototype operator dashboard
+│   ├── dashboard.html
+│   ├── script.js
+│   └── style.css
+│
+├── manar-landing-page/         # MANAR project website
+│   ├── index.html
+│   ├── script.js
+│   ├── styles.css
+│   └── assets/
+│       ├── Audio/
+│       └── Images/
+│           ├── Branding/
+│           └── patterns/
+│
+├── assets/                     # Project media and design material
+│   ├── Images/
+│   │   └── Branding/
+│   ├── Videos/
+│   │   ├── Showcase footage/
+│   │   └── Training videos/
+│   └── Temp/
+│
+├── .github/
+│   └── workflows/
+│       └── deploy-pages.yml
+│
+├── README.md
+├── REFERENCES.md
+├── SECURITY.md
+├── LICENSE.md
+└── .gitignore
+```
 
 
 ## Ownership and License
