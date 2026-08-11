@@ -53,38 +53,6 @@ decisions under human supervision.
   <img src="assets/Videos/demo.gif" alt="MANAR Demo" width="900">
 </p>
 
-## Established
-<table>
-  <tr>
-    <td align="center" width="50%">
-      <img
-        src="assets\Temp\currentprogress3.png"
-        alt="MANAR Version 1.0 Operator Dashboard"
-        width="100%"
-      />
-      <br />
-      <em>MANAR Human Control System — Terminal-Based Component Status Interface</em>
-    </td>
-    <td align="center" width="50%">
-      <img
-        src="assets\Temp\currentprogress4.png"
-        alt="MANAR Human Control System"
-        width="100%"
-      />
-      <br />
-      <em>MANAR Human Control System — High-Level C++ Software Architecture</em>
-    </td>
-  </tr>
-</table>
-<p align="center">
-  <img
-    src="assets\Temp\Currentprogress2.png"
-    alt="MANAR Human Control System — Terminal-Based Component Status Interface"
-    width="900"
-  />
-  <br />
-  <em>MANAR Version 1.0 Operator Dashboard — Multisensor Live Feed Interface</em>
-</p>
 
 ## Project Milestones
 
