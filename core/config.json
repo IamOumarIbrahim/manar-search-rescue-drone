@@ -14,5 +14,6 @@
     "battery_rth_warning": 20,
     "battery_emergency_rth": 10,
     "battery_emergency_land": 5,
-    "starting_battery_percent": 100
+    "starting_battery_percent": 100,
+    "reached_radius": 5
 }

@@ -565,6 +565,42 @@ class drone
         savebatterymode(1); // SAVE BATTERY
         mydroneflight.stopflight(); // LAND DRONE
     }
+    double distancebetween(double lat1, double lon1, double lat2, double lon2)
+    {
+        const double EARTH_RADIUS = 6371000.0;
+        const double PI = 3.14159265358979323846;
+
+        lat1 = lat1 * PI / 180.0;
+        lon1 = lon1 * PI / 180.0;
+        lat2 = lat2 * PI / 180.0;
+        lon2 = lon2 * PI / 180.0;
+
+        double deltaLat = lat2 - lat1;
+        double deltaLon = lon2 - lon1;
+
+        double a =
+            sin(deltaLat / 2.0) * sin(deltaLat / 2.0) +
+            cos(lat1) * cos(lat2) *
+            sin(deltaLon / 2.0) * sin(deltaLon / 2.0);
+
+        double c = 2.0 * atan2(sqrt(a), sqrt(1.0 - a));
+
+        return EARTH_RADIUS * c;
+    }
+    bool reachedDestination()
+    {
+        double distance = distancebetween(latitude,longitude,mydroneflight.getdestlat(),mydroneflight.getdestlong()
+        );
+
+        return distance <= config["reached_radius"];
+    }
+    bool destinationishome()
+    {
+        double distance = distancebetween(mydroneflight.getdestlat(),mydroneflight.getdestlong(),
+        myhome.gethomelat(),myhome.gethomelon());
+
+        return distance <= config["reached_radius"];
+    }
 };
 class mission 
 {
@@ -579,6 +615,11 @@ class mission
         bool emergencyrth = false;
         bool checkedlocation = false;
         bool waitingforhelp = false;
+        bool lawnmowerstarted = false;
+        bool horizontalmove = true;
+        bool moveeast = true;
+
+int searchrow = 0;
     public:
         drone mydrone;
         void missionstatus() // DISPLAY UNIT
@@ -626,6 +667,7 @@ class mission
             {
                 if (missionabort == false)
                 {
+                    checksearchlocation();
                     if (checkedlocation == false)
                         {
                             enroute = true; runtime["mission"]["enroute"] = enroute; 
@@ -805,6 +847,110 @@ class mission
         {
             returning = true;
             runtime["mission"]["returning"] = returning; saveRuntime();
+        }
+        void checksearchlocation()
+        {
+            if (rescueefound == true)
+                return;
+
+            if (returning == true)
+                return;
+
+            // Do NOT start lawnmower operation if destination is home.
+            if (mydrone.destinationishome())
+                return;
+
+            // Drone has reached the search destination.
+            if (mydrone.reachedDestination())
+            {
+                lawnmower();
+            }
+        }
+        void lawnmower()
+        {
+            const double PI = 3.14159265358979323846;
+
+            double searchwidth = config["search_width"];
+            double searchheight = config["search_height"];
+            double rowspacing = config["row_spacing"];
+
+            double currentlat = mydrone.getdronelat();
+            double currentlon = mydrone.getdronelong();
+
+            double metersperlat = 111320.0;
+            double metersperlon =
+                111320.0 * cos(currentlat * PI / 180.0);
+
+            double nextlat = currentlat;
+            double nextlon = currentlon;
+
+            int maxrows = searchheight / rowspacing;
+
+
+            // FIRST TIME:
+            // Move from search center to southwest corner.
+            if (lawnmowerstarted == false)
+            {
+                lawnmowerstarted = true;
+
+                nextlat =
+                    currentlat - ((searchheight / 2.0) / metersperlat);
+
+                nextlon =
+                    currentlon - ((searchwidth / 2.0) / metersperlon);
+            }
+
+
+            // HORIZONTAL PART
+            else if (horizontalmove == true)
+            {
+                if (moveeast == true)
+                {
+                    nextlon =
+                        currentlon + (searchwidth / metersperlon);
+                }
+                else
+                {
+                    nextlon =
+                        currentlon - (searchwidth / metersperlon);
+                }
+
+                horizontalmove = false;
+            }
+
+
+            // VERTICAL PART
+            else
+            {
+                // Entire area has been searched.
+                if (searchrow >= maxrows)
+                {
+                    checkedlocation = true;
+
+                    cout << "Lawnmower search completed." << endl;
+
+                    runtime["mission"]["checked_location"] = true;
+                    saveRuntime();
+
+                    return;
+                }
+
+                nextlat =
+                    currentlat + (rowspacing / metersperlat);
+
+                searchrow++;
+
+                moveeast = !moveeast;
+                horizontalmove = true;
+            }
+
+
+            mydrone.mydroneflight.setdestination(nextlat, nextlon);
+
+            runtime["destination"]["latitude"] = nextlat;
+            runtime["destination"]["longtitude"] = nextlon;
+
+            saveRuntime();
         }
 };
 // GLOBAL VARIABLES----------------------------------
