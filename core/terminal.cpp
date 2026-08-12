@@ -1,16 +1,17 @@
-#include <iostream>
-#include <string>
-#include <clocale>
-#include <cmath>
-#include <iomanip>
-#include <thread>
-#include <chrono>  
-#include <fstream>
-#include <ctime> 
-#include <cstdio>
-#include <sstream>
-#include <cctype>
-#include <nlohmann/json.hpp>
+// LIBRARIES 
+    #include <iostream>
+    #include <string>
+    #include <clocale>
+    #include <cmath>
+    #include <iomanip>
+    #include <thread>
+    #include <chrono>  
+    #include <fstream>
+    #include <ctime> 
+    #include <cstdio>
+    #include <sstream>
+    #include <cctype>
+    #include <nlohmann/json.hpp>
 
 using namespace std;
 using json = nlohmann::json;

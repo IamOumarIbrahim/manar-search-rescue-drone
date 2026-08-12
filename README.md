@@ -59,7 +59,7 @@
 - [x] Prototype web dashboard (v1.0) & landing page
 - [x] Deterministic C++ control system design
 - [x] JSON runtime configuration & `setup.exe` utility
-- [ ] Decouple terminal interface from control logic
+- [x] Decouple terminal interface from control logic
 - [ ] Build deterministic control engine for components & flight system
 - [ ] Model drone flight dynamics & 3D kinematics in Blender
 - [ ] Develop TypeScript / React Operator GUI

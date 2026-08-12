@@ -37,8 +37,6 @@ ofstream fout("logs.txt");
     - Shares confirmed coordinates with rescue teams and handles exceptional emergency decisions.
 
 */
-
-
 string getTimestamp()
 {
     auto now = chrono::system_clock::now();
@@ -151,9 +149,6 @@ bool readcommands()
         return false;
     }
 }
-
-
-
 // CLASSES-------------------------------------------
 class flight
 {
@@ -947,7 +942,6 @@ void activateRTH(drone &mydrone, home &myhome, mission &mymission)
         fout<<"----------------------------------"<<endl;
 
 }
-
 void checkcommands(mission &mymission)
 {
     if (!readcommands())
