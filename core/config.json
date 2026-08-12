@@ -15,5 +15,8 @@
     "battery_emergency_rth": 10,
     "battery_emergency_land": 5,
     "starting_battery_percent": 100,
-    "reached_radius": 5
+    "reached_radius": 5,
+    "search_width": 100,
+    "search_height": 100,
+    "row_spacing": 20
 }

@@ -618,8 +618,7 @@ class mission
         bool lawnmowerstarted = false;
         bool horizontalmove = true;
         bool moveeast = true;
-
-int searchrow = 0;
+        int searchrow = 0;
     public:
         drone mydrone;
         void missionstatus() // DISPLAY UNIT

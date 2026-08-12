@@ -1,1 +1,11 @@
-{}
+{
+    "destination": {
+        "latitude": 25.276987,
+        "longtitude": 55.296249
+    },
+    "mission": {
+        "enroute": true,
+        "returning": false,
+        "started": true
+    }
+}
