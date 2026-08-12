@@ -14,7 +14,7 @@
 
 using namespace std;
 using json = nlohmann::json;
-
+ofstream fout("logs.txt");
 json commands;
 json runtime;
 json config;
@@ -206,7 +206,7 @@ int main()
         cout << "- 4. LAUNCH DRONE" << endl;
         cout << "- 5. CONFIGURE FLIGHT OPTIONS" << endl;
         cout << "- 6. CONFIGURE COMPONENTS" << endl;
-        cout << "- 7. CONFIGURE MISSION STATUS" << endl;
+        cout << "- 7. FOUND RESCUEE?" << endl;
         cout << "- 8. TRANSMIT LOCATION" << endl;
         cout << "- 9. ABORT MISSION" << endl;
         cout << "- 0. ACTIVATE RTH" << endl;
@@ -573,44 +573,8 @@ int main()
             }
             case 7:
             {
-                int missionoption = -1;
-                cout<<"1. Configure rescuee status\n"<<"2. Configure location checked status\n";
-                cin>>missionoption;
-                if (missionoption == 1)
-                {
-                    int foundoption = -1;
-                    cout<<"1. Set to found\n"<<"2. Set to NOT found"<<endl;
-                    cin >>foundoption;
-                        if (foundoption == 1)
-                            {
-                                sendcommand("RESCUEE_FOUND");
-                                cout<<"Rescuee found request sent"<<endl;
-                            }
-                        else if (foundoption == 2)
-                            {
-                                sendcommand("RESCUEE_NOT_FOUND");
-                                cout<<"Rescee not found request sent"<<endl;
-                            }
-                }
-                else if (missionoption == 2)
-                {
-                    int checkedoption = -1;
-
-                    cout<<"1. Set to checked\n"<<"2. Set to NOT checked\n";
-
-                    cin>>checkedoption;
-
-                    if (checkedoption == 1)
-                    {
-                        sendcommand("LOCATION_CHECKED");
-                        cout<<"Location checked request sent"<<endl;
-                    }
-                    else if (checkedoption == 2)
-                    {
-                        sendcommand("LOCATION_NOT_CHECKED");
-                        cout<<"Location not checked request sent"<<endl;
-                    }
-                }
+                sendcommand("RESCUEE_FOUND");
+                cout<<"Rescuee found request sent"<<endl;
                 break;
             }
             case 8:
