@@ -49,3 +49,8 @@ ml/data/*
 
 assets/Images/Visualization/
 assets/Docs/Initial documentation/
+
+core/logs.txt
+core/runtime.json
+core/config.json
+core/commands.json

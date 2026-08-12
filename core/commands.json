@@ -1,8 +1,0 @@
-{
-    "arguments": {
-        "component": "thermal_camera",
-        "enabled": true
-    },
-    "command": "CHANGE_COMPONENT",
-    "id": 10
-}
