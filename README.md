@@ -60,16 +60,33 @@
 - [x] Deterministic C++ control system design
 - [x] JSON runtime configuration & `setup.exe` utility
 - [x] Decouple terminal interface from control logic
-- [ ] Build deterministic control engine for components & flight system
-- [ ] Model drone flight dynamics & 3D kinematics in Blender
+
+- [ ] Define MANAR V1 engineering & mission requirements
+- [ ] Research and select candidate hardware components
+- [ ] Establish payload mass, power & interface budgets
+- [ ] Validate aircraft physical feasibility & propulsion requirements
+- [ ] Freeze MANAR V1 simulated aircraft configuration
+- [ ] Define component, power & communication architecture
+
+- [ ] Build deterministic C++ component subsystem
+- [ ] Expand deterministic flight & mission simulation engine
+- [ ] Model aircraft flight dynamics & simulated sensor behavior
+- [ ] Create dimensionally grounded 3D drone model in Blender
+
 - [ ] Develop TypeScript / React Operator GUI
 - [ ] Integrate TypeScript GUI with C++ Control Core
-- [ ] Develop Python / PyTorch machine learning perception algorithms
-- [ ] Couple Python ML pipeline with Control Core & GUI
-- [ ] Model training, evaluation & end-to-end system testing
-- [ ] To be determined...
+
+- [ ] Develop Python / PyTorch perception pipeline
+- [ ] Develop multisensor detection & fusion logic
+- [ ] Integrate Python ML pipeline with C++ Control Core & GUI
+- [ ] Train, evaluate & validate perception models
+
+- [ ] Perform end-to-end simulated mission testing
+- [ ] TBD
+
 - [ ] Complete LaTeX report, presentation & technical documentation
-- [ ] Final public launch, demonstration & repository maintenance
+- [ ] Produce final demonstration & portfolio material
+- [ ] Final public launch & repository maintenance
 
 ## Architecture
 
