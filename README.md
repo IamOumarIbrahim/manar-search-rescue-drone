@@ -1,24 +1,20 @@
+<div align="center">
 
+  <img src="assets/Images/Branding/GitHub README Header.png" alt="MANAR Search & Rescue Drone Header" width="100%" />
 
-# MANAR / منار
+  # MANAR / منار
+  **Supervised-Autonomy Multisensor Search-and-Rescue System**
+
+  [![License: Proprietary](https://img.shields.io/badge/License-Proprietary-yellow.svg)](LICENSE.md)
+  [![C++17](https://img.shields.io/badge/C%2B%2B-17-00599C.svg?logo=c%2B%2B)](core/)
+  [![Landing Page](https://img.shields.io/badge/Website-Live-brightgreen)](https://iamoumaribrahim.github.io/manar-search-rescue-drone/)
+
+</div>
 
 > **PROPRIETARY CORE · SELECTED OPEN-SOURCE COMPONENTS**
 >
 > MANAR is independently created and owned by **Oumar Ibrahim**.
-> This repository contains selected demonstrations, documentation, and
-> portfolio materials only.
-
-## Project Overview
-
-MANAR / منار is a supervised-autonomy, multisensor search-and-rescue
-drone system designed to assist search teams while keeping consequential
-decisions under human supervision.
-
-
-
-## Landing Page
-
-<a href="https://iamoumaribrahim.github.io/manar-search-rescue-drone/" target="_blank">MANAR: Supervisied autonomy for search and rescue</a>
+> This repository contains selected demonstrations, documentation, and portfolio materials only.
 
 ### Component Overview
 
