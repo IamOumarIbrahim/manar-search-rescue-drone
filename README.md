@@ -52,33 +52,24 @@
 
 ## Project Milestones
 
-
-> - [x] Initial Ideation
-> - [x] GitHub Repository creation
-> - [x] Initial Branding
-> - [x] Project scope hardening
-> - [x] Project limitations and constraints
-> - [x] Basic web dashboard — v1.0
-> - [x] Landing Page
-> - [x] Initial deterministic control system design
-> - [x] JSON Configuration and Setup exe
-- [ ] Decouple terminal from control logic
-- [ ] Build deterministic controls for components and drone
-- [ ] Build the engine control system
-- [ ] Build the component controls
-- [ ] Test and design final drone configuration
-- [ ] Model drone movement in Blender
-- [ ] Build the TypeScript GUI
-- [ ] Couple the TypeScript GUI with C++ control system
-- [ ] Build the Python machine-learning algorithm
-- [ ] Couple TypeScript GUI and C++
-- [ ] Couple Python ML with TS and C++
-- [ ] Test and train models
-- [ ] System integration and end-to-end testing
+- [x] Initial ideation & system specification
+- [x] GitHub repository setup & project licensing
+- [x] Brand visual identity & asset guidelines
+- [x] Scope definition & operational constraint hardening
+- [x] Prototype web dashboard (v1.0) & landing page
+- [x] Deterministic C++ control system design
+- [x] JSON runtime configuration & `setup.exe` utility
+- [ ] Decouple terminal interface from control logic
+- [ ] Build deterministic control engine for components & flight system
+- [ ] Model drone flight dynamics & 3D kinematics in Blender
+- [ ] Develop TypeScript / React Operator GUI
+- [ ] Integrate TypeScript GUI with C++ Control Core
+- [ ] Develop Python / PyTorch machine learning perception algorithms
+- [ ] Couple Python ML pipeline with Control Core & GUI
+- [ ] Model training, evaluation & end-to-end system testing
 - [ ] To be determined...
-- [ ] LaTeX Report, Presentation and Full Documentation
-- [ ] Final Publishing & LinkedIn Post
-- [ ] Repository Maintenance
+- [ ] Complete LaTeX report, presentation & technical documentation
+- [ ] Final public launch, demonstration & repository maintenance
 
 ## Architecture
 
