@@ -2,15 +2,21 @@
 
   <img src="assets/Images/Branding/GitHub README Header.png" alt="MANAR Search & Rescue Drone Header" width="100%" />
 
-  # MANAR / منار
-  **Supervised-Autonomy Multisensor Search-and-Rescue System**
+# MANAR / منار
 
-  [![License: Proprietary](https://img.shields.io/badge/License-Proprietary-yellow.svg)](LICENSE.md)
-  [![C++17](https://img.shields.io/badge/C%2B%2B-17-00599C.svg?logo=c%2B%2B)](core/)
-  [![JSON](https://img.shields.io/badge/JSON-Runtime%20%26%20Config-000000.svg?logo=json&logoColor=white)](core/)
-  [![Landing Page](https://img.shields.io/badge/Website-Live-brightgreen)](https://iamoumaribrahim.github.io/manar-search-rescue-drone/)
+**Supervised-Autonomy Multisensor Search-and-Rescue System**
+
+[![License: Proprietary](https://img.shields.io/badge/License-Proprietary-yellow.svg)](LICENSE.md)
+[![C++17](https://img.shields.io/badge/C%2B%2B-17-00599C.svg?logo=c%2B%2B)](core/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Operator%20GUI-3178C6.svg?logo=typescript\&logoColor=white)](gui/)
+[![React](https://img.shields.io/badge/React-Operator%20Interface-61DAFB.svg?logo=react\&logoColor=black)](gui/)
+[![WebSocket](https://img.shields.io/badge/WebSocket-Communication-010101.svg)](core/)
+[![JSON](https://img.shields.io/badge/JSON-Runtime%20%26%20Messaging-000000.svg?logo=json\&logoColor=white)](core/)
+[![Landing Page](https://img.shields.io/badge/Website-Live-brightgreen)](https://iamoumaribrahim.github.io/manar-search-rescue-drone/)
 
 </div>
+
+
 
 > **PROPRIETARY CORE · SELECTED OPEN-SOURCE COMPONENTS**
 >
@@ -44,12 +50,24 @@
 | **Smoke marker**       | Location/wind marking              |
 
 ## Current Status
-> **Current phase:** Developing JSON runtime state database and configuration.
+> **Current phase:** Defining engineering requirements.
 
 <p align="center">
   <img src="assets/Videos/demo.gif" alt="MANAR Demo" width="900">
 </p>
 
+## Closed Design Decisions
+
+| Area                   | Decision                                                                                                                         |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| **Architecture**       | TypeScript + React operator GUI, WebSocket + JSON communication, C++ deterministic control core.                                 |
+| **State authority**    | The C++ control core owns the authoritative runtime state.                                                                       |
+| **Mission model**      | MANAR V1 supports one active mission at a time with explicit operator-controlled start, abort, launch, landing and RTH behavior. |
+| **Operator interface** | Critical flight, mission, detection and imaging information is available live during operation.                                  |
+| **Multisensor design** | MANAR combines imaging, FMCW radar, passive RF and audio rather than relying on a single sensor.                                 |
+| **Passive RF**         | RF acts as an attention-trigger sensor using deterministic adaptive detection, not as independent rescuee confirmation.          |
+| **Human supervision**  | Autonomous subsystems may detect and prioritize evidence, while mission-critical control remains under supervised operation.     |
+| **Future ML**          | Python + PyTorch will be introduced later for perception and multisensor fusion.                                                 |
 
 ## Development Roadmap
 
@@ -57,38 +75,32 @@ Development is tracked in [ROADMAP.md](ROADMAP.md).
 
 ## Project Milestones
 
-- [x] Initial ideation & system specification
-- [x] GitHub repository setup & project licensing
-- [x] Brand visual identity & asset guidelines
-- [x] Scope definition & operational constraint hardening
-- [x] Prototype web dashboard (v1.0) & landing page
-- [x] Deterministic C++ control system design
-- [x] JSON runtime configuration & `setup.exe` utility
-- [x] Decouple terminal interface from control logic
-
+- [x] ~~Initial ideation & system specification~~
+- [x] ~~GitHub repository setup & project licensing~~
+- [x] ~~Brand visual identity & asset guidelines~~
+- [x] ~~Scope definition & operational constraint hardening~~
+- [x] ~~Prototype web dashboard (v1.0) & landing page~~
+- [x] ~~Deterministic C++ control system design~~
+- [x] ~~JSON runtime configuration & `setup.exe` utility~~
+- [x] ~~Decouple terminal interface from control logic~~
 - [ ] Define MANAR V1 engineering & mission requirements
 - [ ] Research and select candidate hardware components
 - [ ] Establish payload mass, power & interface budgets
 - [ ] Validate aircraft physical feasibility & propulsion requirements
 - [ ] Freeze MANAR V1 simulated aircraft configuration
 - [ ] Define component, power & communication architecture
-
 - [ ] Build deterministic C++ component subsystem
 - [ ] Expand deterministic flight & mission simulation engine
 - [ ] Model aircraft flight dynamics & simulated sensor behavior
 - [ ] Create dimensionally grounded 3D drone model in Blender
-
 - [ ] Develop TypeScript / React Operator GUI
 - [ ] Integrate TypeScript GUI with C++ Control Core
-
 - [ ] Develop Python / PyTorch perception pipeline
 - [ ] Develop multisensor detection & fusion logic
 - [ ] Integrate Python ML pipeline with C++ Control Core & GUI
 - [ ] Train, evaluate & validate perception models
-
 - [ ] Perform end-to-end simulated mission testing
 - [ ] TBD
-
 - [ ] Complete LaTeX report, presentation & technical documentation
 - [ ] Produce final demonstration & portfolio material
 - [ ] Final public launch & repository maintenance
