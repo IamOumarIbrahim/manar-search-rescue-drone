@@ -1,16 +1,13 @@
 {
-    "control": {
-        "last_processed_command": 0
-    },
     "flight": {
-        "launched": false,
         "speed": 0.0,
         "altitude": 0.0,
-        "mode": "Stall"
+        "mode": "Stall",
+        "launched": false
     },
     "destination": {
-        "latitude": 0.0,
-        "longitude": 0.0
+        "latitude": null,
+        "longitude": null
     },
     "components": {
         "thermal_camera": false,
@@ -25,15 +22,20 @@
         "downward_spotlight": false,
         "smoke_marker": false
     },
+    "battery": {
+        "percentage": null
+    },
     "mission": {
         "started": false,
-        "aborted": false,
         "finished": false,
-        "rescueefound": false,
         "enroute": false,
         "returning": false,
         "waitingforhelp": false,
-        "last_saved_latitude": 0.0,
-        "last_saved_longitude": 0.0
+        "rescueefound": false,
+        "last_saved_latitude": null,
+        "last_saved_longitude": null
+    },
+    "control": {
+        "last_processed_command": 0
     }
 }

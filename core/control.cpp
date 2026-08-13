@@ -21,7 +21,7 @@ using json = nlohmann::json;
 json config;
 json runtime;
 json commands;
-
+json battery;
 int lastProcessedCommandID = 0;
 ofstream fout("logs.txt",ios::trunc);
 /* RESPONSIBILITY
@@ -496,21 +496,17 @@ class components
             }
         void batterySaveMode()
             {
-                int ON = 1;
-                int OFF = 2;
-
-                rgb(ON);
-                thermal(ON);
-
-                infrared(OFF);
-                fmcw(OFF);
-                rf(OFF);
-                microphone(OFF);
-                speaker(OFF);
-                beacon(OFF);
-                strobe(OFF);
-                spotlight(OFF);
-                smoke(OFF);
+                thermal(battery["thermal_camera"]);
+                rgb(battery["rgb_camera"]);
+                infrared(battery["infrared_camera"]);
+                fmcw(battery["fmcw_radar"]);
+                rf(battery["passive_rf"]);
+                microphone(battery["microphone"]);
+                speaker(battery["speaker"]);
+                beacon(battery["amber_beacon"]);
+                strobe(battery["white_strobe"]);
+                spotlight(battery["downward_spotlight"]);
+                smoke(battery["smoke_marker"]);
             }       
 };
 class home 
@@ -617,15 +613,7 @@ class drone
     {
         return longitude;
     }
-    void landwhereyouare()
-    {
-        
-        double X = getdronelat();
-        double Y = getdronelong();
-        mydroneflight.setdestination(X,Y);
-        transmitinfo(); // TRANSMIT INFO
-        stopflight();
-    }
+
     double distancebetween(double lat1, double lon1, double lat2, double lon2)
     {
         const double EARTL_RADIUS = 6371000.0;
@@ -663,6 +651,10 @@ class drone
         return distance <= config["reached_radius"];
     }
     void stopflight(){
+        double X = getdronelat();
+        double Y = getdronelong();
+        mydroneflight.setdestination(X,Y);
+        transmitinfo(); // TRANSMIT INFO
         mydroneflight.stopflight();
         comp.turnOffPayload();
     }
@@ -749,8 +741,7 @@ class mission
                 enroute = false;
                 returning = false;
 
-                mydrone.landwhereyouare();
-                mydrone.transmitinfo();
+                mydrone.stopflight();
 
                 waitingforhelp = true;
 
@@ -802,7 +793,8 @@ class mission
                         if (emergencyLandTriggered == false)
                         {
                             emergencyLandTriggered = true;
-
+                            runtime["battery"]["mode"] = "emergencyLandTriggered";
+                            saveRuntime();
                             fout << "[Battery: CRITICAL] -- Landing safely..." << endl;
                             mydrone.stopflight();
 
@@ -816,7 +808,7 @@ class mission
                         if (emergencyRTL == false)
                         {
                             emergencyRTL = true;
-
+                            runtime["battery"]["mode"] = "emergencyRTL";
                             fout << "[Battery: CRITICAL] -- Enabling emergency RTL" << endl;
                             mydrone.transmitinfo();
                             activateRTL(mydrone, mydrone.myhome, *this);
@@ -828,7 +820,7 @@ class mission
                         if (rtlWarningTriggered == false)
                         {
                             rtlWarningTriggered = true;
-
+                            runtime["battery"]["mode"] = "rtlWarningTriggered";
                             fout << "Battery is currently under "
                                 << config["battery_rtl_warning"]
                                 << "%, Please consider enabling RTL." << endl;
@@ -842,7 +834,7 @@ class mission
                         if (batterySaveTriggered == false)
                         {
                             batterySaveTriggered = true;
-
+                            runtime["battery"]["mode"] = "batterySaveTriggered";
                             fout << "Battery is currently under "
                                 << config["battery_warning"] << "%" << endl;
 
@@ -1195,6 +1187,8 @@ int main()
 {
     ifstream configfile("config.json"); 
     configfile >> config;
+    ifstream batterysavemode("batterysavemodeconfig.json"); 
+    batterysavemode >> battery;
 
     runtime = json::object();
     saveRuntime();

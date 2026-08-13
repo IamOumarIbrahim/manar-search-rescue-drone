@@ -1,0 +1,13 @@
+{
+    "thermal_camera": 1,
+    "rgb_camera": 1,
+    "infrared_camera": 2,
+    "fmcw_radar": 2,
+    "speaker": 2,
+    "microphone": 2,
+    "passive_rf": 2,
+    "amber_beacon": 2,
+    "white_strobe": 2,
+    "downward_spotlight": 2,
+    "smoke_marker": 2
+}

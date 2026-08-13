@@ -367,7 +367,6 @@ int main()
                 cin >> User_Option;
 
                 cout << "----------------------------------" << endl;
-                this_thread::sleep_for(chrono::seconds(1));
 
                 cout << "Select an option:\n"
                     << "1. TURN IT ON\n"
