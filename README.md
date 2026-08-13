@@ -57,8 +57,6 @@ Development is tracked in [ROADMAP.md](ROADMAP.md).
 
 ## Project Milestones
 
-Development is phase-locked: later phases depend on the core requirements of the previous phase being completed. Detailed engineering tasks are tracked in [`ROADMAP.md`](ROADMAP.md).
-
 - [x] Initial ideation & system specification
 - [x] GitHub repository setup & project licensing
 - [x] Brand visual identity & asset guidelines
