@@ -59,8 +59,6 @@ Development is tracked in [ROADMAP.md](ROADMAP.md).
 
 Development is phase-locked: later phases depend on the core requirements of the previous phase being completed. Detailed engineering tasks are tracked in [`ROADMAP.md`](ROADMAP.md).
 
-### Phase 0 — Foundation & Initial Prototype
-
 - [x] Initial ideation & system specification
 - [x] GitHub repository setup & project licensing
 - [x] Brand visual identity & asset guidelines
@@ -68,69 +66,34 @@ Development is phase-locked: later phases depend on the core requirements of the
 - [x] Prototype web dashboard (v1.0) & landing page
 - [x] Deterministic C++ control system design
 - [x] JSON runtime configuration & `setup.exe` utility
-- [x] Decouple terminal interface from control process
-
-### Phase 1 — Deterministic Core Hardening
-
-- [ ] Establish authoritative runtime & state ownership
-- [ ] Implement reliable command lifecycle & acknowledgment
-- [ ] Harden JSON, runtime persistence & file handling
-- [ ] Stabilize deterministic drone & mission state behavior
-- [ ] Resolve contradictory mission, flight & RTH transitions
-
-### Phase 2 — MANAR V1 Engineering Definition
+- [x] Decouple terminal interface from control logic
 
 - [ ] Define MANAR V1 engineering & mission requirements
 - [ ] Research and select candidate hardware components
 - [ ] Establish payload mass, power & interface budgets
 - [ ] Validate aircraft physical feasibility & propulsion requirements
-- [ ] Define component, power & communication architecture
 - [ ] Freeze MANAR V1 simulated aircraft configuration
-
-### Phase 3 — Flight & Mission Simulation
+- [ ] Define component, power & communication architecture
 
 - [ ] Build deterministic C++ component subsystem
-- [ ] Implement continuous movement simulation
-- [ ] Implement dynamic battery & safety behavior
-- [ ] Expand search, navigation & mission execution
-- [ ] Model simulated sensor behavior
-- [ ] Validate lawnmower search, RTH, abort & mission-completion behavior
+- [ ] Expand deterministic flight & mission simulation engine
+- [ ] Model aircraft flight dynamics & simulated sensor behavior
 - [ ] Create dimensionally grounded 3D drone model in Blender
 
-### Phase 4 — External Interface & Operator Control
-
-- [ ] Define C++ external command & telemetry interface
-- [ ] Select and implement local transport architecture
 - [ ] Develop TypeScript / React Operator GUI
-- [ ] Integrate Operator GUI with C++ Control Core
-- [ ] Implement live telemetry, command feedback & control heartbeat
-- [ ] Add map, route & mission-state visualization
+- [ ] Integrate TypeScript GUI with C++ Control Core
 
-### Phase 5 — Perception & Supervised Autonomy
-
-- [ ] Define structured perception-event interface
 - [ ] Develop Python / PyTorch perception pipeline
 - [ ] Develop multisensor detection & fusion logic
-- [ ] Integrate Python perception with C++ Control Core
-- [ ] Integrate perception events with Operator GUI
-- [ ] Implement candidate verification & human-authorization flow
+- [ ] Integrate Python ML pipeline with C++ Control Core & GUI
 - [ ] Train, evaluate & validate perception models
 
-### Phase 6 — System Validation
-
 - [ ] Perform end-to-end simulated mission testing
-- [ ] Validate nominal search-and-rescue mission flow
-- [ ] Validate abort, RTH, low-battery & failure scenarios
-- [ ] Validate C++ / GUI / ML integration
-- [ ] Resolve critical system defects before release
-
-### Phase 7 — Documentation & Public Release
+- [ ] TBD
 
 - [ ] Complete LaTeX report, presentation & technical documentation
-- [ ] Finalize repository architecture & setup documentation
 - [ ] Produce final demonstration & portfolio material
-- [ ] Final public launch
-- [ ] Repository maintenance
+- [ ] Final public launch & repository maintenance
 
 ## Project Structure
 
@@ -197,3 +160,4 @@ identified as being covered by it.
 
 See the [LICENSE](LICENSE) and any applicable file or directory license notices for
 the complete terms.
+
