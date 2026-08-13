@@ -7,6 +7,7 @@
 
   [![License: Proprietary](https://img.shields.io/badge/License-Proprietary-yellow.svg)](LICENSE.md)
   [![C++17](https://img.shields.io/badge/C%2B%2B-17-00599C.svg?logo=c%2B%2B)](core/)
+  [![JSON](https://img.shields.io/badge/JSON-Runtime%20%26%20Config-000000.svg?logo=json&logoColor=white)](core/)
   [![Landing Page](https://img.shields.io/badge/Website-Live-brightgreen)](https://iamoumaribrahim.github.io/manar-search-rescue-drone/)
 
 </div>
@@ -50,7 +51,15 @@
 </p>
 
 
+## Development Roadmap
+
+Development is tracked in [ROADMAP.md](ROADMAP.md).
+
 ## Project Milestones
+
+Development is phase-locked: later phases depend on the core requirements of the previous phase being completed. Detailed engineering tasks are tracked in [`ROADMAP.md`](ROADMAP.md).
+
+### Phase 0 — Foundation & Initial Prototype
 
 - [x] Initial ideation & system specification
 - [x] GitHub repository setup & project licensing
@@ -59,66 +68,87 @@
 - [x] Prototype web dashboard (v1.0) & landing page
 - [x] Deterministic C++ control system design
 - [x] JSON runtime configuration & `setup.exe` utility
-- [x] Decouple terminal interface from control logic
+- [x] Decouple terminal interface from control process
+
+### Phase 1 — Deterministic Core Hardening
+
+- [ ] Establish authoritative runtime & state ownership
+- [ ] Implement reliable command lifecycle & acknowledgment
+- [ ] Harden JSON, runtime persistence & file handling
+- [ ] Stabilize deterministic drone & mission state behavior
+- [ ] Resolve contradictory mission, flight & RTH transitions
+
+### Phase 2 — MANAR V1 Engineering Definition
 
 - [ ] Define MANAR V1 engineering & mission requirements
 - [ ] Research and select candidate hardware components
 - [ ] Establish payload mass, power & interface budgets
 - [ ] Validate aircraft physical feasibility & propulsion requirements
-- [ ] Freeze MANAR V1 simulated aircraft configuration
 - [ ] Define component, power & communication architecture
+- [ ] Freeze MANAR V1 simulated aircraft configuration
+
+### Phase 3 — Flight & Mission Simulation
 
 - [ ] Build deterministic C++ component subsystem
-- [ ] Expand deterministic flight & mission simulation engine
-- [ ] Model aircraft flight dynamics & simulated sensor behavior
+- [ ] Implement continuous movement simulation
+- [ ] Implement dynamic battery & safety behavior
+- [ ] Expand search, navigation & mission execution
+- [ ] Model simulated sensor behavior
+- [ ] Validate lawnmower search, RTH, abort & mission-completion behavior
 - [ ] Create dimensionally grounded 3D drone model in Blender
 
-- [ ] Develop TypeScript / React Operator GUI
-- [ ] Integrate TypeScript GUI with C++ Control Core
+### Phase 4 — External Interface & Operator Control
 
+- [ ] Define C++ external command & telemetry interface
+- [ ] Select and implement local transport architecture
+- [ ] Develop TypeScript / React Operator GUI
+- [ ] Integrate Operator GUI with C++ Control Core
+- [ ] Implement live telemetry, command feedback & control heartbeat
+- [ ] Add map, route & mission-state visualization
+
+### Phase 5 — Perception & Supervised Autonomy
+
+- [ ] Define structured perception-event interface
 - [ ] Develop Python / PyTorch perception pipeline
 - [ ] Develop multisensor detection & fusion logic
-- [ ] Integrate Python ML pipeline with C++ Control Core & GUI
+- [ ] Integrate Python perception with C++ Control Core
+- [ ] Integrate perception events with Operator GUI
+- [ ] Implement candidate verification & human-authorization flow
 - [ ] Train, evaluate & validate perception models
 
+### Phase 6 — System Validation
+
 - [ ] Perform end-to-end simulated mission testing
-- [ ] TBD
+- [ ] Validate nominal search-and-rescue mission flow
+- [ ] Validate abort, RTH, low-battery & failure scenarios
+- [ ] Validate C++ / GUI / ML integration
+- [ ] Resolve critical system defects before release
+
+### Phase 7 — Documentation & Public Release
 
 - [ ] Complete LaTeX report, presentation & technical documentation
+- [ ] Finalize repository architecture & setup documentation
 - [ ] Produce final demonstration & portfolio material
-- [ ] Final public launch & repository maintenance
+- [ ] Final public launch
+- [ ] Repository maintenance
 
-## Architecture
+## Project Structure
 
-```mermaid
-flowchart TD
-    GUI["TypeScript / React<br/>Operator GUI"]
-    CORE["C++<br/>Deterministic Control Core"]
-    ML["Python / PyTorch<br/>Machine Learning"]
-
-    GUI <-->|"HTTP / localhost"| CORE
-    CORE <-->|"Detection / Sensor Data"| ML
-```
-
-**C++** owns system state and deterministic control.
-**Python / PyTorch** handles machine learning and sensor analysis.
-**TypeScript / React** provides the operator interface.
-
-
+```text
 ## Project Structure
 
 ```text
 manar-search-rescue-drone/
 │
-├── core/                       # Deterministic control prototype
-│   ├── config.json             # Persistent system configuration
-│   ├── control.cpp             # Main control system
-│   ├── setup.cpp               # Configuration setup utility
-│   ├── logs.txt                # Runtime logs
+├── core/                       # Deterministic C++ control system
+│   ├── control.cpp             # Persistent control process & system authority
+│   ├── terminal.cpp            # Operator CLI & command producer
+│   ├── setup.cpp               # Persistent configuration setup utility
+│   ├── runtime_template.json   # Reference schema for runtime state
 │   └── nlohmann/
 │       └── json.hpp            # JSON library
 │
-├── webdashboardv1/             # Prototype operator dashboard
+├── webdashboardv1/             # Prototype operator dashboard (v1.0)
 │   ├── dashboard.html
 │   ├── script.js
 │   └── style.css
@@ -133,7 +163,7 @@ manar-search-rescue-drone/
 │           ├── Branding/
 │           └── patterns/
 │
-├── assets/                     # Project media and design material
+├── assets/                     # Project media & design material
 │   ├── Images/
 │   │   └── Branding/
 │   ├── Videos/
@@ -147,6 +177,7 @@ manar-search-rescue-drone/
 │
 ├── README.md
 ├── REFERENCES.md
+├── ROADMAP.md                  # Phase-ordered development roadmap
 ├── SECURITY.md
 ├── LICENSE.md
 └── .gitignore
