@@ -1,547 +1,336 @@
-> LAST UPDATED: 13-08-2026 8:18PM (UTC+4)
+# MANAR Behavioral Decisions
 
-# CLOSED
+This file records owner-level behavioral decisions for the deterministic MANAR control system.
 
-## 1. Project Definition
-
-* MANAR is a supervised-autonomy UAV system for search and rescue.
-* MANAR V1 operates one mission at a time.
-* The deterministic C++ control system remains the authority over mission, flight, component, navigation, and runtime state.
+It is intentionally separate from `ROADMAP.md`:
+- `ROADMAP.md` defines **what development work remains**.
+- `BEHAVIOR_DECISIONS.md` defines **what the system is supposed to mean and do** when the repository or implementation is ambiguous.
 
 ---
 
-## 2. Software Stack
+## Locked Decisions
 
-* Operator GUI:
+### BD-01 — Mission Start Comes First
 
-  > TypeScript + React
-* Communication:
+**Decision:** `START_MISSION` is the first mission-lifecycle action.
 
-  > WebSocket + JSON
-* Deterministic control:
+`START_MISSION` does **not** require the drone to already be launched.
 
-  > C++
-* Runtime state:
-
-  > `runtime.json`
-* Persistent configuration:
-
-  > `config.json`
-* Machine learning:
-
-  > Python + PyTorch later in development
-
-> TypeScript/React handles presentation and operator interaction, WebSocket handles communication, and C++ owns control logic and authoritative runtime state.
-
----
-
-## 3. Operator → Control Commands
-
-The operator interface may send commands to configure:
-
-### Mission
-
-> Start / Abort
-
-### Flight
-
-> Speed / Altitude / Mode / Launch / Land
-
-### Components
-
-> ON / OFF each controllable component
-
-### Navigation
-
-> Set/change destination coordinates
-
-### Rescuee
-
-> Found / Not Found
-
-### RTH
-
-> Trigger Return-To-Home
-
-Every command must receive an explicit success or rejection result.
-
-Commands must never be silently consumed.
-
----
-
-## 4. Control → Operator Information
-
-The control system provides:
-
-### Mission
-
-> Started / Ongoing / Aborted / relevant mission state
-
-### Flight
-
-> Speed / Altitude / Mode / Status
-
-### Components
-
-> ON / OFF / health status
-
-### Battery
-
-> Current battery / estimated time until CRITICAL / power-saving status
-
-### Navigation
-
-> Current GPS position / destination / waypoints / ETA / estimated battery at arrival
-
-### Detection
-
-> Sensor detections / confidence / rescuee state / important alerts
-
----
-
-## 5. Runtime State Ownership
-
-* `control.cpp` owns the canonical runtime state.
-* `runtime.json` represents a complete authoritative snapshot of control-owned state.
-* External interfaces must not observe partially applied state transitions.
-* Subsystems may update internal variables or return results to control.
-* Subsystems do not independently persist canonical runtime state.
-* Operator interfaces read state but do not directly modify runtime state.
-* Future GUI and ML layers must follow the same behavioral contract rather than defining their own mission semantics.
-
----
-
-## 6. Operator Information Model
-
-Operator information is divided into:
-
-1. continuously displayed telemetry,
-2. continuously maintained but optionally displayed state,
-3. on-demand detailed state.
-
-> Sensors operate continuously, control maintains state continuously, and the operator interface decides what information is displayed continuously.
-
-High-bandwidth data such as camera feeds is transported separately from `runtime.json`.
-
----
-
-## 7. GUI Information Division
-
-### Always on display
-
-**MISSION**
-
-* Mission state
-* Flight mode
-* Altitude
-* Speed
-* Battery
-* Location
-* Destination
-* ETA
-* Link status
-
-**DETECTION**
-
-* Passive RF indicator
-* FMCW detection indicator
-* Detection state / confidence
-* Rescuee status
-* Important alerts
-
-**IMAGING**
-
-* RGB feed
-* Thermal feed
-* Low-light / IR feed
-
-### Live but not necessarily on main display
-
-* FMCW detailed values
-* RF history graph
-* Component health
-* GNSS accuracy
-* Radar altitude
-* Microphone activity
-* Current waypoint details
-* Power consumption
-* Sensor temperatures
-
-### On-demand
-
-* Full component status
-* Full mission state
-* Diagnostics
-* Configuration
-* Detailed battery information
-* RF history
-* Logs
-
----
-
-## 8. Mission Lifecycle
-
-* `START_MISSION` is the first mission-lifecycle action.
-* Mission start does not require the aircraft to already be launched.
+A valid sequence is:
 
 ```text
 START_MISSION
     ↓
-Mission active
+mission becomes active
     ↓
 LAUNCH_DRONE
     ↓
-Flight begins
+flight begins
 ```
 
-* A mission may remain active while the aircraft is on the ground.
-* Starting a new mission clears transient state from the previous mission.
-* A separate `RESET_MISSION` command is not required for V1.
-* Previous aborted, finished, returning, rescuee-found, waiting-for-help and search-progress state must not carry into a new mission.
+The mission may therefore be active while the aircraft is still on the ground.
 
 ---
 
-## 9. Flight Behavior
+### BD-02 — Starting a New Mission Resets Previous Mission State
 
-### STOP_FLIGHT
+**Decision:** MANAR V1 supports one mission at a time.
 
-`STOP_FLIGHT` means safely decelerate and land.
+Issuing `START_MISSION` for a new mission automatically clears mission-specific state left by the previous mission, including aborted, finished, returning, rescuee-found, waiting-for-help, search progress, and related transient mission state.
 
-It does not automatically abort the mission.
-
-After completion:
-
-```text
-flight.launched = false
-flight.speed = 0
-flight.altitude = 0
-flight.mode = "Stall"
-mission.enroute = false
-```
-
-### Relaunch
-
-* A landed aircraft may relaunch during an existing mission.
-* Relaunch does not reset mission state or destination.
-
-### Flight mode and speed
-
-* Flight modes provide speed presets.
-* Manual speed may override the current mode's preset.
-* Manual speed does not change the selected flight mode.
-* Manual speed must remain within configured safety limits.
-
-```text
-0 <= flight.speed <= config.maximum_speed
-```
-
-### Destination changes
-
-* Changing destination does not implicitly launch the aircraft.
-* Destination may be changed while waiting for help.
+A separate `RESET_MISSION` command is not required for V1.
 
 ---
 
-## 10. RTH Behavior
+### BD-03 — STOP_FLIGHT Means Safe Landing
 
-* `RTH` sets the current destination to configured home coordinates.
-* RTH is a navigation state, not an irreversible destination lock.
+**Decision:** `STOP_FLIGHT` means the aircraft should decelerate and land safely.
 
-While returning:
+It is not automatically equivalent to `ABORT_MISSION`.
 
-```text
-mission.returning = true
-destination = home
-```
+After the stop/landing completes:
 
-If an accepted `CHANGE_DEST` changes the destination away from home:
+- `flight.launched = false`
+- `flight.speed = 0`
+- `flight.altitude = 0`
+- `flight.mode = "Stall"`
+- `mission.enroute = false`
 
-```text
-mission.returning = false
-destination = new destination
-```
-
-Therefore:
-
-> `returning == true` always means the current destination is home.
+The mission itself may remain active.
 
 ---
 
-## 11. Mission Abort
+### BD-04 — Relaunch During an Existing Mission Is Allowed
 
-`ABORT_MISSION` terminates the current mission objective and initiates RTH.
+**Decision:** A landed/stopped aircraft may be launched again without creating a new mission.
+
+Relaunching does not reset the active mission or destination.
+
+This supports sequences such as:
 
 ```text
+START_MISSION
+    ↓
+LAUNCH_DRONE
+    ↓
+STOP_FLIGHT
+    ↓
+LAUNCH_DRONE
+    ↓
+continue mission
+```
+
+---
+
+### BD-05 — RTH Is a One-Time Navigation Command, Not a Destination Lock
+
+**Decision:** `RTH` sets the current destination to the home/base coordinates.
+
+It does not permanently lock the aircraft into returning home.
+
+While RTH is active:
+
+- `mission.returning = true`
+- `destination = home`
+
+If `CHANGE_DEST` is later accepted:
+
+- the new destination overrides the home destination;
+- `mission.returning` must become `false`.
+
+This preserves the invariant that `returning == true` means the current destination is actually home.
+
+---
+
+### BD-06 — Manual Speed May Differ From Flight-Mode Preset
+
+**Decision:** Flight modes provide speed presets, but the operator may manually override speed afterward.
+
+Example:
+
+```text
+mode = "Quick"
+speed = 2 m/s
+```
+
+is valid.
+
+Changing speed manually does not need to rename or change the current flight mode.
+
+The only hard requirement is that manual speed remains inside configured safety bounds.
+
+---
+
+### BD-07 — Destination May Change While Waiting for Help
+
+**Decision:** `CHANGE_DEST` is permitted while `mission.waitingforhelp == true`.
+
+Changing the destination does not by itself launch the aircraft or cause movement.
+
+The aircraft remains landed until a separate action causes flight to resume.
+
+---
+
+### BD-08 — ABORT_MISSION Initiates RTH
+
+**Decision:** `ABORT_MISSION` terminates the current mission objective and initiates return-to-home behavior.
+
+The intended state transition is:
+
+```text
+ABORT_MISSION
+    ↓
 mission.aborted = true
 mission.enroute = false
 destination = home
 mission.returning = true
 ```
 
-If airborne, the aircraft begins or continues return flight.
+If the aircraft is already airborne, it begins/continues return flight.
+
+**Remaining detail:** behavior when abort is issued while the aircraft is already landed (for example, while waiting for help) still needs to be locked: either automatic relaunch or explicit `LAUNCH_DRONE` before movement.
 
 ---
 
-## 12. Waiting for Help
+## Hard Behavioral Invariants
 
-* `mission.waitingforhelp == true` represents a safely landed state unless explicitly changed later.
-* Destination may be changed while waiting for help.
-* Changing destination does not itself launch the aircraft or begin movement.
+These invariants should remain true after every completed command/state transition.
+
+### Mission Lifecycle
+
+**INV-01 — One active mission**
+MANAR V1 operates one mission at a time.
+
+**INV-02 — Mission start does not require launch**
+`mission.started == true` does not imply `flight.launched == true`.
+
+**INV-03 — New mission state is clean**
+A new `START_MISSION` must not inherit aborted, finished, returning, rescuee-found, waiting-for-help, or search-progress state from the previous mission.
+
+**INV-04 — Stopping flight does not automatically abort the mission**
+`flight.launched == false` may coexist with `mission.started == true`.
+
+**INV-05 — Enroute means actively airborne and traveling**
+If `mission.enroute == true`, then `flight.launched == true`.
 
 ---
 
-## 13. Passive RF Role
+### Flight State
 
-* Passive RF is a supporting search sensor and attention trigger.
-* Passive RF does not independently identify or confirm a rescuee.
-* Other MANAR sensors provide stronger localization and confirmation evidence after RF draws attention to an area.
-
----
-
-## 14. Passive RF Hardware
-
-MANAR V1 uses Level 1 passive RF hardware:
+**INV-06 — Grounded flight state**
+If `flight.launched == false`, then:
 
 ```text
-One low-SWaP passive RF receiver
-+
-One suitable omnidirectional / multiband antenna
+flight.speed == 0
+flight.altitude == 0
+flight.mode == "Stall"
 ```
 
-V1 does not require:
+**INV-07 — STOP_FLIGHT ends in grounded state**
+After `STOP_FLIGHT` completes, INV-06 must hold and `mission.enroute == false`.
 
-* RF direction finding
-* Bearing estimation
-* Angle of Arrival
-* Coherent beamforming
-* Transmitter triangulation
-* Dedicated RF localization hardware
-* KrakenSDR / coherent five-antenna AoA architecture
+**INV-08 — Relaunch preserves mission**
+`LAUNCH_DRONE` during an already-active mission must not reset mission state or replace the current destination.
 
----
-
-## 15. Passive RF Detection
-
-* RF anomaly detection is deterministic.
-* MANAR uses adaptive detection rather than one universal RSSI threshold.
-* CFAR-style detection is the selected adaptive anomaly-detection approach.
-* Machine learning is not required for passive RF anomaly detection.
-
-Conceptually:
+**INV-09 — Manual speed is bounded**
+At all times:
 
 ```text
-RF power measurement
-    ↓
-Estimate local background
-    ↓
-Calculate adaptive threshold
-    ↓
-Compare current measurement
-    ↓
-Generate RF anomaly if exceeded
+0 <= flight.speed <= config.maximum_speed
 ```
 
-An RF anomaly means:
-
-> RF activity significantly different from the estimated local RF background has been detected.
-
-It does not mean:
-
-> A rescuee has been detected.
+**INV-10 — Manual speed is independent of mode preset**
+No invariant requires `flight.speed` to equal the preset associated with `flight.mode`.
 
 ---
 
-## 16. RF Attention Escalation
+### Destination / RTH
 
-MANAR uses a deterministic two-stage attention system after CFAR detection.
-
-### Attention Level 1
-
-Initial or limited above-threshold RF activity:
-
-* Trigger RF Attention Level 1.
-* Begin tracking qualifying above-threshold samples.
-* Retain RF measurement history.
-* Do not assume a meaningful target exists yet.
-* Do not immediately perform full spatial RSSI reasoning.
-
-### Attention Level 2
-
-After sustained qualifying RF activity:
-
-* Trigger RF Attention Level 2.
-* Trigger appropriate inspection behavior.
-* Use position-tagged RSSI history.
-* Determine whether signal strength is generally increasing or decreasing as MANAR moves.
-
-Conceptually:
+**INV-11 — Returning means destination is home**
+If:
 
 ```text
-Increasing RSSI
-    → moving toward RF hotspot
-
-Decreasing RSSI
-    → moving away from RF hotspot
+mission.returning == true
 ```
 
-This is movement-correlated RSSI reasoning, not:
+then:
 
-* AoA
-* Bearing estimation
-* Triangulation
-* True RF localization
+```text
+destination == home
+```
 
----
+**INV-12 — RTH sets home as destination**
+After a successful `RTH` transition:
 
-## 17. RF Position History
+```text
+destination = home
+mission.returning = true
+```
 
-RF measurements may retain:
+**INV-13 — Destination override cancels returning status**
+If `CHANGE_DEST` changes the destination away from home while `mission.returning == true`, then:
 
-* Timestamp
-* Frequency / band
-* Received RF power / RSSI
-* Estimated local background
-* Adaptive threshold
-* Difference from background
-* RF anomaly flag
-* Aircraft latitude
-* Aircraft longitude
+```text
+mission.returning = false
+```
 
-This allows optional GPS-tagged "hot/cold" spatial RF analysis using the same Level 1 hardware.
-
-The aircraft flight path will not be redesigned solely for RF localization unless future testing justifies it.
+RTH is therefore a command that sets navigation state, not an irreversible mode.
 
 ---
 
-## 18. Passive RF and FMCW Relationship
+### Waiting for Help
 
-Passive RF and FMCW have separate roles.
+**INV-14 — Waiting-for-help is a landed state**
+If `mission.waitingforhelp == true`, the aircraft must be safely landed unless a later explicit command changes that state.
 
-**Passive RF**
-
-> Detect abnormal RF emissions and attract system attention.
-
-**FMCW**
-
-> Provide radar-derived range, spatial, motion and micro-motion evidence.
-
-Passive RF therefore does not need dedicated direction or localization capability.
+**INV-15 — Destination changes do not cause implicit launch**
+Changing destination while waiting for help does not by itself launch the aircraft or begin movement.
 
 ---
 
-# OPEN
+### Abort
 
-## 1. Communication and GUI
+**INV-16 — Abort initiates RTH state**
+After `ABORT_MISSION` is accepted:
 
-* Live telemetry update rate.
-* Camera streaming mechanism.
-* Exact runtime fields displayed continuously.
-* RF/FMCW visualization design.
-* Amount of sensor history exposed to the GUI.
+```text
+mission.aborted = true
+mission.enroute = false
+mission.returning = true
+destination = home
+```
 
----
-
-## 2. Command Architecture
-
-* Final WebSocket message schemas.
-* Command ID / acknowledgement structure.
-* Duplicate-command protection.
-* Command timeout behavior.
-* Connection-loss behavior.
-* Reconnection and state resynchronization behavior.
+Any later explicit `CHANGE_DEST` may override RTH according to BD-05 and INV-13.
 
 ---
 
-## 3. Mission and Flight
+### Command / Runtime Integrity
 
-* Exact complete mission-state machine.
-* Exact altitude semantics where still required.
-* Exact safety bounds for operator-controlled flight values.
-* Exact behavior when destinations are unreachable.
-* Exact behavior when navigation data becomes unavailable.
+**INV-17 — Every command has an explicit result**
+Every accepted command request must end as either successful or explicitly rejected. No command should be silently consumed.
 
----
+**INV-18 — Runtime is authoritative and complete**
+`runtime.json` must represent a complete snapshot of the control-owned state rather than a partially populated set of fields.
 
-## 4. Abort While Landed
+**INV-19 — Runtime transitions are externally consistent**
+External readers must not observe a half-applied state transition.
 
-If `ABORT_MISSION` occurs while the aircraft is already landed:
-
-1. automatically relaunch and execute RTH, or
-2. enter RTH state and wait for explicit `LAUNCH_DRONE`.
+**INV-20 — Control owns runtime persistence**
+Subsystem methods may change their own internal state or return results, but the control authority is responsible for constructing and persisting the canonical runtime snapshot.
 
 ---
 
-## 5. Component Restrictions
+## Still Unresolved
 
-Determine whether components may be enabled or disabled in every system state.
+### UD-01 — Component State Restrictions
+
+This means deciding whether a component is allowed to be enabled/disabled in every system state.
 
 Examples:
 
-* Smoke marker while grounded.
-* Cameras during active search.
-* Spotlight while waiting for help.
-* Sensors during RTH.
+- Can the smoke marker be activated while the aircraft is on the ground?
+- Can cameras be disabled during an active search?
+- Can the spotlight be enabled while waiting for help?
+- Can sensors be changed during RTH?
 
-No restriction should be invented until required by MANAR's intended behavior.
-
----
-
-## 6. Component Authorization
-
-Determine which component actions require explicit operator authorization rather than a normal toggle.
-
-Potential examples:
-
-* Smoke marker
-* High-intensity spotlight
-* Amber beacon
-* White strobe
-
-Authorization and state restriction remain separate concepts.
+No restriction should be invented until MANAR's intended behavior requires one.
 
 ---
 
-## 7. Passive RF Hardware
+### UD-02 — Explicit Component Authorization
 
-* Exact SDR / RF receiver.
-* Exact antenna.
-* Monitored frequency ranges.
-* Scan strategy.
-* Receiver bandwidth.
-* RF front-end filtering.
+This means deciding whether certain component actions require an extra operator approval/confirmation rather than behaving like ordinary toggles.
 
----
+Potential examples include:
 
-## 8. Passive RF Detection
+- smoke marker deployment;
+- high-intensity spotlight;
+- amber beacon;
+- white strobe.
 
-* CFAR variant.
-* Reference sample/cell count.
-* Guard samples/cells.
-* Threshold scaling.
-* Target false-alarm probability.
-* Frequency resolution.
-* Background-update algorithm.
-* Calibration procedure.
-* Environmental adaptation behavior.
+This is different from a state restriction:
+
+- **State restriction:** "This action is invalid in the current system state."
+- **Authorization:** "This action is valid, but the operator must explicitly approve it."
 
 ---
 
-## 9. RF Attention Behavior
+### UD-03 — Abort While Already Landed
 
-* Sample persistence required to enter Attention Level 1.
-* Hard-coded persistence requirement for Attention Level 2.
-* Attention Level 1/2 timing and decay windows.
-* Exact flight behavior caused by Attention Level 2.
-* Inspection duration.
-* Search radius.
-* Sensor escalation behavior.
-* Acceptable RF false-alarm rate.
+`ABORT_MISSION` initiates RTH, but the aircraft may already be landed (for example while waiting for help).
+
+Still to decide:
+
+1. Abort automatically relaunches the aircraft and begins RTH; or
+2. Abort sets the RTH destination/state, but waits for an explicit `LAUNCH_DRONE`.
 
 ---
 
-## 10. RF Validation
+## Implementation Rule
 
-* Real-world detection range.
-* Measured RF subsystem power.
-* Environmental test methodology.
-* Actual compute cost of CFAR and spatial RSSI processing.
+When implementing Roadmap Milestones 1–4:
+
+1. Existing code should be changed to satisfy these locked decisions and invariants.
+2. Unresolved decisions should **not** be guessed by the implementation.
+3. If current code conflicts with a locked decision, the locked decision is authoritative.
+4. Future GUI and ML layers must follow the same behavioral contract rather than defining their own mission semantics.

@@ -58,31 +58,29 @@
 
 ## Closed Design Decisions
 
-| Area                   | Decision                                                                                                                         |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| **Architecture**       | TypeScript + React operator GUI, WebSocket + JSON communication, C++ deterministic control core.                                 |
-| **State authority**    | The C++ control core owns the authoritative runtime state.                                                                       |
-| **Mission model**      | MANAR V1 supports one active mission at a time with explicit operator-controlled start, abort, launch, landing and RTH behavior. |
-| **Operator interface** | Critical flight, mission, detection and imaging information is available live during operation.                                  |
-| **Multisensor design** | MANAR combines imaging, FMCW radar, passive RF and audio rather than relying on a single sensor.                                 |
-| **Passive RF**         | RF acts as an attention-trigger sensor using deterministic adaptive detection, not as independent rescuee confirmation.          |
-| **Human supervision**  | Autonomous subsystems may detect and prioritize evidence, while mission-critical control remains under supervised operation.     |
-| **Future ML**          | Python + PyTorch will be introduced later for perception and multisensor fusion.                                                 |
-
-## Development Roadmap
-
-Development is tracked in [ROADMAP.md](ROADMAP.md).
+| Area | Decision |
+| --- | --- |
+| **Architecture** | React + TypeScript GUI, JSON/WebSocket comms, C++ control core. |
+| **State authority** | C++ control core owns runtime state. |
+| **Mission model** | One active mission with operator-controlled launch, abort, landing and RTH. |
+| **Operator interface** | Live flight, mission, detection and imaging data. |
+| **Multisensor design** | Imaging, FMCW radar, passive RF and audio sensing. |
+| **Passive RF** | Attention trigger only; not independent rescuee confirmation. |
+| **Human supervision** | Autonomy handles detection; critical control remains supervised. |
+| **Future ML** | Python + PyTorch for perception and sensor fusion. |
 
 ## Project Milestones
 
-- [x] ~~Initial ideation & system specification~~
-- [x] ~~GitHub repository setup & project licensing~~
-- [x] ~~Brand visual identity & asset guidelines~~
-- [x] ~~Scope definition & operational constraint hardening~~
-- [x] ~~Prototype web dashboard (v1.0) & landing page~~
-- [x] ~~Deterministic C++ control system design~~
-- [x] ~~JSON runtime configuration & `setup.exe` utility~~
-- [x] ~~Decouple terminal interface from control logic~~
+
+- [x] Initial ideation & system specification
+- [x] GitHub repository setup & project licensing
+- [x] Brand visual identity & asset guidelines
+- [x] Scope definition & operational constraint hardening
+- [x] Prototype web dashboard (v1.0) & landing page
+- [x] Deterministic C++ control system design
+- [x] JSON runtime configuration & `setup.exe` utility
+- [x] Decouple terminal interface from control logic
+
 - [ ] Define MANAR V1 engineering & mission requirements
 - [ ] Research and select candidate hardware components
 - [ ] Establish payload mass, power & interface budgets
@@ -105,52 +103,68 @@ Development is tracked in [ROADMAP.md](ROADMAP.md).
 - [ ] Produce final demonstration & portfolio material
 - [ ] Final public launch & repository maintenance
 
-## Project Structure
 
-```text
 ## Project Structure
 
 ```text
 manar-search-rescue-drone/
 │
-├── core/                       # Deterministic C++ control system
-│   ├── control.cpp             # Persistent control process & system authority
-│   ├── terminal.cpp            # Operator CLI & command producer
-│   ├── setup.cpp               # Persistent configuration setup utility
-│   ├── runtime_template.json   # Reference schema for runtime state
+├── core/                                  # Deterministic C++ control system
+│   ├── control.cpp                        # Control process & runtime authority
+│   ├── terminal.cpp                       # Operator CLI & command interface
+│   ├── setup.cpp                          # Persistent configuration utility
+│   ├── runtime_template.json              # Reference runtime-state schema
 │   └── nlohmann/
-│       └── json.hpp            # JSON library
+│       └── json.hpp                       # JSON library
 │
-├── webdashboardv1/             # Prototype operator dashboard (v1.0)
-│   ├── dashboard.html
-│   ├── script.js
-│   └── style.css
+├── assets/
+│   ├── Docs/                              # Engineering & development documentation
+│   │   ├── Decisions/
+│   │   │   ├── BEHAVIOR_DECISIONS.md
+│   │   │   └── MANAR_V1_PASSIVE_RF_DECISIONS.md
+│   │   ├── development/
+│   │   │   └── M1_M4_IMPLEMENTATION_MAP.md
+│   │   └── engineering/
+│   │       ├── MANAR_V1_ENGINEERING_RESEARCH_V3.md
+│   │       └── MANAR_V1_REQUIREMENTS.md
+│   ├── Images/
+│   │   └── Branding/
+│   ├── Videos/
+│   └── Temp/
 │
-├── manar-landing-page/         # MANAR project website
+├── references/                            # Research & technical references
+│   ├── README.md
+│   ├── REFERENCES.md
+│   ├── acoustics/
+│   ├── cfar/
+│   ├── fmcw_radar/
+│   ├── multisensor_fusion/
+│   ├── navigation/
+│   ├── passive_rf/
+│   ├── rgb_low_light_vision/
+│   ├── target_detection/
+│   ├── thermal_vision/
+│   └── uav_sar/
+│
+├── manar-landing-page/                    # Public project website
 │   ├── index.html
 │   ├── script.js
 │   ├── styles.css
 │   └── assets/
-│       ├── Audio/
-│       └── Images/
-│           ├── Branding/
-│           └── patterns/
 │
-├── assets/                     # Project media & design material
-│   ├── Images/
-│   │   └── Branding/
-│   ├── Videos/
-│   │   ├── Showcase footage/
-│   │   └── Training videos/
-│   └── Temp/
+├── webdashboardv1/                        # Prototype dashboard v1.0
+│   ├── dashboard.html
+│   ├── script.js
+│   └── style.css
 │
 ├── .github/
 │   └── workflows/
 │       └── deploy-pages.yml
 │
+├── MANAR.md                               # MANAR behavioral/system decisions
+├── payload.md                             # Payload definition
+├── ROADMAP.md                             # Development roadmap
 ├── README.md
-├── REFERENCES.md
-├── ROADMAP.md                  # Phase-ordered development roadmap
 ├── SECURITY.md
 ├── LICENSE.md
 └── .gitignore
