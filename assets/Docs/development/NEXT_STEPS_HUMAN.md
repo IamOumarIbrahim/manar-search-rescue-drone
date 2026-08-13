@@ -33,16 +33,15 @@
     - allow operator to save multiple config states for different environments
     - different configs may include: day/night, dry/rainy/snowy/hail, sandstorm/thunderstorm/snowstorm/fog
 
-> [ ] Fixed at: TBD
+> [x] Fixed at: TBD
 ---
 
 
 - battery:
     - define battery save-mode
     - allow user to config battery save-mode operations in config
-    - calculate time until CRITICAL through current power usage statistics
 
-> [ ] Fixed at: TBD
+> [X] Fixed at: TBD
 ---
 - runtime.json definition:
     - runtime will only snapshot the on-demand:
@@ -61,3 +60,5 @@
     - configuring the components and destination and others doesn't need the drone to be launched
 > [ ] Fixed at: TBD
 ---
+# Laid off til later
+    - calculate time until CRITICAL through current power usage statistics

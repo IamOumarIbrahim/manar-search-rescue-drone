@@ -1185,9 +1185,27 @@ void checkcommands(mission &mymission)
 // MAIN METHOD-------------------------------------
 int main()
 {
-    ifstream configfile("config.json"); 
+    ifstream activefile("configs/activeconfig.json");
+    json active;
+    activefile >> active;
+
+    int slot = active["slot"];
+
+    if (slot < 1 || slot > 3)
+    {
+        cout << "Invalid active configuration slot." << endl;
+        return 1;
+    }
+
+    string slotFolder = "configs/slot" + to_string(slot) + "/";
+
+    string configFile = slotFolder + "config.json";
+    string batteryFile = slotFolder + "batterysavemodeconfig.json";
+
+    ifstream configfile(configFile);
     configfile >> config;
-    ifstream batterysavemode("batterysavemodeconfig.json"); 
+
+    ifstream batterysavemode(batteryFile);
     batterysavemode >> battery;
 
     runtime = json::object();
@@ -1203,11 +1221,11 @@ int main()
     while (true)
     {
         checkcommands(mymission);
-        mymission.mydrone.decreasebattery(1);
+        mymission.mydrone.decreasebattery(0.25);
         mymission.batterysystem();
         mymission.missionstatusupdater();
 
-        this_thread::sleep_for(chrono::milliseconds(800));
+        this_thread::sleep_for(chrono::milliseconds(500));
     }
 
 

@@ -5,28 +5,76 @@
 using namespace std;
 using json = nlohmann::json;
 
+void viewConfiguration(const json& config, const json& batterysavemode, int configSlot)
+{
+    cout << "\n==================================" << endl;
+    cout << "CONFIGURATION SLOT " << configSlot << endl;
+    cout << "==================================" << endl;
+
+    cout << "\nGENERAL CONFIGURATION:" << endl;
+    cout << config.dump(4) << endl;
+
+    cout << "\nBATTERY SAVE MODE CONFIGURATION:" << endl;
+    cout << batterysavemode.dump(4) << endl;
+
+    cout << "==================================" << endl;
+}
 int main()
 {
-    // LOAD CONFIG
-    ifstream in("config.json");
+    int configSlot;
+
+    cout << "Select configuration slot:" << endl;
+    cout << "1. Config Slot 1" << endl;
+    cout << "2. Config Slot 2" << endl;
+    cout << "3. Config Slot 3" << endl;
+    cout << "> ";
+    cin >> configSlot;
+
+    if (configSlot < 1 || configSlot > 3)
+    {
+        cout << "Invalid configuration slot." << endl;
+        return 1;
+    }
+
+    cin.ignore();
+
+     string slotFolder = "configs/slot" + to_string(configSlot) + "/";
+
+     string configFile = slotFolder + "config.json";
+     string batteryFile = slotFolder + "batterysavemodeconfig.json";
+
+    ifstream in(configFile);
     json config;
     in >> config;
     in.close();
 
-    // LOAD BATTERY SAVE MODE CONFIG
-    ifstream batteryin("batterysavemodeconfig.json");
+    ifstream batteryin(batteryFile);
     json batterysavemode;
     batteryin >> batterysavemode;
     batteryin.close();
+
+    cout << "\nEditing Configuration Slot "
+         << configSlot << endl;
 
 
     string homeBaseName;
 
 
-    cout << "Enter homebase name (default: "
-         << config["home_base_name"].get<string>() << "): " << endl;
-    getline(cin, homeBaseName);
-    config["home_base_name"] = homeBaseName;
+     do
+     {
+     cout << "Enter homebase name (current: "
+          << config["home_base_name"].get<string>() << "): " << endl;
+
+     getline(cin, homeBaseName);
+
+     if (homeBaseName.empty())
+     {
+          cout << "Homebase name cannot be empty." << endl;
+     }
+
+     } while (homeBaseName.empty());
+
+     config["home_base_name"] = homeBaseName;
 
 
     cout << "Enter homebase latitude (default: "
@@ -165,21 +213,24 @@ int main()
          << batterysavemode["smoke_marker"] << "): " << endl;
     cin >> batterysavemode["smoke_marker"];
 
-
+     viewConfiguration(config, batterysavemode, configSlot);
     // SAVE NORMAL CONFIG
-    ofstream out("config.json");
-    out << config.dump(4);
-    out.close();
+     ofstream out(configFile);
+     out << config.dump(4);
+     out.close();
 
 
     // SAVE BATTERY SAVE MODE CONFIG
-    ofstream batteryout("batterysavemodeconfig.json");
-    batteryout << batterysavemode.dump(4);
-    batteryout.close();
+     ofstream batteryout(batteryFile);
+     batteryout << batterysavemode.dump(4);
+     batteryout.close();
+     cout << "\nConfiguration Slot "
+          << configSlot << " saved." << endl;
 
-
-    cout << "\nConfiguration saved." << endl;
-    cout << "Battery save mode configuration saved." << endl;
-
-    return 0;
+     json active;
+     active["slot"] = configSlot;
+     ofstream activeout("configs/activeconfig.json");
+     activeout << active.dump(4);
+     activeout.close();
+     return 0;
 }

@@ -189,13 +189,33 @@ void readruntime() // DONT TOUCH
 
 int main()
 {
-    ifstream configfile("config.json"); 
+    ifstream activefile("configs/activeconfig.json");
+    json active;
+    activefile >> active;
+    activefile.close();
+
+    int slot = active["slot"];
+
+    if (slot < 1 || slot > 3)
+    {
+        cout << "Invalid active configuration slot." << endl;
+        return 1;
+    }
+
+    string configFile =
+        "configs/slot" + to_string(slot) + "/config.json";
+
+    ifstream configfile(configFile);
     configfile >> config;
-    setlocale(LC_ALL, ".UTF-8"); // DEGREE---------
+    configfile.close();
+
+    setlocale(LC_ALL, ".UTF-8");
+
     int User_Option3 = -1;
     loadlastcommandid();
+
     while (return_main == true)
-    {   
+    {
         this_thread::sleep_for(chrono::seconds(1));
         cout << "----------------------------------" << endl;
         cout << "WELCOME TO MANAR HUMAN CONTROL SYSTEM" << endl;
