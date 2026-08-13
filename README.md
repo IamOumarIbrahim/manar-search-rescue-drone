@@ -17,11 +17,11 @@
 </div>
 
 
-
-> **PROPRIETARY CORE · SELECTED OPEN-SOURCE COMPONENTS**
+> **PROPRIETARY BY DEFAULT · SELECTED COMPONENTS MAY BE OPEN-SOURCED WHEN EXPLICITLY MARKED**
 >
 > MANAR is independently created and owned by **Oumar Ibrahim**.
-> This repository contains selected demonstrations, documentation, and portfolio materials only.
+> Unless explicitly licensed otherwise, all source code, engineering material,
+> algorithms, documentation, and project assets in this repository are proprietary.
 
 ### Component Overview
 
@@ -182,6 +182,6 @@ Selected files, components, or directories may be released under separate
 open-source licenses. Any such license applies only to the material explicitly
 identified as being covered by it.
 
-See the [LICENSE](LICENSE) and any applicable file or directory license notices for
+See the See the [LICENSE](LICENSE.md) and any applicable file or directory license notices for
 the complete terms.
 
