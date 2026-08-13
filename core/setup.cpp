@@ -64,12 +64,12 @@ int main()
     cin >> config["battery_warning"];
 
 
-    cout << "Enter battery RTH warning percentage (default: " << config["battery_rth_warning"] << "): " << endl;
-    cin >> config["battery_rth_warning"];
+    cout << "Enter battery rtl warning percentage (default: " << config["battery_rtl_warning"] << "): " << endl;
+    cin >> config["battery_rtl_warning"];
 
 
-    cout << "Enter battery emergency RTH percentage (default: " << config["battery_emergency_rth"] << "): " << endl;
-    cin >> config["battery_emergency_rth"];
+    cout << "Enter battery emergency rtl percentage (default: " << config["battery_emergency_rtl"] << "): " << endl;
+    cin >> config["battery_emergency_rtl"];
 
 
     cout << "Enter battery emergency land percentage (default: " << config["battery_emergency_land"] << "): " << endl;

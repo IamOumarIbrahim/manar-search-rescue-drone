@@ -23,13 +23,13 @@ json runtime;
 json commands;
 
 int lastProcessedCommandID = 0;
-ofstream fout("logs.txt");
+ofstream fout("logs.txt",ios::trunc);
 /* RESPONSIBILITY
     According to Section 2.4 (Responsibility Allocation) of the Version 1 specification,
     the human operator must be capable of executing all of these tasks if required
 
     - Defines the search area, objective, launch point, route, altitude, geofence, and safety limits.
-    - Approves takeoff and may start, pause, abort, command RTH, or manually control the aircraft.
+    - Approves takeoff and may start, pause, abort, command RTL, or manually control the aircraft.
     - Monitors flight status, map position, and sensor feeds.
     - May cancel any automatic candidate approach or verification sequence.
     - Reviews Mamba-triggered alerts and makes the final Probable rescuee determination.
@@ -149,6 +149,13 @@ bool readcommands()
         return false;
     }
 }
+class drone;
+class home;
+class mission;
+
+void activateRTL(drone &mydrone, home &myhome, mission &mymission);
+void checkcommands(mission &mymission);
+
 // CLASSES-------------------------------------------
 class flight
 {
@@ -329,136 +336,182 @@ class components
             smoke_marker_status = false;
         }
     // CONFIGURATION METHODS (USED)
-        void thermal(int X){
+        void thermal(int X)
+            {
 
-            if (X == 1){
-                thermal_camera_status = true;
-                runtime["components"]["thermal_camera"] = thermal_camera_status;
-                saveRuntime();
+                if (X == 1){
+                    thermal_camera_status = true;
+                    runtime["components"]["thermal_camera"] = thermal_camera_status;
+                    saveRuntime();
 
-                fout << "[" << getTimestamp() << "] COMPONENTS: thermal camera ON" << endl;
-            }
+                    fout << "[" << getTimestamp() << "] COMPONENTS: thermal camera ON" << endl;
+                }
 
-            else if (X == 2){
-                thermal_camera_status = false;
-                fout<<"Confirmed thermal camera OFF"<<endl;
+                else if (X == 2){
+                    thermal_camera_status = false;
+                    fout<<"Confirmed thermal camera OFF"<<endl;
+                }
+                runtime["components"]["thermal_camera"] = thermal_camera_status; saveRuntime();
             }
-            runtime["components"]["thermal_camera"] = thermal_camera_status; saveRuntime();
-        }
-        void rgb(int X){
+        void rgb(int X)
+            {
 
-            if (X == 1){
-                RGB_camera_status = true;
-                fout<<"Confirmed RGB camera ON"<<endl;
-            }
+                if (X == 1){
+                    RGB_camera_status = true;
+                    fout<<"Confirmed RGB camera ON"<<endl;
+                }
 
-            else if (X == 2){
-                RGB_camera_status = false;
-                fout<<"Confirmed RGB camera OFF"<<endl;
+                else if (X == 2){
+                    RGB_camera_status = false;
+                    fout<<"Confirmed RGB camera OFF"<<endl;
+                }
+                runtime["components"]["rgb_camera"] = RGB_camera_status; saveRuntime();
             }
-            runtime["components"]["rgb_camera"] = RGB_camera_status; saveRuntime();
-        }
-        void infrared(int X){
-            if (X == 1){
-                infrared_camera_status = true;
-                fout<<"Confirmed infrared camera ON"<<endl;
-            }
+        void infrared(int X)
+            {
+                if (X == 1){
+                    infrared_camera_status = true;
+                    fout<<"Confirmed infrared camera ON"<<endl;
+                }
 
-            else if (X == 2){
-                infrared_camera_status = false;
-                fout<<"Confirmed infrared camera OFF"<<endl;
+                else if (X == 2){
+                    infrared_camera_status = false;
+                    fout<<"Confirmed infrared camera OFF"<<endl;
+                }
+                runtime["components"]["infrared_camera"] = infrared_camera_status; saveRuntime();
             }
-            runtime["components"]["infrared_camera"] = infrared_camera_status; saveRuntime();
-        }
-        void fmcw(int X){
-            if (X == 1){
-                fmcw_status = true;
-                fout<<"Confirmed FMCW radar ON"<<endl;
-            }
+        void fmcw(int X)
+            {
+                if (X == 1){
+                    fmcw_status = true;
+                    fout<<"Confirmed FMCW radar ON"<<endl;
+                }
 
-            else if (X == 2){
-                fmcw_status = false;
-                fout<<"Confirmed FMCW radar OFF"<<endl;
+                else if (X == 2){
+                    fmcw_status = false;
+                    fout<<"Confirmed FMCW radar OFF"<<endl;
+                }
+                runtime["components"]["fmcw_radar"] = fmcw_status; saveRuntime();
             }
-            runtime["components"]["fmcw_radar"] = fmcw_status; saveRuntime();
-        }
-        void speaker(int X){
-            if (X == 1){
-                speaker_status = true;
-                fout<<"Confirmed speaker ON"<<endl;
+        void speaker(int X)
+            {
+                if (X == 1){
+                    speaker_status = true;
+                    fout<<"Confirmed speaker ON"<<endl;
+                }
+                else if (X == 2){
+                    speaker_status = false;
+                    fout<<"Confirmed speaker OFF"<<endl;
+                }
+                runtime["components"]["speaker"] = speaker_status; saveRuntime();
             }
-            else if (X == 2){
-                speaker_status = false;
-                fout<<"Confirmed speaker OFF"<<endl;
+        void microphone(int X)
+            {
+                if (X == 1){
+                    microphone_status = true;
+                    fout<<"Confirmed microphone ON"<<endl;
+                }
+                else if (X == 2){
+                    microphone_status = false;
+                    fout<<"Confirmed microphone OFF"<<endl;
+                }
+                runtime["components"]["microphone"] = microphone_status; saveRuntime();
             }
-            runtime["components"]["speaker"] = speaker_status; saveRuntime();
-        }
-        void microphone(int X){
-            if (X == 1){
-                microphone_status = true;
-                fout<<"Confirmed microphone ON"<<endl;
+        void rf(int X)
+            {
+                if (X == 1){
+                    passive_rf_status = true;
+                    fout<<"Confirmed passive rf ON"<<endl;
+                }
+                else if (X == 2){
+                    passive_rf_status = false;
+                    fout<<"Confirmed passive rf OFF"<<endl;
+                }
+                runtime["components"]["passive_rf"] = passive_rf_status; saveRuntime();
+            }     
+        void beacon(int X)
+            {
+                if (X == 1){
+                    amber_beacon_status = true;
+                    fout<<"Confirmed amber beacon ON"<<endl;
+                }
+                else if (X == 2){
+                    amber_beacon_status = false;
+                    fout<<"Confirmed amber beacon OFF"<<endl;
+                }
+                runtime["components"]["amber_beacon"] = amber_beacon_status; saveRuntime();
+            }                
+        void strobe(int X)
+            {
+                if (X == 1){
+                    white_strobe_status = true;
+                    fout<<"Confirmed white strobe ON"<<endl;
+                }
+                else if (X == 2){
+                    white_strobe_status = false;
+                    fout<<"Confirmed white strobe OFF"<<endl;
+                }
+                runtime["components"]["white_strobe"] = white_strobe_status; saveRuntime();
+            }                
+        void spotlight(int X)
+            {
+                if (X == 1){
+                    downward_spotlight_status = true;
+                    fout<<"Confirmed spotlight ON"<<endl;
+                }
+                else if (X == 2){
+                    downward_spotlight_status = false;
+                    fout<<"Confirmed spotlight OFF"<<endl;
+                }
+                runtime["components"]["downward_spotlight"] = downward_spotlight_status; saveRuntime();
+            }         
+        void smoke(int X)
+            {
+                if (X == 1){
+                    smoke_marker_status = true;
+                    fout<<"Confirmed smoke marker ON"<<endl;
+                }
+                else if (X == 2){
+                    smoke_marker_status = false;
+                    fout<<"Confirmed smoke marker OFF"<<endl;
+                }
+                runtime["components"]["smoke_marker"] = smoke_marker_status; saveRuntime();
             }
-            else if (X == 2){
-                microphone_status = false;
-                fout<<"Confirmed microphone OFF"<<endl;
+        void turnOffPayload()
+            {
+                fout<<"Turned off all components."<<endl;
+                int var = 2;
+                thermal(var);
+                rgb(var);
+                infrared(var);
+                fmcw(var);
+                speaker(var);
+                microphone(var);
+                rf(var);
+                beacon(var);
+                strobe(var);
+                spotlight(var);
+                smoke(var);
+                
             }
-            runtime["components"]["microphone"] = microphone_status; saveRuntime();
-        }
-        void rf(int X){
-            if (X == 1){
-                passive_rf_status = true;
-                fout<<"Confirmed passive rf ON"<<endl;
-            }
-            else if (X == 2){
-                passive_rf_status = false;
-                fout<<"Confirmed passive rf OFF"<<endl;
-            }
-            runtime["components"]["passive_rf"] = passive_rf_status; saveRuntime();
-        }     
-        void beacon(int X){
-            if (X == 1){
-                amber_beacon_status = true;
-                fout<<"Confirmed amber beacon ON"<<endl;
-            }
-            else if (X == 2){
-                amber_beacon_status = false;
-                fout<<"Confirmed amber beacon OFF"<<endl;
-            }
-            runtime["components"]["amber_beacon"] = amber_beacon_status; saveRuntime();
-        }                
-        void strobe(int X){
-            if (X == 1){
-                white_strobe_status = true;
-                fout<<"Confirmed white strobe ON"<<endl;
-            }
-            else if (X == 2){
-                white_strobe_status = false;
-                fout<<"Confirmed white strobe OFF"<<endl;
-            }
-            runtime["components"]["white_strobe"] = white_strobe_status; saveRuntime();
-        }                
-        void spotlight(int X){
-            if (X == 1){
-                downward_spotlight_status = true;
-                fout<<"Confirmed spotlight ON"<<endl;
-            }
-            else if (X == 2){
-                downward_spotlight_status = false;
-                fout<<"Confirmed spotlight OFF"<<endl;
-            }
-            runtime["components"]["downward_spotlight"] = downward_spotlight_status; saveRuntime();
-        }         
-        void smoke(int X){
-            if (X == 1){
-                smoke_marker_status = true;
-                fout<<"Confirmed smoke marker ON"<<endl;
-            }
-            else if (X == 2){
-                smoke_marker_status = false;
-                fout<<"Confirmed smoke marker OFF"<<endl;
-            }
-            runtime["components"]["smoke_marker"] = smoke_marker_status; saveRuntime();
-        }       
+        void batterySaveMode()
+            {
+                int ON = 1;
+                int OFF = 2;
+
+                rgb(ON);
+                thermal(ON);
+
+                infrared(OFF);
+                fmcw(OFF);
+                rf(OFF);
+                microphone(OFF);
+                speaker(OFF);
+                beacon(OFF);
+                strobe(OFF);
+                spotlight(OFF);
+                smoke(OFF);
+            }       
 };
 class home 
 {
@@ -487,7 +540,6 @@ class drone
         double battery = config["starting_battery_percent"];   // Battery of drone default
         double distfromhome = 1000; // safe default
         bool  closefromhome = false;
-        bool savebattery = false; // TO BE IMPLEMENTED
     public:
         components comp;
         flight mydroneflight;
@@ -509,7 +561,7 @@ class drone
     }
     void updateDistFromHome()
     {
-        const double EARTH_RADIUS = 6371000.0; // meters
+        const double EARTL_RADIUS = 6371000.0; // meters
         const double PI = 3.14159265358979323846;
 
         double lat1 = latitude * PI / 180.0;
@@ -528,7 +580,7 @@ class drone
 
         double c = 2.0 * atan2(sqrt(a), sqrt(1.0 - a));
 
-        distfromhome = EARTH_RADIUS * c;
+        distfromhome = EARTL_RADIUS * c;
     }
     void determineifclose(){
         updateDistFromHome(); 
@@ -553,16 +605,9 @@ class drone
     double getbattery() {
         return battery;
     }
-    void savebatterymode(int num)
+    void savebatterymode()
     {
-        if (num == 0 )
-        {
-            savebattery = false;
-        }
-        else if (num == 1)
-        {
-            savebattery = true;
-        }
+        comp.batterySaveMode();
     }
     double getdronelat ()
     {
@@ -574,16 +619,16 @@ class drone
     }
     void landwhereyouare()
     {
+        
         double X = getdronelat();
         double Y = getdronelong();
         mydroneflight.setdestination(X,Y);
         transmitinfo(); // TRANSMIT INFO
-        savebatterymode(1); // SAVE BATTERY
-        mydroneflight.stopflight(); // LAND DRONE
+        stopflight();
     }
     double distancebetween(double lat1, double lon1, double lat2, double lon2)
     {
-        const double EARTH_RADIUS = 6371000.0;
+        const double EARTL_RADIUS = 6371000.0;
         const double PI = 3.14159265358979323846;
 
         lat1 = lat1 * PI / 180.0;
@@ -601,7 +646,7 @@ class drone
 
         double c = 2.0 * atan2(sqrt(a), sqrt(1.0 - a));
 
-        return EARTH_RADIUS * c;
+        return EARTL_RADIUS * c;
     }
     bool reachedDestination()
     {
@@ -617,18 +662,39 @@ class drone
 
         return distance <= config["reached_radius"];
     }
+    void stopflight(){
+        mydroneflight.stopflight();
+        comp.turnOffPayload();
+    }
+    void decreasebattery(double amount)
+    {
+        if (amount <= 0 || battery <= 0)
+            return;
+
+        battery -= amount;
+
+        if (battery < 0)
+            battery = 0;
+
+        runtime["battery"]["percentage"] = battery;
+        saveRuntime();
+
+    }
 };
 class mission 
 {
     private:
         bool rescueefound = false; // if found then transmit location, hover in that place and save battery till manual help
-                                        // if not found generate report and RTH if battery 
+                                        // if not found generate report and RTL if battery 
         bool missionstarted = false;
-        bool missionabort = false;
+
         bool missionfinished = false;
         bool enroute = false;
         bool returning = false;
-        bool emergencyrth = false;
+        bool batterySaveTriggered = false;
+        bool rtlWarningTriggered = false;
+        bool emergencyRTL = false;
+        bool emergencyLandTriggered = false;
         bool waitingforhelp = false;
         bool lawnmowerstarted = false;
         bool horizontalmove = true;
@@ -645,11 +711,12 @@ class mission
             }
 
 
-            // RETURNING / RTH HAS PRIORITY
+            // RETURNING / RTL HAS PRIORITY
             if (returning == true)
             {
                 enroute = false;
-
+                waitingforhelp = false;
+                runtime["mission"]["waitingforhelp"] = waitingforhelp;
                 runtime["mission"]["returning"] = returning;
                 runtime["mission"]["enroute"] = enroute;
                 saveRuntime();
@@ -668,18 +735,6 @@ class mission
             }
 
 
-            // MISSION ABORTED
-            if (missionabort == true)
-            {
-                returning = true;
-                enroute = false;
-
-                runtime["mission"]["returning"] = returning;
-                runtime["mission"]["enroute"] = enroute;
-                saveRuntime();
-
-                return;
-            }
 
 
             // WAITING FOR HELP
@@ -689,12 +744,14 @@ class mission
                 return;
             }
 
-
-            // RESCUEE FOUND
             if (rescueefound == true)
             {
                 enroute = false;
                 returning = false;
+
+                mydrone.landwhereyouare();
+                mydrone.transmitinfo();
+
                 waitingforhelp = true;
 
                 runtime["mission"]["enroute"] = enroute;
@@ -702,8 +759,6 @@ class mission
                 runtime["mission"]["waitingforhelp"] = waitingforhelp;
                 saveRuntime();
 
-                mydrone.landwhereyouare();
-                mydrone.transmitinfo();
                 return;
             }
 
@@ -717,8 +772,6 @@ class mission
 
             checksearchlocation();
         }
-        
-    
         void configurerescueestate() // MANUALLY SET BY THE OPERATOR (USED)
         {
             if (missionstarted == true)
@@ -729,7 +782,6 @@ class mission
             }
 
         }
-
         void startmission() // MANUALL LAUNCH (USED)
         {
             missionstarted = true;
@@ -741,48 +793,63 @@ class mission
             runtime["destination"]["longitude"] = mydrone.mydroneflight.getdestlong();
             saveRuntime();
         }
-        void abortmission() // MANUALL ABORT (USED)
+        void batterysystem()
         {
-            missionabort = true;
-            missionstatusupdater();
-            fout<<"Mission is aborted."<<endl;
-            runtime["mission"]["aborted"] = missionabort;
-            runtime["destination"]["latitude"] = mydrone.mydroneflight.getdestlat();
-            runtime["destination"]["longitude"] = mydrone.mydroneflight.getdestlong(); 
-            saveRuntime(); 
-        }
-        void batterysystem() // DETERMINISTIC BATTERY BEHAVIOUR
-        {
-            if (mydrone.getbattery() <= config["battery_emergency_rth"])
-            {
-                if (rescueefound == false){
-                    emergencyrth = true;
-                    mydrone.transmitinfo();
-                    fout<<"[Battery: CRITICAL] -- Enabling emergency rth"<<endl;
-                    if (mydrone.getbattery() <= config["battery_emergency_land"]) // HAUL FLIGHT OPERATION, LAND SAFELY
+            if (waitingforhelp == true)
+                return;
+            if (mydrone.getbattery() <= config["battery_emergency_land"])
                     {
-                        fout<<"[Battery: CRITICAL] -- Transmitting current location..."<<endl;
-                        mydrone.transmitinfo();
-                        fout<<"[Battery: CRITICAL] -- Landing safely..."<<endl;
-                        mydrone.mydroneflight.stopflight();
-                        fout<<"[Battery: CRITICAL] -- Transmitting current location..."<<endl;
-                        mydrone.transmitinfo();
+                        if (emergencyLandTriggered == false)
+                        {
+                            emergencyLandTriggered = true;
+
+                            fout << "[Battery: CRITICAL] -- Landing safely..." << endl;
+                            mydrone.stopflight();
+
+                            fout << "[Battery: CRITICAL] -- Transmitting current location..." << endl;
+                            mydrone.transmitinfo();
+                        }
                     }
-                }
-            }
-            if (mydrone.getbattery() <= config["battery_rth_warning"])
-            {
-                fout<<"Battery is currently under "<<config["battery_rth_warning"]<<"%, Transmitting current location... Please consider ENABLING RTH."<<endl;
-                mydrone.transmitinfo();
-            }
-            if (mydrone.getbattery() <= config["battery_warning"])
-            {
-                fout<<"Battery is currently under "<<config["battery_warning"]<<"%, Consider enabling energy save-mode."<<endl;
-            }
 
+                else if (mydrone.getbattery() <= config["battery_emergency_rtl"])
+                    {
+                        if (emergencyRTL == false)
+                        {
+                            emergencyRTL = true;
 
+                            fout << "[Battery: CRITICAL] -- Enabling emergency RTL" << endl;
+                            mydrone.transmitinfo();
+                            activateRTL(mydrone, mydrone.myhome, *this);
+                        }
+                    }
+
+                else if (mydrone.getbattery() <= config["battery_rtl_warning"])
+                    {
+                        if (rtlWarningTriggered == false)
+                        {
+                            rtlWarningTriggered = true;
+
+                            fout << "Battery is currently under "
+                                << config["battery_rtl_warning"]
+                                << "%, Please consider enabling RTL." << endl;
+
+                            mydrone.transmitinfo();
+                        }
+                    }
+
+                else if (mydrone.getbattery() <= config["battery_warning"])
+                    {
+                        if (batterySaveTriggered == false)
+                        {
+                            batterySaveTriggered = true;
+
+                            fout << "Battery is currently under "
+                                << config["battery_warning"] << "%" << endl;
+
+                            mydrone.savebatterymode();
+                        }
+                    }
         }
-
         void printflightpath()
         {
             if (returning == true)
@@ -916,20 +983,26 @@ class mission
 
             mydrone.mydroneflight.setdestination(nextlat, nextlon);
         }
-
+        void setwaitingforhelpOFF()
+        {
+            waitingforhelp = false;
+            runtime["mission"]["waitingforhelp"] = waitingforhelp;
+            saveRuntime();
+        }
 };
-// TERMINAL METHODS----------------------------------
-void activateRTH(drone &mydrone, home &myhome, mission &mymission)
+void activateRTL(drone &mydrone, home &myhome, mission &mymission)
 {
-    fout << "[" << getTimestamp() << "] RTH: disabled -> enabled" << endl;
-
+    fout << "[" << getTimestamp() << "] RTL: disabled -> enabled" << endl;
+    mydrone.comp.turnOffPayload();
     mymission.setreturningON();
     double X,Y;
     X = myhome.gethomelat();
     Y = myhome.gethomelon();
     mydrone.mydroneflight.setdestination(X,Y);
+
     double currentspeed = mydrone.mydroneflight.getspeed();
     double distance = mydrone.getdistfromhome();
+    
     runtime["destination"]["latitude"] = mydrone.mydroneflight.getdestlat();
     runtime["destination"]["longitude"] = mydrone.mydroneflight.getdestlong();
     saveRuntime();
@@ -971,10 +1044,10 @@ void checkcommands(mission &mymission)
 
         fout << "[" << getTimestamp() << "] COMMAND: START_MISSION executed" << endl;
     }
-    else if (command == "RTH")
+    else if (command == "RTL")
     {
-        activateRTH(mymission.mydrone,mymission.mydrone.myhome,mymission);
-        fout << "[" << getTimestamp() << "] COMMAND: RTH executed" << endl;
+        activateRTL(mymission.mydrone,mymission.mydrone.myhome,mymission);
+        fout << "[" << getTimestamp() << "] COMMAND: RTL executed" << endl;
     }
     else if (command == "CHANGE_DEST")
     {
@@ -985,6 +1058,7 @@ void checkcommands(mission &mymission)
     }
     else if (command == "LAUNCH_DRONE")
     {
+        mymission.setwaitingforhelpOFF();
         mymission.mydrone.mydroneflight.launch();
         fout << "[" << getTimestamp() << "] COMMAND: LAUNCH_DRONE executed" << endl;
     }
@@ -993,11 +1067,6 @@ void checkcommands(mission &mymission)
            mymission.mydrone.mydroneflight.setmode(commands["arguments"]["value"]);
            fout << "[" << getTimestamp() << "] COMMAND: CHANGE_MODE executed" << endl;
     }
-    else if (command == "CHANGE_SPEED")
-    {
-        mymission.mydrone.mydroneflight.setspeed(commands["arguments"]["value"]);
-        fout << "[" << getTimestamp() << "] COMMAND: CHANGE_SPEED executed" << endl;
-    }
     else if (command == "CHANGE_ALTITUDE")
     {
         mymission.mydrone.mydroneflight.setaltitude(commands["arguments"]["value"]);
@@ -1005,7 +1074,7 @@ void checkcommands(mission &mymission)
     }
     else if (command == "STOP_FLIGHT")
     {
-        mymission.mydrone.mydroneflight.stopflight();
+        mymission.mydrone.stopflight();
         fout << "[" << getTimestamp() << "] COMMAND: STOP_FLIGHT executed" << endl;
     }
     else if (command == "CHANGE_COMPONENT")
@@ -1111,13 +1180,6 @@ void checkcommands(mission &mymission)
         mymission.configurerescueestate();
         fout << "[" << getTimestamp() << "] COMMAND: RESCUEE_FOUND executed" << endl;
     }
-
-    else if (command == "ABORT_MISSION")
-    {
-        mymission.abortmission();
-        activateRTH(mymission.mydrone,mymission.mydrone.myhome,mymission);
-        fout << "[" << getTimestamp() << "] COMMAND: ABORT_MISSION executed" << endl;
-    }
     else if (command == "TRANSMIT_INFO")
     {
         mymission.mydrone.transmitinfo();
@@ -1147,11 +1209,11 @@ int main()
     while (true)
     {
         checkcommands(mymission);
-
+        mymission.mydrone.decreasebattery(1);
+        mymission.batterysystem();
         mymission.missionstatusupdater();
-        this_thread::sleep_for(chrono::seconds(1));
 
-        
+        this_thread::sleep_for(chrono::milliseconds(800));
     }
 
 

@@ -209,8 +209,7 @@ int main()
         cout << "- 6. CONFIGURE COMPONENTS" << endl;
         cout << "- 7. FOUND RESCUEE?" << endl;
         cout << "- 8. TRANSMIT LOCATION" << endl;
-        cout << "- 9. ABORT MISSION" << endl;
-        cout << "- 0. ACTIVATE RTH" << endl;
+        cout << "- 0. ACTIVATE RTL" << endl;
         cout << "- 10. EXIT TERMINAL" << endl;
 
         cout << "----------------------------------" << endl;
@@ -224,13 +223,13 @@ int main()
             {
                 string confirmation;
 
-                cout << "Activate RTH? (Y/N): ";
+                cout << "Activate RTL? (Y/N): ";
                 cin >> confirmation;
 
                 if ((confirmation == "Y") || (confirmation == "y"))
                 {
-                    sendcommand("RTH");
-                    cout << "RTH command sent." << endl;
+                    sendcommand("RTL");
+                    cout << "RTL command sent." << endl;
                 }
 
                 break;
@@ -290,9 +289,9 @@ int main()
             {
                 int User_Option = -1;
                 int User_Option2 = -1;
-                double setspeed = 0;
+                
                 double setaltitude = 0;
-                cout<<"1. Set mode\n"<< "2. Set speed\n"<< "3. Set altitude\n"<< "0. Stop flight\n";
+                cout<<"1. Set mode\n"<<  "2. Set altitude\n"<< "0. Stop flight\n";
                 cin>>User_Option;
                 switch (User_Option)
                 {
@@ -329,14 +328,6 @@ int main()
                             break;
                         }
                     case 2:
-                        {
-                            cout<<"Enter speed between 0-"<<config["maximum_speed"]<<"m/s."<<endl;
-                            cin>>setspeed;
-                            sendcommand("CHANGE_SPEED",setspeed);
-                            cout<<"Change speed request sent."<<endl;
-                            break;
-                        }
-                    case 3:
                         {
                             cout<<"Enter altitude between 0-"<<config["maximum_altitude"]<<"m"<<endl;
                             cin>>setaltitude;
@@ -582,12 +573,6 @@ int main()
             {
                 sendcommand("TRANSMIT_INFO");
                 cout<<"Transmit info request sent"<<endl;
-                break;
-            }
-            case 9:
-            {
-                sendcommand("ABORT_MISSION");
-                cout<<"Abort mission command sent."<<endl;
                 break;
             }
             case 10:

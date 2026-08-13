@@ -3,7 +3,7 @@
 - define clearly what is MISSION:
     - remove abort mission entirely
     - keep RTH 
-> [ ] Fixed at: TBD
+> [x] Fixed at: 13/08
 
 
 ---
@@ -13,7 +13,7 @@
     - RTL is not a persistent runtime operation
     - RTL only defines the destination location
 
-> [ ] Fixed at: TBD
+> [x] Fixed at: 13/08
  
 ---
 
@@ -27,7 +27,7 @@
 - speed:
     - remove manual speed alteration.
     - configure mode speeds.
-> [ ] Fixed at: TBD
+> [x] Fixed at: TBD
 ---
 - extended configuration states:
     - allow operator to save multiple config states for different environments
