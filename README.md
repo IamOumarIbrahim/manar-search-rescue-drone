@@ -47,7 +47,11 @@
 | **Smoke marker**       | Location/wind marking              |
 
 ## Current Status
-> **Current phase:** Defining engineering requirements.
+> **Current phase:** Developping Computer Vision.
+
+<p align="center">
+  <img src="assets/Videos/demo2.gif" alt="MANAR Demo 2" width="900">
+</p>
 
 <p align="center">
   <img src="assets/Videos/demo.gif" alt="MANAR Demo" width="900">
@@ -100,7 +104,7 @@ start .\build\terminal.exe
 - [x] Explicit mission destination configuration
 - [x] Batch payload component control
 - [x] Ordered multi-location search planning & autonomous sequential area progression
-
+- [x] Added initial computer vision model 
 > Next steps:
 
 - [ ] Define MANAR V1 engineering & mission requirements
