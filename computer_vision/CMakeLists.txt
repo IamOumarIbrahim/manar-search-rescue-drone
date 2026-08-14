@@ -43,39 +43,45 @@ if(NOT ONNXRUNTIME_INCLUDE_DIR OR NOT ONNXRUNTIME_LIB)
 endif()
 
 # ---------------------------------------------------------------------------
-# Executable Targets
+# Reusable Integration Module: YOLO11n Detector (src/ & include/)
 # ---------------------------------------------------------------------------
 
-# 1. Video File Inference
-add_executable(dfine_video dfine_video.cpp)
+add_library(manar_yolo11n_detector STATIC
+    src/yolo11n_detector.cpp
+    include/yolo11n_detector.hpp
+)
 
-target_include_directories(dfine_video PRIVATE
+target_include_directories(manar_yolo11n_detector PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${OpenCV_INCLUDE_DIRS}
     ${ONNXRUNTIME_INCLUDE_DIR}
 )
 
-target_link_libraries(dfine_video PRIVATE
+target_link_libraries(manar_yolo11n_detector PUBLIC
     ${OpenCV_LIBS}
     ${ONNXRUNTIME_LIB}
 )
 
-set_target_properties(dfine_video PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-)
+# ---------------------------------------------------------------------------
+# Application Executable Targets (apps/)
+# ---------------------------------------------------------------------------
 
-# 2. Live Camera / Stream Feed Inference
-add_executable(dfine_live dfine_live.cpp)
+# 1. D-FINE-N Reference Applications
+add_executable(dfine_video apps/dfine_video.cpp)
+target_include_directories(dfine_video PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include ${OpenCV_INCLUDE_DIRS} ${ONNXRUNTIME_INCLUDE_DIR})
+target_link_libraries(dfine_video PRIVATE ${OpenCV_LIBS} ${ONNXRUNTIME_LIB})
+set_target_properties(dfine_video PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
-target_include_directories(dfine_live PRIVATE
-    ${OpenCV_INCLUDE_DIRS}
-    ${ONNXRUNTIME_INCLUDE_DIR}
-)
+add_executable(dfine_live apps/dfine_live.cpp)
+target_include_directories(dfine_live PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include ${OpenCV_INCLUDE_DIRS} ${ONNXRUNTIME_INCLUDE_DIR})
+target_link_libraries(dfine_live PRIVATE ${OpenCV_LIBS} ${ONNXRUNTIME_LIB})
+set_target_properties(dfine_live PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
-target_link_libraries(dfine_live PRIVATE
-    ${OpenCV_LIBS}
-    ${ONNXRUNTIME_LIB}
-)
+# 2. YOLO11n Detector Applications (Linked to Reusable Detector Module)
+add_executable(yolo11n_video apps/yolo11n_video.cpp)
+target_link_libraries(yolo11n_video PRIVATE manar_yolo11n_detector)
+set_target_properties(yolo11n_video PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
-set_target_properties(dfine_live PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-)
+add_executable(yolo11n_live apps/yolo11n_live.cpp)
+target_link_libraries(yolo11n_live PRIVATE manar_yolo11n_detector)
+set_target_properties(yolo11n_live PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")

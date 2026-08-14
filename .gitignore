@@ -100,3 +100,11 @@ desktop.ini
 assets/Images/Visualization/
 assets/Docs/
 assets/Temp/
+
+# ==========================================
+# Computer Vision Generated Artifacts
+# ==========================================
+computer_vision/output/*
+!computer_vision/output/.gitkeep
+computer_vision/temp/*
+!computer_vision/temp/.gitkeep
