@@ -32,61 +32,34 @@
   <em>MANAR Multisensor System Component Overview</em>
 </p>
 
-<table width="100%">
-<tr>
-<th width="50%" align="center"><b>Multisensor System Components</b></th>
-<th width="50%" align="center"><b>Repository Map</b></th>
-</tr>
-<tr>
-<td valign="top">
+### Multisensor System Components
 
-<table>
-<thead>
-<tr>
-<th align="left">Component</th>
-<th align="left">Primary role</th>
-</tr>
-</thead>
-<tbody>
-<tr><td><b>Thermal</b></td><td>Person/heat detection</td></tr>
-<tr><td><b>RGB/day</b></td><td>Daytime detection/verification</td></tr>
-<tr><td><b>Low-light/IR</b></td><td>Night visual confirmation</td></tr>
-<tr><td><b>24 GHz FMCW</b></td><td>Presence, range, motion, breathing</td></tr>
-<tr><td><b>Speaker + mic</b></td><td>Prompt, listen, direction finding</td></tr>
-<tr><td><b>Passive RF</b></td><td>Detect/correlate device emissions</td></tr>
-<tr><td><b>Amber beacon</b></td><td>360° visual alert</td></tr>
-<tr><td><b>White strobe</b></td><td>Directional visual guidance</td></tr>
-<tr><td><b>Downward spotlight</b></td><td>Close-range illumination</td></tr>
-<tr><td><b>Heliograph mirrors</b></td><td>Passive daylight signaling</td></tr>
-<tr><td><b>Smoke marker</b></td><td>Location/wind marking</td></tr>
-</tbody>
-</table>
+| Component | Primary Role |
+| :--- | :--- |
+| **Thermal** | Person/heat detection |
+| **RGB/day** | Daytime detection/verification |
+| **Low-light/IR** | Night visual confirmation |
+| **24 GHz FMCW** | Presence, range, motion, breathing |
+| **Speaker + mic** | Prompt, listen, direction finding |
+| **Passive RF** | Detect/correlate device emissions |
+| **Amber beacon** | 360° visual alert |
+| **White strobe** | Directional visual guidance |
+| **Downward spotlight** | Close-range illumination |
+| **Heliograph mirrors** | Passive daylight signaling |
+| **Smoke marker** | Location/wind marking |
 
-</td>
-<td valign="top">
+### Repository Map
 
-<table>
-<thead>
-<tr>
-<th align="left">Directory / File</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr><td><a href="core/"><code>core/</code></a></td><td>Deterministic C++ control system</td></tr>
-<tr><td><a href="computer_vision/"><code>computer_vision/</code></a></td><td>Visual detection, models, and benchmarks</td></tr>
-<tr><td><a href="paper/"><code>paper/</code></a></td><td>LaTeX technical paper</td></tr>
-<tr><td><a href="manar-landing-page/"><code>manar-landing-page/</code></a></td><td>Project website</td></tr>
-<tr><td><a href="assets/"><code>assets/</code></a></td><td>Branding, images, and demonstration media</td></tr>
-<tr><td><a href="DEVLOG.md"><code>DEVLOG.md</code></a></td><td>Development decisions & progress</td></tr>
-<tr><td><a href="SECURITY.md"><code>SECURITY.md</code></a></td><td>Security policy</td></tr>
-<tr><td><a href="LICENSE.md"><code>LICENSE.md</code></a></td><td>Licensing terms</td></tr>
-</tbody>
-</table>
-
-</td>
-</tr>
-</table>
+| Directory / File | Description |
+| :--- | :--- |
+| [`core/`](core/) | Deterministic C++ control system |
+| [`computer_vision/`](computer_vision/) | Visual detection, models, and benchmarks |
+| [`paper/`](paper/) | LaTeX technical paper |
+| [`manar-landing-page/`](manar-landing-page/) | Project website |
+| [`assets/`](assets/) | Branding, images, and demonstration media |
+| [`DEVLOG.md`](DEVLOG.md) | Development decisions & progress |
+| [`SECURITY.md`](SECURITY.md) | Security policy |
+| [`LICENSE.md`](LICENSE.md) | Licensing terms |
 
 ### Key Architectural Decisions
 
