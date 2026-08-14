@@ -253,6 +253,11 @@ int main()
 
     configfile >> config;
 
+    if (config.contains("slot_name") && config["slot_name"].is_string())
+    {
+        cout << "Loaded Active Slot: " << config["slot_name"].get<string>() << " (Slot " << slot << ")" << endl;
+    }
+
 
     ifstream batterysavemode(batteryFile);
 

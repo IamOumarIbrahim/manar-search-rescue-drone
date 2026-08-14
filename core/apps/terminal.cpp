@@ -219,6 +219,10 @@ int main()
         this_thread::sleep_for(chrono::seconds(1));
         cout << "----------------------------------" << endl;
         cout << "WELCOME TO MANAR HUMAN CONTROL SYSTEM" << endl;
+        if (config.contains("slot_name") && config["slot_name"].is_string())
+        {
+            cout << "ACTIVE SLOT: " << config["slot_name"].get<string>() << " (Slot " << slot << ")" << endl;
+        }
         cout << "----------------------------------" << endl;
 
         cout << "- 1. DISPLAY RUNTIME STATUS" << endl;

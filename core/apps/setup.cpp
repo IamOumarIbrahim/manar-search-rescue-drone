@@ -8,7 +8,12 @@ using json = nlohmann::json;
 void viewConfiguration(const json& config, const json& batterysavemode, int configSlot)
 {
     cout << "\n==================================" << endl;
-    cout << "CONFIGURATION SLOT " << configSlot << endl;
+    cout << "CONFIGURATION SLOT " << configSlot;
+    if (config.contains("slot_name"))
+    {
+        cout << " (" << config["slot_name"].get<string>() << ")";
+    }
+    cout << endl;
     cout << "==================================" << endl;
 
     cout << "\nGENERAL CONFIGURATION:" << endl;
@@ -24,9 +29,22 @@ int main()
     int configSlot;
 
     cout << "Select configuration slot:" << endl;
-    cout << "1. Config Slot 1" << endl;
-    cout << "2. Config Slot 2" << endl;
-    cout << "3. Config Slot 3" << endl;
+    for (int i = 1; i <= 3; ++i)
+    {
+        string path = "configs/slot" + to_string(i) + "/config.json";
+        ifstream cfgIn(path);
+        string name = "Config Slot " + to_string(i);
+        if (cfgIn.is_open())
+        {
+            json cfg;
+            cfgIn >> cfg;
+            if (cfg.contains("slot_name") && cfg["slot_name"].is_string())
+            {
+                name = cfg["slot_name"].get<string>();
+            }
+        }
+        cout << i << ". " << name << endl;
+    }
     cout << "> ";
     cin >> configSlot;
 
@@ -56,6 +74,23 @@ int main()
     cout << "\nEditing Configuration Slot "
          << configSlot << endl;
 
+    string slotName;
+    do
+    {
+        string currentSlotName = config.contains("slot_name") ? config["slot_name"].get<string>() : ("Config Slot " + to_string(configSlot));
+        cout << "Enter configuration slot name (current: "
+             << currentSlotName << "): " << endl;
+
+        getline(cin, slotName);
+
+        if (slotName.empty())
+        {
+            slotName = currentSlotName;
+        }
+
+    } while (slotName.empty());
+
+    config["slot_name"] = slotName;
 
     string homeBaseName;
 
@@ -229,6 +264,10 @@ int main()
 
      json active;
      active["slot"] = configSlot;
+     if (config.contains("slot_name"))
+     {
+         active["slot_name"] = config["slot_name"];
+     }
      ofstream activeout("configs/activeconfig.json");
      activeout << active.dump(4);
      activeout.close();
