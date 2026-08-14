@@ -287,8 +287,8 @@ int main()
 
                     if (confirmation == "Y" || confirmation == "y")
                     {
-                        sendcommand("START_MISSION");
-                        cout << "Start mission command sent." << endl;
+                        sendcommand("RESET_MISSION");
+                        cout << "Reset mission command sent." << endl;
                     }
                     else
                     {

@@ -366,90 +366,125 @@ void mission::setwaitingforhelpOFF()
         saveRuntime();
     }
 void mission::resetRuntime()
-    {
-                runtime = json::object();
+{
+        // PRESERVE CONTROL-SESSION / PHYSICAL STATE
+        int currentCommandID = 0;
+        string currentBatteryMode = "normal";
 
-                // CONTROL
-                runtime["control"]["last_processed_command"] = 0;
+        if (runtime.contains("control") &&
+            runtime["control"].contains("last_processed_command"))
+        {
+            currentCommandID =
+                runtime["control"]["last_processed_command"];
+        }
 
-                // MISSION
-                runtime["mission"]["started"] = missionstarted;
-                runtime["mission"]["finished"] = missionfinished;
-                runtime["mission"]["enroute"] = enroute;
-                runtime["mission"]["isdestinationhome"] = isdestinationhome;
-                runtime["mission"]["waitingforhelp"] = waitingforhelp;
-                runtime["mission"]["rescueefound"] = rescueefound;
+        if (runtime.contains("battery") &&
+            runtime["battery"].contains("mode"))
+        {
+            currentBatteryMode =
+                runtime["battery"]["mode"];
+        }
 
-                runtime["mission"]["last_saved_latitude"] = 0;
-                runtime["mission"]["last_saved_longitude"] = 0;
 
-                // FLIGHT
-                runtime["flight"]["launched"] =
-                    mydrone.mydroneflight.getlaunched();
+        // RESET MISSION STATE
+        missionstarted = false;
+        missionfinished = false;
+        enroute = false;
+        isdestinationhome = false;
+        waitingforhelp = false;
+        rescueefound = false;
 
-                runtime["flight"]["speed"] =
-                    mydrone.mydroneflight.getspeed();
+        // RESET SEARCH STATE
+        lawnmowerstarted = false;
+        horizontalmove = true;
+        moveeast = true;
+        searchrow = 0;
 
-                runtime["flight"]["altitude"] =
-                    mydrone.mydroneflight.getaltitude();
+        // RESET DESTINATION
+        // Current aircraft position becomes the neutral destination.
+        mydrone.mydroneflight.setdestination(
+            mydrone.getdronelat(),
+            mydrone.getdronelong()
+        );
 
-                runtime["flight"]["mode"] =
-                    mydrone.mydroneflight.getmodename();
+        // RESET MISSION COMPONENT STATE
+        mydrone.comp.batterySaveMode();
 
-                // DESTINATION
-                runtime["destination"]["latitude"] =
-                    mydrone.mydroneflight.getdestlat();
 
-                runtime["destination"]["longitude"] =
-                    mydrone.mydroneflight.getdestlong();
+        // REBUILD CURRENT RUNTIME STATE
+        runtime = json::object();
 
-                // DRONE LOCATION
-                runtime["drone"]["latitude"] =
-                    mydrone.getdronelat();
 
-                runtime["drone"]["longitude"] =
-                    mydrone.getdronelong();
+        // CONTROL - PRESERVED
+        runtime["control"] = {
+            {"last_processed_command", currentCommandID}
+        };
 
-                // BATTERY
-                runtime["battery"]["percentage"] =
-                    mydrone.getbattery();
 
-                runtime["battery"]["mode"] = "normal";
+        // MISSION - RESET
+        runtime["mission"] = {
+            {"started", missionstarted},
+            {"finished", missionfinished},
+            {"enroute", enroute},
+            {"isdestinationhome", isdestinationhome},
+            {"waitingforhelp", waitingforhelp},
+            {"rescueefound", rescueefound},
+            {"last_saved_latitude", 0},
+            {"last_saved_longitude", 0}
+        };
 
-                // COMPONENTS
-                runtime["components"]["thermal_camera"] =
-                    mydrone.comp.thermal_camera_status;
 
-                runtime["components"]["rgb_camera"] =
-                    mydrone.comp.RGB_camera_status;
+        // FLIGHT - PRESERVED
+        runtime["flight"] = {
+            {"launched", mydrone.mydroneflight.getlaunched()},
+            {"speed", mydrone.mydroneflight.getspeed()},
+            {"altitude", mydrone.mydroneflight.getaltitude()},
+            {"mode", mydrone.mydroneflight.getmodename()}
+        };
 
-                runtime["components"]["infrared_camera"] =
-                    mydrone.comp.infrared_camera_status;
 
-                runtime["components"]["fmcw_radar"] =
-                    mydrone.comp.fmcw_status;
+        // DESTINATION - RESET TO CURRENT POSITION
+        runtime["destination"] = {
+            {"latitude", mydrone.mydroneflight.getdestlat()},
+            {"longitude", mydrone.mydroneflight.getdestlong()}
+        };
 
-                runtime["components"]["speaker"] =
-                    mydrone.comp.speaker_status;
 
-                runtime["components"]["microphone"] =
-                    mydrone.comp.microphone_status;
+        // DRONE LOCATION - PRESERVED
+        runtime["drone"] = {
+            {"latitude", mydrone.getdronelat()},
+            {"longitude", mydrone.getdronelong()}
+        };
 
-                runtime["components"]["passive_rf"] =
-                    mydrone.comp.passive_rf_status;
 
-                runtime["components"]["amber_beacon"] =
-                    mydrone.comp.amber_beacon_status;
+        // BATTERY - PRESERVED
+        runtime["battery"] = {
+            {"percentage", mydrone.getbattery()},
+            {"mode", currentBatteryMode}
+        };
 
-                runtime["components"]["white_strobe"] =
-                    mydrone.comp.white_strobe_status;
 
-                runtime["components"]["downward_spotlight"] =
-                    mydrone.comp.downward_spotlight_status;
+        // COMPONENTS - RESET
+        runtime["components"] = {
+            {"thermal_camera", mydrone.comp.thermal_camera_status},
+            {"rgb_camera", mydrone.comp.RGB_camera_status},
+            {"infrared_camera", mydrone.comp.infrared_camera_status},
+            {"fmcw_radar", mydrone.comp.fmcw_status},
+            {"speaker", mydrone.comp.speaker_status},
+            {"microphone", mydrone.comp.microphone_status},
+            {"passive_rf", mydrone.comp.passive_rf_status},
+            {"amber_beacon", mydrone.comp.amber_beacon_status},
+            {"white_strobe", mydrone.comp.white_strobe_status},
+            {"downward_spotlight", mydrone.comp.downward_spotlight_status},
+            {"smoke_marker", mydrone.comp.smoke_marker_status}
+        };
 
-                runtime["components"]["smoke_marker"] =
-                    mydrone.comp.smoke_marker_status;
 
-                saveRuntime();
-            
-    }
+        saveRuntime();
+
+        logEvent(
+            "MISSION",
+            "INFO",
+            "Mission runtime reset | physical aircraft state preserved"
+        );
+}

@@ -1,7 +1,7 @@
 {
     "battery": {
-        "mode": "normal",
-        "percentage": 100.0
+        "mode": "batterySaveTriggered",
+        "percentage": 25.25
     },
     "components": {
         "amber_beacon": false,
@@ -17,11 +17,11 @@
         "white_strobe": false
     },
     "control": {
-        "last_processed_command": 0
+        "last_processed_command": 9
     },
     "destination": {
-        "latitude": 25.276987,
-        "longitude": 55.296249
+        "latitude": 0.0,
+        "longitude": 0.0
     },
     "drone": {
         "latitude": 0.0,

@@ -182,6 +182,12 @@ void checkcommands(mission &mymission)
         mymission.mydrone.transmitinfo();
         fout << "[" << getTimestamp() << "] COMMAND: TRANSMIT_INFO executed" << endl;
     }
+    else if (command == "RESET_MISSION")
+    {
+        mymission.resetRuntime();
+        fout << "[" << getTimestamp() << "] COMMAND: RESET_MISSION executed" << endl;
+
+    }
     lastProcessedCommandID = commandID;
 
     runtime["control"]["last_processed_command"] = lastProcessedCommandID;

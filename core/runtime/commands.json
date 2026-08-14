@@ -1,1 +1,4 @@
-{}
+{
+    "command": "RESET_MISSION",
+    "id": 9
+}
