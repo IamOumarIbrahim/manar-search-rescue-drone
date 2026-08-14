@@ -8,9 +8,6 @@
 
 [![License: Proprietary](https://img.shields.io/badge/License-Proprietary-yellow.svg)](LICENSE.md)
 [![C++17](https://img.shields.io/badge/C%2B%2B-17-00599C.svg?logo=c%2B%2B)](core/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-Operator%20GUI-3178C6.svg?logo=typescript\&logoColor=white)](gui/)
-[![React](https://img.shields.io/badge/React-Operator%20Interface-61DAFB.svg?logo=react\&logoColor=black)](gui/)
-[![WebSocket](https://img.shields.io/badge/WebSocket-Communication-010101.svg)](core/)
 [![JSON](https://img.shields.io/badge/JSON-Runtime%20%26%20Messaging-000000.svg?logo=json\&logoColor=white)](core/)
 [![Landing Page](https://img.shields.io/badge/Website-Live-brightgreen)](https://iamoumaribrahim.github.io/manar-search-rescue-drone/)
 
@@ -58,6 +55,8 @@
 
 ## Try It Yourself!
 
+> **Requirements:** Windows 10/11, MinGW-w64/GCC with C++17 support.
+
 Clone MANAR, build the prototype, then launch the control core and operator terminal:
 
 ```pwsh
@@ -66,9 +65,9 @@ cd manar-search-rescue-drone/core
 
 mkdir build
 
-g++ apps/control.cpp system/shared.cpp system/flight.cpp system/components.cpp system/drone.cpp system/mission.cpp system/route_optimizer.cpp -I. -Ithird_party -o build/control.exe
-g++ apps/terminal.cpp -I. -Ithird_party -o build/terminal.exe
-g++ apps/setup.cpp -I. -Ithird_party -o build/setup.exe
+g++ -std=c++17 apps/control.cpp system/shared.cpp system/flight.cpp system/components.cpp system/drone.cpp system/mission.cpp system/route_optimizer.cpp -I. -Ithird_party -o build/control.exe
+g++ -std=c++17 apps/terminal.cpp -I. -Ithird_party -o build/terminal.exe
+g++ -std=c++17 apps/setup.cpp -I. -Ithird_party -o build/setup.exe
 
 .\build\setup.exe
 start .\build\control.exe

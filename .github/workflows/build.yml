@@ -1,0 +1,32 @@
+name: Build C++ Core
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Compile Core Prototype
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create build directory
+        run: mkdir -p core/build
+
+      - name: Compile Control Core
+        run: g++ -std=c++17 apps/control.cpp system/shared.cpp system/flight.cpp system/components.cpp system/drone.cpp system/mission.cpp system/route_optimizer.cpp -I. -Ithird_party -o build/control
+        working-directory: core
+
+      - name: Compile Operator Terminal
+        run: g++ -std=c++17 apps/terminal.cpp -I. -Ithird_party -o build/terminal
+        working-directory: core
+
+      - name: Compile Setup Utility
+        run: g++ -std=c++17 apps/setup.cpp -I. -Ithird_party -o build/setup
+        working-directory: core
