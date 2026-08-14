@@ -1,7 +1,7 @@
 {
     "battery": {
-        "mode": "emergencyRTL",
-        "percentage": 15.0
+        "mode": "normal",
+        "percentage": 100.0
     },
     "components": {
         "amber_beacon": false,
@@ -10,14 +10,14 @@
         "infrared_camera": false,
         "microphone": false,
         "passive_rf": false,
-        "rgb_camera": false,
+        "rgb_camera": true,
         "smoke_marker": false,
         "speaker": false,
-        "thermal_camera": false,
+        "thermal_camera": true,
         "white_strobe": false
     },
     "control": {
-        "last_processed_command": 5
+        "last_processed_command": 0
     },
     "destination": {
         "latitude": 0.0,
@@ -36,20 +36,20 @@
     "mission": {
         "enroute": false,
         "finished": false,
-        "isdestinationhome": true,
-        "last_saved_latitude": 0.0,
-        "last_saved_longitude": 0.0,
+        "isdestinationhome": false,
+        "last_saved_latitude": 0,
+        "last_saved_longitude": 0,
         "rescueefound": false,
-        "started": true,
+        "started": false,
         "waitingforhelp": false
     },
     "search": {
-        "current_location_id": 1,
+        "current_location_id": 0,
         "destination_searched": false,
         "optimization_enabled": false,
-        "plan_locked": true,
-        "planned_route_distance_m": 6562106.352395228,
-        "planning_mode": "operator_defined",
-        "total_locations": 1
+        "plan_locked": false,
+        "planned_route_distance_m": 0.0,
+        "planning_mode": "none",
+        "total_locations": 0
     }
 }

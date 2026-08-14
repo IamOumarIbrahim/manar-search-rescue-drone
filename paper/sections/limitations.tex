@@ -1,10 +1,18 @@
 \section{Limitations and Future Work}
 
-MANAR's current implementation establishes a deterministic C++ baseline, but several limitations warrant future development:
+While MANAR establishes a deterministic C++ baseline and comprehensive architectural framework, several operational limitations warrant ongoing development:
+
+\subsection{Environmental and Weather Boundaries}
+MANAR does not claim all-weather operational capability:
 \begin{itemize}
-    \item \textbf{Heuristic Optimality Bounds:} The greedy nearest-neighbor algorithm provides efficient $O(n^2)$ execution but does not guarantee global route optimality. Local improvement heuristics (e.g., 2-opt) or exact MILP optimization can be investigated where problem size permits.
-    \item \textbf{Software Battery Simulation:} The current prototype uses a discrete mode-dependent battery simulation rule to exercise failsafe logic. Future revisions will integrate realistic electro-aerodynamic battery discharge models based on voltage, current, and wind drag.
-    \item \textbf{Airspace and Wind Dynamics:} Velocity calculations assume still air. Incorporating wind vector estimation and dynamic 3D geofencing will improve navigation accuracy in real-world environments.
+    \item \textbf{Precipitation and Icing:} Heavy rain attenuates optical/acoustic signals, while dense wet snow and hail introduce propeller icing, airframe structural damage, and severe propulsion risk.
+    \item \textbf{Atmospheric Obscurants:} Dense fog degrades visual/IR imaging; dust and sandstorms introduce optical backscatter and motor bearing abrasion.
+    \item \textbf{Thermal and RF Clutter:} Solar-heated desert rocks, hot vehicle engines, and active fires create thermal false alarms. Canyons, metallic structures, and urban rubble induce multipath and bearing errors in passive RF localization.
+    \item \textbf{Radar and Acoustic Contamination:} Wind-blown vegetation can mimic human micro-motion on FMCW Doppler maps, while airframe vibration and rotor noise can mask faint acoustic distress calls.
 \end{itemize}
 
-Future work will focus on implementing the React/TypeScript GUI, developing Python/PyTorch perception models, integrating PX4 Software-in-the-Loop (SITL) simulation, and conducting field deployment validation.
+\subsection{Active Search Endurance Constraints}
+The $1.0\text{ hr}$ active search endurance target ($SYS\text{-}G\text{-}02$) depends strongly on aggregate payload mass, battery specific energy, ambient operating temperature, search velocity, hover verification frequency, onboard compute draw, and active guidance usage. Full empirical validation on the integrated airframe remains planned future work.
+
+\subsection{Algorithmic Bounds and Future Work}
+The greedy route optimizer executes in $O(n^2)$ time but does not guarantee global optimality; future iterations may explore local 2-opt search or exact Mixed-Integer Linear Programming (MILP). Future work focuses on implementing the React/TypeScript GUI, developing PyTorch perception models, validating the Mamba SSM on field datasets, integrating PX4 Software-in-the-Loop (SITL) simulation, and conducting physical flight trials.

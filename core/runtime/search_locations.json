@@ -1,22 +1,3 @@
 {
-    "home": {
-        "latitude": 25.276987,
-        "longitude": 55.296249
-    },
-    "locations": [
-        {
-            "id": 1,
-            "input_id": 1,
-            "latitude": 25.276987,
-            "longitude": 55.296249
-        }
-    ],
-    "locked": true,
-    "optimization_enabled": false,
-    "origin": {
-        "latitude": 0.0,
-        "longitude": 0.0
-    },
-    "planning_mode": "rtl_home",
-    "total_route_distance_m": 6562106.352395228
+    "locations": []
 }

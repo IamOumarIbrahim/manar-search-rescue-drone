@@ -1,34 +1,67 @@
-\section{Prototype Mission Control Flow}
+\section{Mission Architecture and Control Flow}
 
-MANAR manages mission progression through deterministic control flow logic implemented in \texttt{mission.cpp}.
+MANAR coordinates flight execution through a modular navigation hierarchy and deterministic mission logic.
 
-\subsection{State Representation \& Flag Logic}
-Rather than a rigid finite state machine, the current C++ prototype tracks mission lifecycle transitions through explicit state flags:
+\subsection{Navigation vs.\ Payload Sensor Layering}
+To safeguard flight stability, MANAR decouples flight-critical navigation sensors from mission payload instrumentation:
 \begin{itemize}
-    \item \texttt{missionstarted} (\texttt{bool}): Indicates whether a mission is active.
-    \item \texttt{searchplanlocked} (\texttt{bool}): Indicates whether search location coordinates are frozen.
-    \item \texttt{enroute} (\texttt{bool}): Indicates active transit toward a target search sector.
-    \item \texttt{destinationsearched} (\texttt{bool}): Set when lawnmower sweep over the active sector completes.
-    \item \texttt{rescueefound} (\texttt{bool}): Flag representing target detection.
-    \item \texttt{waitingforhelp} (\texttt{bool}): Enforces a stationary hold upon candidate detection.
-    \item \texttt{isdestinationhome} (\texttt{bool}): Set when the active navigation target is the home base station.
+    \item \textbf{Navigation Sensor Suite:} Dual GNSS/GPS, IMU, 3-axis magnetometer, barometric altimeter, downward radar altimeter (terrain-relative clearance), and forward/lateral obstacle radar interfacing with a Pixhawk-class autopilot.
+    \item \textbf{Payload Sensor Suite:} Dedicated $24\text{ GHz}$ rescue FMCW radar, thermal LWIR, RGB, low-light IR cameras, digital MEMS acoustic array, and passive RF software-defined radio.
 \end{itemize}
 
-\subsection{Sequential Sector Progression}
-Multi-location search plans are executed sequentially. Each entry in \texttt{search\_locations.json} represents a search sector origin ($L_1, L_2, \dots, L_N$).
+\subsection{Conceptual Mission Lifecycle}
+Fig.~\ref{fig:conceptual_lifecycle} depicts the complete 10-stage conceptual mission lifecycle from deployment to recovery.
 
-When lawnmower sweeps over location $k$ ($1 \le k \le N$) finish, \texttt{lawnmower()} sets \texttt{destinationsearched = true}. On the next loop iteration of \texttt{missionstatusupdater()}, the control core advances the index:
-\begin{equation}
-k \leftarrow k + 1
-\end{equation}
-resets lawnmower sweep variables (\texttt{searchrow = 0}, \texttt{horizontalmove = true}, \texttt{moveeast = true}), loads location $k+1$ as the new destination, and updates \texttt{runtime["search"]["current\_location\_id"] = k + 1}. Once all $N$ sectors have been searched ($k = N$), the system initiates Return-to-Launch navigation.
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tikzpicture}[node distance=0.55cm, auto, >=stealth', font=\sffamily\scriptsize]
+    \tikzstyle{block} = [draw=blue!70!black, fill=blue!8, rectangle, rounded corners=2pt, text width=2.5cm, text centered, minimum height=0.46cm, line width=0.5pt]
+    \tikzstyle{detect} = [draw=orange!80!black, fill=orange!10, rectangle, rounded corners=2pt, text width=2.5cm, text centered, minimum height=0.46cm, line width=0.6pt]
+    \tikzstyle{human} = [draw=green!60!black, fill=green!10, rectangle, rounded corners=2pt, text width=2.5cm, text centered, minimum height=0.46cm, line width=0.6pt]
+    \tikzstyle{arrow} = [->, line width=0.6pt, gray!80!black]
 
-\subsection{Candidate Detection and Rescuee Representation}
-In the current prototype, candidate victim detection is exercised using a manual \texttt{rescueefound} trigger flag. When set, \texttt{configurerescueestate()} executes \texttt{stopflight()}, halting horizontal movement, switching flight mode to \texttt{Stall}, turning off active payload components to conserve battery, and setting \texttt{waitingforhelp = true}.
+    % Nodes
+    \node [block] (takeoff) {1. Takeoff \& Climb};
+    \node [block, right=0.6cm of takeoff] (search) {2. Systematic Search};
+    \node [detect, below=0.4cm of search] (cand) {3. Candidate Detected};
+    \node [detect, left=0.6cm of cand] (approach) {4. Automatic Approach};
+    \node [detect, below=0.4cm of approach] (hover) {5. Hover \& Point Sensors};
+    \node [detect, right=0.6cm of hover] (mamba) {6. Mamba Fusion Gate};
+    \node [human, below=0.4cm of mamba] (review) {7. Human Review};
+    \node [human, left=0.6cm of review] (guide) {8. Mark / Guide / Audio};
+    \node [block, below=0.4cm of guide] (rtl) {9. Resume / RTL};
+    \node [block, right=0.6cm of rtl] (land) {10. Recovery / Land};
 
-Automated perception algorithms will replace this manual trigger flag when the ML detection pipeline is implemented.
+    % Flow
+    \draw [arrow] (takeoff) -- (search);
+    \draw [arrow] (search) -- (cand);
+    \draw [arrow] (cand) -- (approach);
+    \draw [arrow] (approach) -- (hover);
+    \draw [arrow] (hover) -- (mamba);
+    \draw [arrow] (mamba) -- (review);
+    \draw [arrow] (review) -- (guide);
+    \draw [arrow] (guide) -- (rtl);
+    \draw [arrow] (rtl) -- (land);
+\end{tikzpicture}%
+}
+\caption{Conceptual 10-stage search, verification, and rescue lifecycle.}
+\label{fig:conceptual_lifecycle}
+\end{figure}
 
-\subsection{Return-to-Launch (RTL) Semantics}
-MANAR's selected architecture defines Return-to-Launch (RTL) as an on-demand navigation command that sets or changes the target destination to the configured launch location. It is not conceptually a permanent returning mission mode.
+\subsection{Candidate Approach and Hover Verification Sequence}
+Upon wide-area candidate detection, the system executes a deterministic 9-step verification sequence:
+\begin{enumerate}
+    \item \textbf{Evidence Registration:} Log candidate coordinates and sensor detections.
+    \item \textbf{Constraint Validation:} Check geofence, terrain clearance, wind, and battery reserve.
+    \item \textbf{Velocity Deceleration:} Automatically reduce horizontal speed to $v_I$.
+    \item \textbf{Safe Descent:} Descend to nominal inspection altitude $H_{\mathrm{inspect}}$.
+    \item \textbf{Positioning Orbit:} Execute bounded inspection orbit if required.
+    \item \textbf{Gimbal Aiming:} Orient imaging, radar, and acoustic sensors toward target.
+    \item \textbf{Hover Stabilization:} Transition to stationary hover ($v_H = 0$).
+    \item \textbf{Synchronized Verification:} Execute acoustic call-and-listen cycles while evaluating Mamba temporal fusion.
+    \item \textbf{Alert Escalation:} Trigger ground station alert upon meeting fusion threshold for human review.
+\end{enumerate}
 
-\textit{Current Prototype Behavior:} In the current software implementation, \texttt{activateRTL()} handles RTL preemption by checking if the aircraft is landed (calling \texttt{launch()} and engaging configured active flight mode if grounded), clearing rescue flags (\texttt{rescueefound = false}, \texttt{waitingforhelp = false}), overwriting \texttt{search\_locations.json} with a single home destination entry (\texttt{planning\_mode = "rtl\_home"}), and locking \texttt{isdestinationhome = true}.
+\subsection{Prototype Control Flow \& RTL Semantics}
+In the current C++ prototype, multi-location search plans execute sequentially via \texttt{mission.cpp}. When sector $k$ completes ($1 \le k \le N$), the control loop advances $k \leftarrow k+1$ and re-initializes sweep counters. Upon completion of all $N$ sectors or upon failsafe trigger, Return-to-Launch (\texttt{activateRTL()}) is commanded, resetting navigation destination to home coordinates (\texttt{isdestinationhome = true}).

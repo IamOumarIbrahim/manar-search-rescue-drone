@@ -1,47 +1,152 @@
 \section{Multisensor Payload Architecture}
 
-MANAR incorporates a software model representing eleven controllable payload categories for victim search, identification, and signaling.
+MANAR incorporates a multi-modal payload suite engineered for victim search, identification, and rescue guidance. Fig.~\ref{fig:payload_capability_mapping} illustrates the operational mapping between search requirements and sensor/signaling subsystems.
 
-\subsection{Payload Categories}
-The prototype models eleven controllable component categories in \texttt{components.cpp}. The descriptions below indicate their intended subsystem roles; sensing and processing functionality is not yet implemented:
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tikzpicture}[
+    auto, >=stealth', font=\sffamily\scriptsize,
+    role/.style={draw=blue!60!black, fill=blue!8, rounded corners=2pt, text width=3.8cm, minimum height=0.46cm, align=left, inner sep=3pt, line width=0.5pt},
+    modality/.style={draw=green!60!black, fill=green!8, rounded corners=2pt, text width=3.7cm, minimum height=0.46cm, align=left, inner sep=3pt, line width=0.5pt},
+    guide/.style={draw=orange!80!black, fill=orange!8, rounded corners=2pt, text width=3.7cm, minimum height=0.46cm, align=left, inner sep=3pt, line width=0.5pt},
+    link/.style={->, line width=0.7pt, gray!70!black}
+]
+    \node[role] (r1) at (0, 3.6) {\textbf{Human visual detection}};
+    \node[role] (r2) at (0, 3.0) {\textbf{Heat detection}};
+    \node[role] (r3) at (0, 2.4) {\textbf{Night confirmation}};
+    \node[role] (r4) at (0, 1.8) {\textbf{Motion / breathing detection}};
+    \node[role] (r5) at (0, 1.2) {\textbf{Voice response}};
+    \node[role] (r6) at (0, 0.6) {\textbf{Electronic-device detection}};
+    \node[role] (r7) at (0, 0.0) {\textbf{Rescuee guidance}};
+
+    \node[modality] (m1) at (4.8, 3.6) {Day RGB Camera};
+    \node[modality] (m2) at (4.8, 3.0) {Thermal LWIR Sensor};
+    \node[modality] (m3) at (4.8, 2.4) {Low-Light / IR Camera};
+    \node[modality] (m4) at (4.8, 1.8) {24 GHz FMCW Radar};
+    \node[modality] (m5) at (4.8, 1.2) {Speaker + Microphone Array};
+    \node[modality] (m6) at (4.8, 0.6) {Passive RF SDR ($\le 6\text{ GHz}$)};
+    \node[guide]    (m7) at (4.8, 0.0) {Beacon / Strobe / Light / Smoke / Mirrors};
+
+    \draw[link] (r1.east) -- (m1.west);
+    \draw[link] (r2.east) -- (m2.west);
+    \draw[link] (r3.east) -- (m3.west);
+    \draw[link] (r4.east) -- (m4.west);
+    \draw[link] (r5.east) -- (m5.west);
+    \draw[link] (r6.east) -- (m6.west);
+    \draw[link] (r7.east) -- (m7.west);
+\end{tikzpicture}%
+}
+\caption{Operational SAR capability to payload sensor and signaling subsystem mapping.}
+\label{fig:payload_capability_mapping}
+\end{figure}
+
+\subsection{Optical Subsystem and Ambient-Light Switching}
+To ensure continuous imaging across diurnal cycles, optical sensors transition dynamically based on ambient illuminance $E_{\mathrm{lux}}$ with hysteresis:
+\begin{equation}
+\text{Mode} = \begin{cases}
+\text{RGB + LWIR}, & E_{\mathrm{lux}} > 150\text{ lx} \\
+\text{RGB + IR + LWIR}, & 50 \le E_{\mathrm{lux}} \le 150\text{ lx} \\
+\text{IR + LWIR}, & E_{\mathrm{lux}} < 50\text{ lx}
+\end{cases}
+\end{equation}
+
+\subsection{Acoustic Subsystem and Call-and-Listen Cycle}
+The acoustic payload incorporates a 4--8 digital MEMS microphone array mounted on vibration-isolated damping brackets. Rotor harmonics are actively suppressed using real-time motor RPM references across the $200\text{ Hz}\text{--}8\text{ kHz}$ processing band.
+
+During hover hold, the system executes a structured $35.4\text{ s}$ call-and-listen cycle:
 \begin{enumerate}
-    \item \textbf{Thermal LWIR Camera:} Body heat detection.
-    \item \textbf{Day RGB Camera:} Visual inspection and terrain validation.
-    \item \textbf{Low-Light / IR Camera:} Low ambient light sensitivity.
-    \item \textbf{FMCW Radar:} Range, velocity, and micro-motion detection.
-    \item \textbf{Passive RF Sensor:} Mobile signal uplink detection.
-    \item \textbf{Public Address Emitter:} Audible instruction broadcast.
-    \item \textbf{Microphone Array:} Acoustic monitoring for vocal signals.
-    \item \textbf{Amber Beacon:} Visual alerting for ground teams.
-    \item \textbf{White Guidance Strobe:} Visual orientation strobe.
-    \item \textbf{Downward Spotlight:} Ground illumination.
-    \item \textbf{Smoke Marker Canister:} Visual smoke signaling.
+    \item \textbf{Acoustic Alert ($8.4\text{ s}$):} Standard SOS buzzer sequence ($3\times$ short $0.4\text{ s}$, $3\times$ long $1.2\text{ s}$, $3\times$ short $0.4\text{ s}$).
+    \item \textbf{Voice Prompt ($12.0\text{ s}$):} Spoken instructions in English and Arabic: \emph{``Rescue drone. Shout, whistle, clap, or hit an object now''}.
+    \item \textbf{Silent Listening ($15.0\text{ s}$):} Emitters are silenced while the array records ambient signals, evaluating Beamforming Direction of Arrival (DoA) and classifying vocal distress events ($\ge 70\%$ confidence).
 \end{enumerate}
 
-\subsection{Candidate Hardware Mapping}
-Table~\ref{tab:hardware_mapping} maps software payload categories to candidate hardware under evaluation. Rows marked TBD indicate categories where hardware selection has not been evaluated.
+\subsection{Passive RF Sensing and Two-Level Attention}
+Passive RF monitoring scans sub-$6\text{ GHz}$ bands (cellular uplinks $600\text{ MHz}\text{--}2.7\text{ GHz}$, sub-$6\text{ 5G}$, Wi-Fi $2.4/5\text{ GHz}$, and Bluetooth $2.4\text{ GHz}$; $>6\text{ GHz}$ excluded) using dual directional antennas:
+\begin{itemize}
+    \item \textbf{Level 1 Attention (CFAR Detection):} Activates when at least three qualifying samples exceed the adaptive CFAR threshold within an observation window ($N_{\mathrm{CFAR+}} \ge 3$).
+    \item \textbf{Level 2 Attention (Temporal Trend Tracking):} Engages \texttt{Inspect} mode with elevated sampling. The local trend $\Delta S_k = S_k - \frac{1}{m} \sum_{i=k-m}^{k-1} S_i$ is classified as $\text{HOT}$ ($\Delta S_k > \epsilon$), $\text{STABLE}$ ($|\Delta S_k| \le \epsilon$), or $\text{COLD}$ ($\Delta S_k < -\epsilon$).
+\end{itemize}
+
+\subsection{FMCW Radar Ranging Characteristics}
+Operating at a $24\text{ GHz}$ center frequency with sweep bandwidth $B \approx 250\text{ MHz}$, the theoretical range resolution $\Delta R$ is:
+\begin{equation}
+\Delta R \approx \frac{c}{2B} \approx \frac{3 \times 10^8\text{ m/s}}{2 \times 250 \times 10^6\text{ Hz}} \approx 0.60\text{ m}
+\end{equation}
+
+\subsection{Planned Mamba Perception \& Fusion Pipeline}
+Fig.~\ref{fig:mamba_fusion_pipeline} illustrates the planned temporal perception architecture.
+
+\begin{figure*}[t]
+\centering
+\resizebox{0.92\textwidth}{!}{%
+\begin{tikzpicture}[
+    auto, >=stealth', font=\sffamily\scriptsize,
+    sensor/.style={draw=blue!70!black, fill=blue!8, rounded corners=2pt, text width=2.4cm, text centered, minimum height=0.6cm, line width=0.5pt},
+    proc/.style={draw=purple!70!black, fill=purple!8, rounded corners=2pt, text width=2.6cm, text centered, minimum height=0.6cm, line width=0.5pt},
+    fusion/.style={draw=orange!80!black, fill=orange!10, rounded corners=3pt, text width=3.2cm, text centered, minimum height=1.0cm, line width=0.8pt},
+    gate/.style={draw=red!70!black, fill=red!10, rounded corners=3pt, text width=2.6cm, text centered, minimum height=0.8cm, line width=0.8pt},
+    human/.style={draw=green!60!black, fill=green!10, rounded corners=3pt, text width=3.2cm, text centered, minimum height=0.8cm, line width=0.8pt},
+    arrow/.style={->, line width=0.7pt, gray!80!black}
+]
+    \node[sensor] (cam) at (0, 1.8) {\textbf{RGB / IR / Thermal}\\Cameras};
+    \node[sensor] (radar) at (0, 0.6) {\textbf{24 GHz FMCW Radar}\\Range / Micro-motion};
+    \node[sensor] (audio) at (0, -0.6) {\textbf{Acoustic Array}\\4--8 MEMS Mics};
+    \node[sensor] (rf) at (0, -1.8) {\textbf{Passive RF}\\$\le 6$ GHz SDR};
+
+    \node[proc] (p_cam) at (3.5, 1.8) {CNN Detectors +\\1D Visual Embedding};
+    \node[proc] (p_radar) at (3.5, 0.6) {Range-Doppler FFT +\\CFAR Extraction};
+    \node[proc] (p_audio) at (3.5, -0.6) {Rotor-Noise Filter +\\Acoustic Classifier};
+    \node[proc] (p_rf) at (3.5, -1.8) {Two-Level CFAR +\\Trend Classifier};
+
+    \node[fusion] (vec) at (7.5, 0) {\textbf{Synchronized Feature Vector} $\mathbf{x}_t \in \mathbb{R}^D$\\{\tiny ($10\text{ Hz}$ sampling, $2\text{--}5\text{ s}$ window)}};
+
+    \node[fusion, right=0.8cm of vec] (mamba) {\textbf{Mamba State Space Model}\\{\tiny Temporal Multi-Sensor Fusion}};
+
+    \node[gate, right=0.8cm of mamba] (alert) {\textbf{Alert Escalation Gate}\\{\tiny Reject $\cdot$ Continue $\cdot$ Alert}};
+    \node[human, below=0.8cm of alert] (operator) {\textbf{Human Operator Review}\\{\tiny False Pos $\cdot$ Inspect $\cdot$ Probable}};
+
+    \draw[arrow] (cam) -- (p_cam);
+    \draw[arrow] (radar) -- (p_radar);
+    \draw[arrow] (audio) -- (p_audio);
+    \draw[arrow] (rf) -- (p_rf);
+
+    \draw[arrow] (p_cam) -- (vec.north west);
+    \draw[arrow] (p_radar) -- (vec.west);
+    \draw[arrow] (p_audio) -- (vec.west);
+    \draw[arrow] (p_rf) -- (vec.south west);
+
+    \draw[arrow] (vec) -- (mamba);
+    \draw[arrow] (mamba) -- (alert);
+    \draw[arrow] (alert) -- node[right, font=\tiny] {Alert} (operator);
+\end{tikzpicture}%
+}
+\caption{Planned multisensor perception and Mamba hover verification pipeline (Planned Future Architecture).}
+\label{fig:mamba_fusion_pipeline}
+\end{figure*}
+
+Synchronized feature vectors $\mathbf{x}_t \in \mathbb{R}^D$ sampled at $10\text{ Hz}$ across $20\text{--}50$ time steps ($2\text{--}5\text{ s}$ window) are evaluated by a Mamba State Space Model (SSM)~\cite{goodrich2008towards}. Mamba acts strictly as an alert escalation filter (Reject candidate, Continue verification, or Alert operator). Final classification (False positive, Manual continued inspection, or Probable rescuee) is reserved exclusively for the human operator.
+
+\subsection{Environmental Complementarity and Rescue Guidance}
+Table~\ref{tab:environmental_complementarity} summarizes the operational robustness of the sensing modalities across adverse environmental conditions.
 
 \begin{table}[t]
-\caption{Candidate Payload Hardware (Non-Final)}
-\label{tab:hardware_mapping}
+\caption{Sensor Modality Robustness in Adverse Environments}
+\label{tab:environmental_complementarity}
 \centering
 \footnotesize
-\begin{tabular}{@{}ll@{}}
+\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}}lccccc@{}}
 \toprule
-\textbf{Category} & \textbf{Candidate Hardware} \\
+\textbf{Modality} & \textbf{Day} & \textbf{Night} & \textbf{Rain} & \textbf{Dust} & \textbf{Smoke} \\
 \midrule
-Thermal LWIR & FLIR Boson+ 640 \\
-Day RGB & Sony FCB-EV9500L \\
-Low-Light IR & SiOnyx Aurora \\
-FMCW Radar & TBD (band not finalized) \\
-Passive RF & TBD \\
-PA Emitter & TBD \\
-Microphone Array & ReSpeaker v2.0 \\
-Visual Alerting & TBD \\
-Smoke Marker & TBD \\
+Thermal LWIR & High & High & Mod & Mod & High \\
+Day RGB & High & Low & Mod & Low & Low \\
+Low-Light IR & Mod & High & Mod & Low & Mod \\
+24 GHz FMCW & High & High & High & High & High \\
+Acoustic Array & High & High & Low & Mod & Mod \\
+Passive RF & High & High & High & High & High \\
 \bottomrule
-\end{tabular}
+\end{tabular*}
 \end{table}
 
-\subsection{Perception Pipeline Integration}
-In the current prototype, payload component states can be commanded individually via \texttt{CHANGE\_COMPONENTS} or toggled automatically during mission hold states. Automated sensor fusion algorithms and ML perception models are reserved for future work.
+\textbf{Rescue Guidance Systems:} Active guidance integrates a $360^\circ$ amber flashing beacon, a $2\text{ Hz}$ directional white strobe, a downward spotlight for night inspection, and a pyrotechnic smoke marker for wind/location marking. Supplementary passive daylight signaling is provided by three fixed heliograph mirrors mounted at $40^\circ, 60^\circ,$ and $75^\circ$ from vertical, producing ground reflections at nominal standoff distance $R = H \tan \theta$.

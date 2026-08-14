@@ -1,40 +1,48 @@
 \section{System Requirements}
 
-MANAR is engineered to fulfill operational constraints tailored for aerial search-and-rescue. This section documents the operational envelope, symbolic flight parameters, search geometry, and safety monitoring rules.
+MANAR is engineered to satisfy operational and safety constraints for aerial search-and-rescue.
 
-\subsection{Operational Velocity Presets}
-The flight system defines four discrete velocity presets ($v(m)$) suited for distinct mission phases:
+\subsection{Operational Envelope and Performance Targets}
+The system targets an operational flight envelope tailored for rugged wilderness and desert environments:
 \begin{itemize}
-    \item \textbf{Quick Mode ($v_Q$):} High-speed transit between distant search sectors or rapid return to base.
-    \item \textbf{Active Mode ($v_A$):} Baseline search velocity during systematic lawnmower sector sweeps.
-    \item \textbf{Inspect Mode ($v_I$):} Low-speed visual inspection of candidate detection sites.
-    \item \textbf{Hover Mode ($v_H$):} Stationary hold over candidate locations ($v_H = 0$).
-    \end{itemize}
-
-Velocity presets are configurable parameters governed by configuration profiles. The software enforces a configurable altitude ceiling clamp $H_{\max}$ and maximum velocity clamp $v_{\max}$. Default takeoff climb target is specified by $H_{\mathrm{launch}}$.
-
-\subsection{Operator Supervision Principles}
-In accordance with supervised autonomy design:
-\begin{itemize}
-    \item The system retains human supervisory authority over high-risk mission actions and physical state changes.
-    \item The human operator maintains real-time override authority to trigger Return-to-Launch (RTL) or issue manual waypoint updates.
-    \item The operator retains explicit authority over whether automated search route optimization is applied to entered locations.
+    \item \textbf{Search Endurance ($SYS\text{-}G\text{-}02$):} At least 1.0 hour of continuous active search under a nominal payload and representative sensor duty cycle.
+    \item \textbf{High-Altitude Operational Ceiling ($SYS\text{-}G\text{-}01$):} Takeoff, climb, and stable search up to $2000.0\text{ m}$ AMSL with designated payload.
+    \item \textbf{Speed Presets and Limits:} Four discrete velocity presets ($v_Q, v_A, v_I, v_H$) bounded by software velocity clamp $v_{\max}$ and altitude ceiling $H_{\max}$. Takeoff climb target is specified by $H_{\mathrm{launch}}$.
 \end{itemize}
 
-\subsection{Search Grid Parameters}
-Systematic sector coverage requires structured grid patterns. Search sectors are parameterized by:
+\subsection{Terrain-Adaptive Search Strategy}
+Search path generation adapts to local terrain geometry:
 \begin{itemize}
-    \item Lawnmower search sector dimensions: Width $W$ and Height $H$.
-    \item Parallel sweep row spacing: $\Delta y$.
-    \item Waypoint arrival acceptance radius: $R_{\mathrm{reach}}$.
-    \item Home base arrival acceptance radius: $R_{\mathrm{home}}$.
+    \item \textbf{Open / Flat Terrain:} Parallel-track lawnmower sweeps parameterized by sector width $W$, height $H$, and row spacing $\Delta y$.
+    \item \textbf{Mountainous / Steep Terrain:} Terrain-aware contour-following paths maintaining nominal sensor standoff distance.
 \end{itemize}
 
-\subsection{Battery Failsafe Hierarchy}
-To exercise deterministic safety monitoring, the system defines four configurable battery percentage thresholds ($B_{\mathrm{warn}}, B_{\mathrm{rtl\_warn}}, B_{\mathrm{emergency\_rtl}}, B_{\mathrm{land}}$):
+\subsection{Supervised-Autonomy Responsibility Allocation}
+Table~\ref{tab:responsibility_allocation} delineates the functional boundaries between the human operator, deterministic control logic, and machine learning pipelines.
+
+\begin{table}[t]
+\caption{Supervised-Autonomy Responsibility Allocation}
+\label{tab:responsibility_allocation}
+\centering
+\footnotesize
+\begin{tabularx}{\columnwidth}{@{}lX@{}}
+\toprule
+\textbf{Layer} & \textbf{Core Responsibilities} \\
+\midrule
+\textbf{Human Operator} & Mission definition, geofencing, takeoff approval, real-time RTL/waypoint override, alert review, final \emph{Probable Rescuee} determination, guidance authorization. \\
+\midrule
+\textbf{Deterministic Core} & Flight dynamics, geodetic navigation, safety clamps, candidate approach trajectories, failsafes, sensor synchronization, DSP filtering. \\
+\midrule
+\textbf{Machine Learning} & Computer vision candidate detection, acoustic classification, radar micro-motion classification, Mamba hover verification alert gating. (ML never directly commands actuators). \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Deterministic Contingency and Failsafe Rules}
+The flight system enforces deterministic contingency responses:
 \begin{itemize}
-    \item \textbf{Battery Warning ($B \le B_{\mathrm{warn}}$):} Logs a warning and activates configured battery-save mode.
-    \item \textbf{Recommend RTL ($B \le B_{\mathrm{rtl\_warn}}$):} Recommends Return-to-Launch navigation and transmits aircraft status and location.
-    \item \textbf{Emergency RTL ($B \le B_{\mathrm{emergency\_rtl}}$):} Automatically overrides active search patterns and commands Return-to-Launch navigation via \texttt{activateRTL()}.
-    \item \textbf{Emergency Land ($B \le B_{\mathrm{land}}$):} Invokes the prototype stop-flight path, records the current position, and transitions simulated flight state to stopped.
+    \item \textbf{Command-Link Loss ($SYS\text{-}R\text{-}01$):} Upon link interruption, the aircraft maintains a temporary hold or verified safe route. If reconnection fails within a configurable timeout, autonomous RTL is engaged.
+    \item \textbf{Energy Failsafe ($SYS\text{-}R\text{-}02$):} Sufficient return energy is continuously reserved. When return capability is compromised, RTL is triggered; if return is unachievable, an emergency landing sequence executes while preserving coordinates.
+    \item \textbf{GNSS Degradation:} Transitions to attitude hold and local clearance sensing without making unverified absolute radar localization claims.
+    \item \textbf{Environmental Limits:} Dangerous wind, icing, or propulsion anomalies automatically trigger mission abort or RTL.
 \end{itemize}
