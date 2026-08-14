@@ -20,119 +20,277 @@
 > Unless explicitly licensed otherwise, all source code, engineering material,
 > algorithms, documentation, and project assets in this repository are proprietary.
 
-### Component Overview
+<h2 align="center">Component Overview</h2>
 
 <p align="center">
   <img
     src="assets/Images/Branding/System Component Overview.png"
     alt="MANAR multisensor search-and-rescue system component overview"
-    width="900"
+    width="820"
   />
   <br />
   <em>MANAR Multisensor System Component Overview</em>
 </p>
 
-| Component              | Primary role                       |
-| ---------------------- | ---------------------------------- |
-| **Thermal**            | Person/heat detection              |
-| **RGB/day**            | Daytime detection/verification     |
-| **Low-light/IR**       | Night visual confirmation          |
-| **24 GHz FMCW**        | Presence, range, motion, breathing |
-| **Speaker + mic**      | Prompt, listen, direction finding  |
-| **Passive RF**         | Detect/correlate device emissions  |
-| **Amber beacon**       | 360° visual alert                  |
-| **White strobe**       | Directional visual guidance        |
-| **Downward spotlight** | Close-range illumination           |
-| **Heliograph mirrors** | Passive daylight signaling         |
-| **Smoke marker**       | Location/wind marking              |
+<table width="100%">
+<tr>
+<th width="50%" align="center"><b>Multisensor System Components</b></th>
+<th width="50%" align="center"><b>Repository Map</b></th>
+</tr>
+<tr>
+<td valign="top">
 
-## Repository Map
+<table>
+<thead>
+<tr>
+<th align="left">Component</th>
+<th align="left">Primary role</th>
+</tr>
+</thead>
+<tbody>
+<tr><td><b>Thermal</b></td><td>Person/heat detection</td></tr>
+<tr><td><b>RGB/day</b></td><td>Daytime detection/verification</td></tr>
+<tr><td><b>Low-light/IR</b></td><td>Night visual confirmation</td></tr>
+<tr><td><b>24 GHz FMCW</b></td><td>Presence, range, motion, breathing</td></tr>
+<tr><td><b>Speaker + mic</b></td><td>Prompt, listen, direction finding</td></tr>
+<tr><td><b>Passive RF</b></td><td>Detect/correlate device emissions</td></tr>
+<tr><td><b>Amber beacon</b></td><td>360° visual alert</td></tr>
+<tr><td><b>White strobe</b></td><td>Directional visual guidance</td></tr>
+<tr><td><b>Downward spotlight</b></td><td>Close-range illumination</td></tr>
+<tr><td><b>Heliograph mirrors</b></td><td>Passive daylight signaling</td></tr>
+<tr><td><b>Smoke marker</b></td><td>Location/wind marking</td></tr>
+</tbody>
+</table>
 
-| Directory / File | Description |
+</td>
+<td valign="top">
+
+<table>
+<thead>
+<tr>
+<th align="left">Directory / File</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr><td><a href="core/"><code>core/</code></a></td><td>Deterministic C++ control system</td></tr>
+<tr><td><a href="computer_vision/"><code>computer_vision/</code></a></td><td>Visual detection, models, and benchmarks</td></tr>
+<tr><td><a href="paper/"><code>paper/</code></a></td><td>LaTeX technical paper</td></tr>
+<tr><td><a href="manar-landing-page/"><code>manar-landing-page/</code></a></td><td>Project website</td></tr>
+<tr><td><a href="assets/"><code>assets/</code></a></td><td>Branding, images, and demonstration media</td></tr>
+<tr><td><a href="DEVLOG.md"><code>DEVLOG.md</code></a></td><td>Development decisions & progress</td></tr>
+<tr><td><a href="SECURITY.md"><code>SECURITY.md</code></a></td><td>Security policy</td></tr>
+<tr><td><a href="LICENSE.md"><code>LICENSE.md</code></a></td><td>Licensing terms</td></tr>
+</tbody>
+</table>
+
+</td>
+</tr>
+</table>
+
+### Key Architectural Decisions
+
+| Name | Why? |
 | :--- | :--- |
-| [`core/`](core/) | Deterministic C++ control system |
-| [`computer_vision/`](computer_vision/) | Visual detection, models, and benchmarks |
-| [`paper/`](paper/) | LaTeX technical paper |
-| [`manar-landing-page/`](manar-landing-page/) | Project website |
-| [`assets/`](assets/) | Branding, images, and demonstration media |
-| [`DEVLOG.md`](DEVLOG.md) | Development decisions & progress |
-| [`SECURITY.md`](SECURITY.md) | Security policy |
-| [`LICENSE.md`](LICENSE.md) | Licensing terms |
+| **YOLO11n** | ~29.2 ms CPU latency (~1.73× faster than D-FINE-N), 0 false positives on terrain clutter, and minimal SWaP (~2.6M params) for real-time person detection. |
+| **Mamba SSM** | Linear $O(L)$ sequence complexity (vs quadratic Transformers) for real-time temporal fusion across 10 Hz multi-sensor feature windows (2–5 s) as an alert gate. |
+| **Greedy Algorithm** | Fast, deterministic $O(n^2)$ waypoint sequencing ensuring predictable lawnmower search paths and instant dynamic replanning. |
+| **1D CNN Camera Feed** | Compresses high-dimensional 2D detections into compact 1D visual embeddings for low-overhead alignment with audio, radar, and RF streams in the fusion bus. |
+| **Two-Level Passive RF** | Level 1 CFAR dynamically triggers on RF anomalies without fixed thresholds; Level 2 evaluates signal derivative trends ($\Delta S_k$: HOT / STABLE / COLD) across previous samples without bulky AoA hardware. |
+| **Multi-Tiered Telemetry** | Adaptive rate-tiered policy (1–2 Hz baseline, 5 Hz proximity, on-change state broadcasts, immediate event escalation) to minimize radio power consumption and avoid link saturation while preserving critical situational awareness. |
 
-## Current Status
-> **Current phase:** Hardware component sizing, React Operator GUI, and downstream multisensor fusion interface.
+---
 
-<p align="center">
-  <img src="assets/Videos/demo2.gif" alt="MANAR Demo 2" width="900">
-</p>
+## Multimodal Sensing & Target Verification
 
 <p align="center">
-  <img src="assets/Videos/demo.gif" alt="MANAR Demo" width="900">
+  <img
+    src="assets/Images/Visualization/RGB, IR, and Thermal Multisensor Detection.png"
+    alt="RGB, IR, and Thermal Multisensor Detection"
+    width="650"
+  />
+  <br />
+  <em>Synchronized Day RGB, Low-Light IR, and Long-Wave Thermal (LWIR) target verification across diurnal and environmental extremes.</em>
 </p>
+
+---
+
+## Fig. 2. Conceptual 10-stage search, verification, and rescue lifecycle.
+
+MANAR coordinates flight execution through a modular navigation hierarchy and deterministic mission logic.
+
+<p align="center">
+  <img
+    src="assets/Images/Paper/fig2_conceptual_lifecycle.png"
+    alt="Fig. 2. Conceptual 10-stage search, verification, and rescue lifecycle."
+    width="480"
+  />
+  <br />
+  <em>Fig. 2. Conceptual 10-stage search, verification, and rescue lifecycle.</em>
+</p>
+
+---
+
+## Perception & Sensor-Fusion Pipeline
+
+Synchronized feature vectors $\mathbf{x}_t \in \mathbb{R}^D$ sampled at $10\text{ Hz}$ across $20\text{--}50$ time steps ($2\text{--}5\text{ s}$ window) are evaluated by a Mamba State Space Model (SSM). Mamba acts strictly as an alert escalation filter (Reject candidate, Continue verification, or Alert operator), while final rescue determination is reserved exclusively for the human operator.
+
+<p align="center">
+  <img
+    src="assets/Images/Visualization/CNN and Mamba Sensor-Fusion Architecture.png"
+    alt="Fig. 5. Planned multisensor perception and Mamba hover verification pipeline"
+    width="900"
+  />
+  <br />
+  <em>Fig. 5. Planned multisensor perception and Mamba hover verification pipeline.</em>
+</p>
+
+---
+
+## Fig. 3. Spatial geometry: Lawnmower sweep coverage pattern (left) and sequential greedy route progression with RTL return leg (right).
+
+When operators specify multiple search sectors, MANAR executes an $O(n^2)$ greedy nearest-neighbor route optimizer to minimize travel transit distance, combined with systematic lawnmower sweeps.
+
+<p align="center">
+  <img
+    src="assets/Images/Paper/fig3_lawnmower_and_route.png"
+    alt="Fig. 3. Spatial geometry: Lawnmower sweep coverage pattern (left) and sequential greedy route progression with RTL return leg (right)."
+    width="540"
+  />
+  <br />
+  <em>Fig. 3. Spatial geometry: Lawnmower sweep coverage pattern (left) and sequential greedy route progression with RTL return leg (right).</em>
+</p>
+
+---
+
+## System Demonstrations
+
+> **Current status:** Hardware component sizing, React Operator GUI, and downstream multisensor fusion interface.
+
+<div align="center">
+
+### Autonomous Flight Core & Lawnmower Search
+<img src="assets/Videos/demo.gif" alt="MANAR Autonomous Flight and Terminal Demo" width="900">
+<br/><br/>
+
+### YOLO11n Real-Time Target Detection
+<img src="assets/Videos/demo2.gif" alt="MANAR Visual Detection Demo" width="900">
+
+</div>
 
 ## Try It Yourself!
 
-> **Requirements:** Windows 10/11, MinGW-w64/GCC with C++17 support.
+> **Requirements:** Windows 10/11 (or Linux/macOS with C++17 support), MinGW-w64 / GCC (`g++`).
 
-Clone MANAR, build the prototype, then launch the control core and operator terminal:
+Follow these steps to compile the prototype, configure the aircraft parameters, and launch the interactive operator terminal:
+
+### 1. Build the System
+
+Open PowerShell or terminal in the repository root and compile all core binaries:
 
 ```pwsh
-git clone https://github.com/IamOumarIbrahim/manar-search-rescue-drone.git
-cd manar-search-rescue-drone/core
+# Navigate to core
+cd core
 
-mkdir build
+# Create build directory
+mkdir -p build
 
+# Compile Control Core, Operator Terminal, and Setup Utility
 g++ -std=c++17 apps/control.cpp system/shared.cpp system/flight.cpp system/components.cpp system/drone.cpp system/mission.cpp system/route_optimizer.cpp -I. -Ithird_party -o build/control.exe
 g++ -std=c++17 apps/terminal.cpp -I. -Ithird_party -o build/terminal.exe
 g++ -std=c++17 apps/setup.cpp -I. -Ithird_party -o build/setup.exe
-
-.\build\setup.exe
-start .\build\control.exe
-start .\build\terminal.exe
 ```
+
+### 2. Pre-Flight Configuration (Optional)
+
+Configure active slot settings, custom homebase coordinates, flight limits, or battery-save thresholds:
+
+```pwsh
+.\build\setup.exe
+```
+
+### 3. Launch the Control Core & Operator Terminal
+
+In **Terminal 1**, start the background flight control engine:
+```pwsh
+.\build\control.exe
+```
+
+In **Terminal 2**, open the interactive operator command station:
+```pwsh
+.\build\terminal.exe
+```
+
+
+
+---
+
+### 4. Interactive Operator Walkthrough (Full Experience)
+
+Once the terminal is running, you can execute a full search-and-rescue mission simulation:
+
+1. **Set Search Locations (`Option 1`)**:
+   - Enter multiple GPS waypoints (e.g. `25.336421, 55.344471`, `25.338500, 55.346200`, `25.341200, 55.348100`), then type `F` to finish.
+   - Choose `Y` to enable automated route optimization (greedy O(n²) solver).
+2. **Start Mission (`Option 2`) & Launch Drone (`Option 4`)**:
+   - Locks the search plan and initiates takeoff and autonomous lawnmower search progression.
+3. **Inspect Real-Time Telemetry (`Option 3`)**:
+   - View formatted `runtime.json` live telemetry: GPS coordinates, altitude, battery percentage, flight mode, and active waypoint.
+4. **Configure Payload & Sensors (`Option 6`)**:
+   - Dynamically toggle individual or batch sensors/actuators (e.g., Thermal camera, 24 GHz FMCW radar, 360° Amber beacon, White strobe, Downward spotlight).
+5. **Adjust Flight Mode & Altitude (`Option 5`)**:
+   - Switch between flight modes (`Quick`, `Active`, `Inspect`, `Hover`) or update flight altitude on the fly.
+6. **Target Detection & Confirmation (`Option 7` / `Option 8`)**:
+   - Confirm rescuee detection and transmit exact coordinates to ground rescue dispatch.
+7. **Return-to-Launch (`Option 0`)**:
+   - Command manual RTL, or allow automatic battery-reserve RTL protection to bring the drone back to base.
+
+---
 
 ## Project Milestones
 
-> Established:
+###  1. System Architecture & Foundation
+> - [x] Initial ideation & system specification
+> - [x] GitHub repository setup & proprietary licensing
+> - [x] Brand visual identity & design system
+> - [x] Scope definition, operational constraints & safety hardening
+> - [x] Core directory restructuring & modular code organization
 
-- [x] Initial ideation & system specification
-- [x] GitHub repository setup & project licensing
-- [x] Brand visual identity & asset guidelines
-- [x] Scope definition & operational constraint hardening
-- [x] Prototype web dashboard (v1.0) & landing page
-- [x] Deterministic C++ control-system prototype
-- [x] JSON command, runtime & configuration system
-- [x] `setup.exe` configuration utility
-- [x] Decoupled operator terminal from control logic
-- [x] Modularized control, mission, flight, drone & component systems
-- [x] Split system classes into header & implementation files
-- [x] Restructured core directories
-- [x] Structured subsystem & event logging
-- [x] Multiple named configuration slots with active-slot selection
-- [x] Configurable flight modes & payload state control
-- [x] Battery monitoring, battery-save behavior & emergency RTL/landing logic
-- [x] Mission-owned RTL behavior & return-to-home navigation
-- [x] Deterministic search-area lawnmower navigation
-- [x] Mission reset while preserving physical aircraft state
-- [x] Explicit mission destination configuration
-- [x] Batch payload component control
-- [x] Ordered multi-location search planning & autonomous sequential area progression
-- [x] Integrated YOLO11n visual detector & benchmarked against D-FINE-N baseline
+###  2. Autonomous Flight & C++ Control Core (`core/`)
+> - [x] Deterministic C++ control-system engine
+> - [x] Decoupled operator terminal & `setup.exe` interactive configuration utility
+> - [x] JSON command, runtime snapshot, and configuration management
+> - [x] Named configuration slots (Slots 1–3) with active-slot selection
+> - [x] Configurable flight modes (`Quick`, `Active`, `Inspect`, `Hover`)
+> - [x] Batch payload component control & state management
+> - [x] Battery monitoring, battery-save mode & emergency RTL/landing logic
+> - [x] Mission-owned return-to-home navigation & state preservation
+> - [x] Deterministic lawnmower search navigation
+> - [x] Multi-location search planning with greedy O(n²) route optimization
+> - [x] Structured subsystem & event logging
+- [ ] Expanded flight dynamics & simulated sensor physics engine
 
-> Next steps (Roadmap):
+###  3. Computer Vision & Multisensor Fusion (`computer_vision/`)
+> - [x] Evaluated and benchmarked detector models (YOLO11n vs D-FINE-N) across SAR video datasets
+> - [x] Integrated locked YOLO11n ONNX inference engine (~29 ms CPU latency / 34 FPS)
+- [ ] Design Python / PyTorch multisensor fusion module interfacing with C++ core
+- [ ] Implement multi-object candidate tracking (MOT / ByteTrack) & spatial GPS projection
+- [ ] Implement multisensor detection & fusion logic (Thermal + RGB + 24 GHz FMCW radar + RF anomalies + Audio DF)
 
+###  4. Operator Interface & Ground Station
+> - [x] Prototype web dashboard (v1.0) & project landing page
+- [ ] Modern TypeScript / React Operator GUI
+- [ ] Low-latency WebSocket telemetry & bi-directional command bridge with C++ core
+
+###  5. Hardware Engineering & Physical Modeling
 - [ ] Ground hardware specs (payload mass, power draw, dimensions) in real components
 - [ ] Calculate propulsion thrust-to-weight and battery capacity for 1-hour active search budget
-- [ ] Create dimensionally grounded 3D drone model in Blender
-- [ ] Expand deterministic flight dynamics & simulated sensor physics engine
-- [ ] Build TypeScript / React Operator GUI and connect via WebSocket
-- [ ] Integrate TypeScript GUI with C++ Control Core
-- [ ] Design Python / PyTorch multisensor fusion module interfacing with C++ core
-- [ ] Implement candidate tracking, Kalman filtering & spatial GPS projection
-- [ ] Implement multisensor detection & fusion logic (YOLO11n + FMCW radar + RF anomalies + audio)
-- [ ] Perform end-to-end simulated mission testing & validation
-- [ ] Complete LaTeX report, presentation & technical documentation
-- [ ] Produce final demonstration & portfolio material
+- [ ] Create dimensionally grounded 3D drone airframe & sensor gimbal model in Blender
+
+###  6. Verification, Documentation & Public Release
+- [ ] End-to-end simulated search-and-rescue mission validation
+- [ ] LaTeX technical paper, presentation deck & comprehensive documentation
+- [ ] Produce final demonstration media & portfolio showcase
 - [ ] Final public launch & repository release
 
 
