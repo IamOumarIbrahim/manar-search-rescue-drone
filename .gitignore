@@ -98,7 +98,7 @@ desktop.ini
 # ==========================================
 # Ignored Assets & Documentation
 # ==========================================
-assets/Images/Visualization/
+# assets/Images/Visualization/
 assets/Docs/
 assets/Temp/
 
@@ -109,6 +109,3 @@ computer_vision/output/*
 !computer_vision/output/.gitkeep
 computer_vision/temp/*
 !computer_vision/temp/.gitkeep
-# Allow visualization images for README
-!assets/Images/Visualization/RGB, IR, and Thermal Multisensor Detection.png
-!assets/Images/Visualization/CNN and Mamba Sensor-Fusion Architecture.png
