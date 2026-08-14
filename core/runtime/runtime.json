@@ -1,7 +1,7 @@
 {
     "battery": {
-        "mode": "emergencyLandTriggered",
-        "percentage": 4.5
+        "mode": "emergencyRTL",
+        "percentage": 15.0
     },
     "components": {
         "amber_beacon": false,
@@ -44,8 +44,12 @@
         "waitingforhelp": false
     },
     "search": {
-        "current_location_id": 0,
+        "current_location_id": 1,
         "destination_searched": false,
-        "total_locations": 0
+        "optimization_enabled": false,
+        "plan_locked": true,
+        "planned_route_distance_m": 6562106.352395228,
+        "planning_mode": "operator_defined",
+        "total_locations": 1
     }
 }

@@ -66,7 +66,7 @@ cd manar-search-rescue-drone/core
 
 mkdir build
 
-g++ apps/control.cpp system/shared.cpp system/flight.cpp system/components.cpp system/drone.cpp system/mission.cpp -I. -Ithird_party -o build/control.exe
+g++ apps/control.cpp system/shared.cpp system/flight.cpp system/components.cpp system/drone.cpp system/mission.cpp system/route_optimizer.cpp -I. -Ithird_party -o build/control.exe
 g++ apps/terminal.cpp -I. -Ithird_party -o build/terminal.exe
 g++ apps/setup.cpp -I. -Ithird_party -o build/setup.exe
 
@@ -100,6 +100,7 @@ start .\build\terminal.exe
 - [x] Mission reset while preserving physical aircraft state
 - [x] Explicit mission destination configuration
 - [x] Batch payload component control
+- [x] Ordered multi-location search planning & autonomous sequential area progression
 
 > Next steps:
 

@@ -21,6 +21,8 @@ private:
 
     bool destinationconfigured = false;
 
+    bool searchplanlocked = false;
+
     bool destinationsearched = false;
     int currentSearchLocation = 0;
     nlohmann::json searchlocations;
@@ -45,6 +47,10 @@ public:
     void printflightpath();
 
     bool getmissionstarted();
+
+    bool getsearchplanlocked();
+    void setsearchplanlockedON();
+    void setsearchplanlockedOFF();
 
     void setdestinationhomeON();
     void setdestinationhomeOFF();

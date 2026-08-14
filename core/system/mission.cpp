@@ -125,6 +125,18 @@ void mission::configurerescueestate() // MANUALLY SET BY THE OPERATOR (USED)
     }
 
 }
+bool mission::getsearchplanlocked()
+{
+    return searchplanlocked;
+}
+void mission::setsearchplanlockedON()
+{
+    searchplanlocked = true;
+}
+void mission::setsearchplanlockedOFF()
+{
+    searchplanlocked = false;
+}
 void mission::loadSearchLocations()
 {
     ifstream in("runtime/search_locations.json");
@@ -133,6 +145,10 @@ void mission::loadSearchLocations()
         try
         {
             in >> searchlocations;
+            if (searchlocations.contains("locked") && searchlocations["locked"].is_boolean())
+            {
+                searchplanlocked = searchlocations["locked"].get<bool>();
+            }
         }
         catch (...)
         {
@@ -153,6 +169,22 @@ void mission::setsearchlocations(const json& searchPlan)
 }
 void mission::startmission() // MANUALL LAUNCH (USED)
 {
+    loadSearchLocations();
+
+    if (searchplanlocked == false ||
+        !searchlocations.contains("locations") ||
+        !searchlocations["locations"].is_array() ||
+        searchlocations["locations"].empty())
+    {
+        logEvent(
+            "MISSION",
+            "WARN",
+            "Mission start rejected | search plan not locked or empty"
+        );
+
+        return;
+    }
+
     missionstarted = true;
 
     currentSearchLocation = 0;
@@ -163,18 +195,11 @@ void mission::startmission() // MANUALL LAUNCH (USED)
     moveeast = true;
     searchrow = 0;
 
-    loadSearchLocations();
+    double lat = searchlocations["locations"][0]["latitude"];
+    double lon = searchlocations["locations"][0]["longitude"];
 
-    if (searchlocations.contains("locations") &&
-        searchlocations["locations"].is_array() &&
-        !searchlocations["locations"].empty())
-    {
-        double lat = searchlocations["locations"][0]["latitude"];
-        double lon = searchlocations["locations"][0]["longitude"];
-
-        mydrone.mydroneflight.setdestination(lat, lon);
-        setdestinationconfiguredON();
-    }
+    mydrone.mydroneflight.setdestination(lat, lon);
+    setdestinationconfiguredON();
 
     missionstatusupdater();
     mydrone.mydroneflight.printdest();
@@ -182,10 +207,17 @@ void mission::startmission() // MANUALL LAUNCH (USED)
     runtime["destination"]["latitude"] = mydrone.mydroneflight.getdestlat();
     runtime["destination"]["longitude"] = mydrone.mydroneflight.getdestlong();
 
-    int totalLocs = (searchlocations.contains("locations") && searchlocations["locations"].is_array()) ? searchlocations["locations"].size() : 0;
-    runtime["search"]["current_location_id"] = (totalLocs > 0) ? 1 : 0;
+    int totalLocs = searchlocations["locations"].size();
+    runtime["search"]["plan_locked"] = searchplanlocked;
+    runtime["search"]["optimization_enabled"] = searchlocations.contains("optimization_enabled") ? searchlocations["optimization_enabled"].get<bool>() : false;
+    runtime["search"]["planning_mode"] = searchlocations.contains("planning_mode") ? searchlocations["planning_mode"].get<string>() : "none";
+    runtime["search"]["current_location_id"] = 1;
     runtime["search"]["total_locations"] = totalLocs;
     runtime["search"]["destination_searched"] = destinationsearched;
+    if (searchlocations.contains("total_route_distance_m"))
+    {
+        runtime["search"]["planned_route_distance_m"] = searchlocations["total_route_distance_m"];
+    }
 
     saveRuntime();
 }
@@ -325,14 +357,64 @@ void mission::setdestinationconfiguredON()
 }
 void mission::activateRTL()
 {
+    if (!mydrone.mydroneflight.getlaunched())
+    {
+        mydrone.mydroneflight.launch();
+    }
+    mydrone.mydroneflight.setmode(2);
+
     mydrone.comp.turnOffPayload();
     setdestinationhomeON();
+
+    rescueefound = false;
+    waitingforhelp = false;
+    runtime["mission"]["rescueefound"] = rescueefound;
+    runtime["mission"]["waitingforhelp"] = waitingforhelp;
+
     double X = mydrone.myhome.gethomelat();
     double Y = mydrone.myhome.gethomelon();
     mydrone.mydroneflight.setdestination(X, Y);
 
-    double currentspeed = mydrone.mydroneflight.getspeed();
+    json rtlPlan = json::object();
+    rtlPlan["locked"] = searchplanlocked;
+    rtlPlan["optimization_enabled"] = false;
+    rtlPlan["planning_mode"] = "rtl_home";
+    rtlPlan["origin"] = {
+        {"latitude", mydrone.getdronelat()},
+        {"longitude", mydrone.getdronelong()}
+    };
+    rtlPlan["home"] = {
+        {"latitude", X},
+        {"longitude", Y}
+    };
+
+    json locArray = json::array();
+    locArray.push_back({
+        {"id", 1},
+        {"input_id", 1},
+        {"latitude", X},
+        {"longitude", Y}
+    });
+    rtlPlan["locations"] = locArray;
+
     double distance = mydrone.getdistfromhome();
+    rtlPlan["total_route_distance_m"] = distance;
+
+    ofstream out("runtime/search_locations.json");
+    out << rtlPlan.dump(4);
+    out.close();
+
+    searchlocations = rtlPlan;
+    currentSearchLocation = 0;
+    destinationsearched = false;
+
+    runtime["search"]["total_locations"] = 1;
+    runtime["search"]["current_location_id"] = 1;
+    runtime["search"]["destination_searched"] = false;
+    runtime["search"]["planned_route_distance_m"] = distance;
+    saveRuntime();
+
+    double currentspeed = mydrone.mydroneflight.getspeed();
 
     double estimatedtime = 0;
     if (currentspeed > 0) {
@@ -342,7 +424,7 @@ void mission::activateRTL()
     logEvent(
         "MISSION",
         "INFO",
-        "Estimated arrival time: " + to_string(estimatedtime) + " seconds."
+        "RTL activated | Destinations reset to home station | Estimated arrival time: " + to_string(estimatedtime) + " seconds."
     );
 }
 void mission::checksearchlocation()
@@ -488,6 +570,7 @@ void mission::resetRuntime()
         rescueefound = false;
 
         // RESET SEARCH STATE
+        searchplanlocked = false;
         destinationsearched = false;
         currentSearchLocation = 0;
         destinationconfigured = false;
@@ -539,9 +622,13 @@ void mission::resetRuntime()
 
         // SEARCH PROGRESS - RESET
         runtime["search"] = {
+            {"plan_locked", false},
+            {"optimization_enabled", false},
+            {"planning_mode", "none"},
             {"current_location_id", 0},
             {"total_locations", 0},
-            {"destination_searched", false}
+            {"destination_searched", false},
+            {"planned_route_distance_m", 0.0}
         };
 
 

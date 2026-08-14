@@ -9,6 +9,7 @@
     
     #include "system/shared.hpp"
     #include "system/mission.hpp"
+    #include "system/route_optimizer.hpp"
     using namespace std;
 
 json commands;
@@ -115,9 +116,23 @@ void checkcommands(mission &mymission)
 
     if (command == "START_MISSION")
     {
-        mymission.startmission();
-
-        fout << "[" << getTimestamp() << "] COMMAND: START_MISSION executed" << endl;
+        if (!mymission.getsearchplanlocked())
+        {
+            fout << "[" << getTimestamp() << "] COMMAND: START_MISSION rejected (no search locations configured)" << endl;
+            logEvent("MISSION", "WARN", "Mission start rejected | no search locations configured");
+        }
+        else
+        {
+            mymission.startmission();
+            if (mymission.getmissionstarted())
+            {
+                fout << "[" << getTimestamp() << "] COMMAND: START_MISSION executed" << endl;
+            }
+            else
+            {
+                fout << "[" << getTimestamp() << "] COMMAND: START_MISSION rejected (invalid plan)" << endl;
+            }
+        }
     }
     else if (command == "RTL")
     {
@@ -139,30 +154,117 @@ void checkcommands(mission &mymission)
     }
     else if (command == "SET_SEARCH_LOCATIONS")
     {
-        json searchPlan = json::object();
-        json locArray = json::array();
-
-        int id = 1;
-        for (const auto& loc : commands["arguments"]["locations"])
+        if (mymission.getsearchplanlocked())
         {
-            locArray.push_back({
-                {"id", id++},
-                {"latitude", loc["latitude"]},
-                {"longitude", loc["longitude"]}
-            });
+            logEvent(
+                "MISSION",
+                "WARN",
+                "Search location update rejected | search plan is locked"
+            );
         }
+        else if (!commands["arguments"].contains("locations") ||
+                 !commands["arguments"]["locations"].is_array() ||
+                 commands["arguments"]["locations"].empty())
+        {
+            logEvent(
+                "MISSION",
+                "WARN",
+                "Search location update rejected | empty location list"
+            );
+        }
+        else
+        {
+            bool optimize = commands["arguments"].contains("optimize") ? commands["arguments"]["optimize"].get<bool>() : true;
 
-        searchPlan["locations"] = locArray;
+            std::vector<SearchLocation> inputLocations;
+            int inputIdCounter = 1;
+            for (const auto& loc : commands["arguments"]["locations"])
+            {
+                SearchLocation sl;
+                sl.input_id = inputIdCounter++;
+                sl.latitude = loc["latitude"];
+                sl.longitude = loc["longitude"];
+                inputLocations.push_back(sl);
+            }
 
-        ofstream out("runtime/search_locations.json");
-        out << searchPlan.dump(4);
-        out.close();
+            SearchLocation start;
+            start.latitude = mymission.mydrone.getdronelat();
+            start.longitude = mymission.mydrone.getdronelong();
 
-        mymission.setsearchlocations(searchPlan);
+            SearchLocation home;
+            home.latitude = mymission.mydrone.myhome.gethomelat();
+            home.longitude = mymission.mydrone.myhome.gethomelon();
 
-        fout << "[" << getTimestamp()
-             << "] COMMAND: SET_SEARCH_LOCATIONS executed ("
-             << locArray.size() << " locations)" << endl;
+            double totalDistanceMeters = 0.0;
+            std::vector<SearchLocation> finalLocations;
+
+            if (optimize)
+            {
+                OptimizedRoute route = optimizeRouteGreedy(start, inputLocations, home);
+                finalLocations = route.locations;
+                totalDistanceMeters = route.totalDistance;
+            }
+            else
+            {
+                finalLocations = inputLocations;
+                totalDistanceMeters = calculateRouteDistance(start, inputLocations, home);
+            }
+
+            json searchPlan = json::object();
+            searchPlan["locked"] = true;
+            searchPlan["optimization_enabled"] = optimize;
+            searchPlan["planning_mode"] = optimize ? "greedy_nearest_neighbor" : "operator_defined";
+            searchPlan["total_route_distance_m"] = totalDistanceMeters;
+            searchPlan["origin"] = {
+                {"latitude", start.latitude},
+                {"longitude", start.longitude}
+            };
+            searchPlan["home"] = {
+                {"latitude", home.latitude},
+                {"longitude", home.longitude}
+            };
+
+            json locArray = json::array();
+            int execId = 1;
+            for (const auto& loc : finalLocations)
+            {
+                locArray.push_back({
+                    {"id", execId++},
+                    {"input_id", loc.input_id},
+                    {"latitude", loc.latitude},
+                    {"longitude", loc.longitude}
+                });
+            }
+            searchPlan["locations"] = locArray;
+
+            ofstream out("runtime/search_locations.json");
+            out << searchPlan.dump(4);
+            out.close();
+
+            mymission.setsearchlocations(searchPlan);
+            mymission.setsearchplanlockedON();
+
+            runtime["search"]["plan_locked"] = true;
+            runtime["search"]["optimization_enabled"] = optimize;
+            runtime["search"]["planning_mode"] = optimize ? "greedy_nearest_neighbor" : "operator_defined";
+            runtime["search"]["current_location_id"] = 0;
+            runtime["search"]["total_locations"] = locArray.size();
+            runtime["search"]["destination_searched"] = false;
+            runtime["search"]["planned_route_distance_m"] = totalDistanceMeters;
+            saveRuntime();
+
+            string modeStr = optimize ? "optimized" : "operator-defined";
+            logEvent(
+                "MISSION",
+                "INFO",
+                "Search plan locked (" + modeStr + " | " + to_string(locArray.size()) +
+                " locations | total transit: " + to_string((int)totalDistanceMeters) + "m)"
+            );
+
+            fout << "[" << getTimestamp()
+                 << "] COMMAND: SET_SEARCH_LOCATIONS executed ("
+                 << locArray.size() << " locations, " << modeStr << ")" << endl;
+        }
     }
     else if (command == "LAUNCH_DRONE")
     {

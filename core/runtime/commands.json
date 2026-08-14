@@ -1,14 +1,4 @@
 {
-    "arguments": {
-        "components": [
-            "thermal_camera",
-            "rgb_camera",
-            "infrared_camera",
-            "fmcw_radar",
-            "microphone"
-        ],
-        "enabled": true
-    },
-    "command": "CHANGE_COMPONENTS",
+    "command": "STOP_FLIGHT",
     "id": 5
 }

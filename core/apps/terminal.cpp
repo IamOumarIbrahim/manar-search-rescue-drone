@@ -234,7 +234,7 @@ void sendcommand(string command, double lat, double lon)
 
     savecommands();
 }
-void sendcommand(string command, json locations)
+void sendcommand(string command, bool optimize, json locations)
 {
     commands.clear();
     commandID++;
@@ -242,6 +242,7 @@ void sendcommand(string command, json locations)
     commands["id"] = commandID;
     commands["command"] = command;
 
+    commands["arguments"]["optimize"] = optimize;
     commands["arguments"]["locations"] = locations;
 
     savecommands();
@@ -308,9 +309,9 @@ int main()
         }
         cout << "----------------------------------" << endl;
 
-        cout << "- 1. DISPLAY RUNTIME STATUS" << endl;
+        cout << "- 1. SET SEARCH LOCATIONS" << endl;
         cout << "- 2. START MISSION" << endl;
-        cout << "- 3. SET SEARCH LOCATIONS" << endl;
+        cout << "- 3. DISPLAY RUNTIME STATUS" << endl;
         cout << "- 4. LAUNCH DRONE" << endl;
         cout << "- 5. CONFIGURE FLIGHT OPTIONS" << endl;
         cout << "- 6. CONFIGURE COMPONENTS" << endl;
@@ -340,12 +341,12 @@ int main()
                     sendcommand("RTL");
                     cout << "RTL command sent." << endl;
                 }
-
+                
                 break;
             }
 
 
-            case 1:
+            case 3:
             {
                 readruntime();
 
@@ -357,6 +358,15 @@ int main()
             case 2:
             {
                 readruntime();
+
+                bool locked = runtime.contains("search") && runtime["search"].contains("plan_locked") && runtime["search"]["plan_locked"].get<bool>();
+                int totalLocs = (runtime.contains("search") && runtime["search"].contains("total_locations")) ? runtime["search"]["total_locations"].get<int>() : 0;
+
+                if (!locked || totalLocs == 0)
+                {
+                    cout << "Cannot start mission: No search locations configured." << endl;
+                    break;
+                }
 
                 if (runtime["mission"]["started"] == true)
                 {
@@ -386,11 +396,25 @@ int main()
 
                 break;
             }
-            case 3:
+            case 1:
             {
+                char optimizeChoice;
+                do
+                {
+                    cout << "Optimize search route for shortest travel distance? (Y/N): ";
+                    cin >> optimizeChoice;
+                } while (
+                    optimizeChoice != 'Y' &&
+                    optimizeChoice != 'y' &&
+                    optimizeChoice != 'N' &&
+                    optimizeChoice != 'n'
+                );
+
+                bool optimizeRoute = (optimizeChoice == 'Y' || optimizeChoice == 'y');
+
                 json locations = json::array();
 
-                cout << "Enter search locations:\n";
+                cout << "\nEnter search locations:\n";
                 cout << "Format: 25.336421, 55.344471 or DMS\n";
                 cout << "Enter F when finished.\n\n";
 
@@ -440,8 +464,15 @@ int main()
 
                 if (!locations.empty())
                 {
-                    sendcommand("SET_SEARCH_LOCATIONS", locations);
-                    cout << "Set search locations request sent (" << locations.size() << " locations)." << endl;
+                    sendcommand("SET_SEARCH_LOCATIONS", optimizeRoute, locations);
+                    if (optimizeRoute)
+                    {
+                        cout << "Search plan submitted for optimization and locking (" << locations.size() << " locations)." << endl;
+                    }
+                    else
+                    {
+                        cout << "Search plan submitted for locking with operator-defined order (" << locations.size() << " locations)." << endl;
+                    }
                 }
                 else
                 {
