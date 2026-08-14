@@ -18,3 +18,4 @@ std::string getTimestamp();
 void logEvent(std::string subsystem,
               std::string level,
               std::string message);
+              

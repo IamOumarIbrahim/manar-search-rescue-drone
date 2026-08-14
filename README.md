@@ -56,21 +56,28 @@
   <img src="assets/Videos/demo.gif" alt="MANAR Demo" width="900">
 </p>
 
-## Closed Design Decisions
+## Try It Yourself!
 
-| Area | Decision |
-| --- | --- |
-| **Architecture** | React + TypeScript GUI, JSON/WebSocket comms, C++ control core. |
-| **State authority** | C++ control core owns runtime state. |
-| **Mission model** | One active mission with operator-controlled launch, abort, landing and RTH. |
-| **Operator interface** | Live flight, mission, detection and imaging data. |
-| **Multisensor design** | Imaging, FMCW radar, passive RF and audio sensing. |
-| **Passive RF** | Attention trigger only; not independent rescuee confirmation. |
-| **Human supervision** | Autonomy handles detection; critical control remains supervised. |
-| **Future ML** | Python + PyTorch for perception and sensor fusion. |
+Clone MANAR, build the prototype, then launch the control core and operator terminal:
+
+```powershell
+git clone https://github.com/IamOumarIbrahim/manar-search-rescue-drone.git
+cd manar-search-rescue-drone/core
+
+mkdir build
+
+g++ apps/control.cpp system/shared.cpp system/flight.cpp system/components.cpp system/drone.cpp system/mission.cpp -I. -Ithird_party -o build/control.exe
+g++ apps/terminal.cpp -I. -Ithird_party -o build/terminal.exe
+g++ apps/setup.cpp -I. -Ithird_party -o build/setup.exe
+
+.\build\setup.exe
+start .\build\control.exe
+start .\build\terminal.exe
+```
 
 ## Project Milestones
 
+> Established:
 
 - [x] Initial ideation & system specification
 - [x] GitHub repository setup & project licensing
@@ -80,6 +87,12 @@
 - [x] Deterministic C++ control system design
 - [x] JSON runtime configuration & `setup.exe` utility
 - [x] Decouple terminal interface from control logic
+- [x] Allow for multiple initial configuration slots
+- [x] Split classes into header and cpp files
+- [x] Improve logging
+- [x] Restructure directories
+
+> Next steps:
 
 - [ ] Define MANAR V1 engineering & mission requirements
 - [ ] Research and select candidate hardware components
@@ -102,73 +115,6 @@
 - [ ] Complete LaTeX report, presentation & technical documentation
 - [ ] Produce final demonstration & portfolio material
 - [ ] Final public launch & repository maintenance
-
-
-## Project Structure
-
-```text
-manar-search-rescue-drone/
-│
-├── core/                                  # Deterministic C++ control system
-│   ├── control.cpp                        # Control process & runtime authority
-│   ├── terminal.cpp                       # Operator CLI & command interface
-│   ├── setup.cpp                          # Persistent configuration utility
-│   ├── runtime_template.json              # Reference runtime-state schema
-│   └── nlohmann/
-│       └── json.hpp                       # JSON library
-│
-├── assets/
-│   ├── Docs/                              # Engineering & development documentation
-│   │   ├── Decisions/
-│   │   │   ├── BEHAVIOR_DECISIONS.md
-│   │   │   └── MANAR_V1_PASSIVE_RF_DECISIONS.md
-│   │   ├── development/
-│   │   │   └── M1_M4_IMPLEMENTATION_MAP.md
-│   │   └── engineering/
-│   │       ├── MANAR_V1_ENGINEERING_RESEARCH_V3.md
-│   │       └── MANAR_V1_REQUIREMENTS.md
-│   ├── Images/
-│   │   └── Branding/
-│   ├── Videos/
-│   └── Temp/
-│
-├── references/                            # Research & technical references
-│   ├── README.md
-│   ├── REFERENCES.md
-│   ├── acoustics/
-│   ├── cfar/
-│   ├── fmcw_radar/
-│   ├── multisensor_fusion/
-│   ├── navigation/
-│   ├── passive_rf/
-│   ├── rgb_low_light_vision/
-│   ├── target_detection/
-│   ├── thermal_vision/
-│   └── uav_sar/
-│
-├── manar-landing-page/                    # Public project website
-│   ├── index.html
-│   ├── script.js
-│   ├── styles.css
-│   └── assets/
-│
-├── webdashboardv1/                        # Prototype dashboard v1.0
-│   ├── dashboard.html
-│   ├── script.js
-│   └── style.css
-│
-├── .github/
-│   └── workflows/
-│       └── deploy-pages.yml
-│
-├── MANAR.md                               # MANAR behavioral/system decisions
-├── payload.md                             # Payload definition
-├── ROADMAP.md                             # Development roadmap
-├── README.md
-├── SECURITY.md
-├── LICENSE.md
-└── .gitignore
-```
 
 
 ## Ownership and License
