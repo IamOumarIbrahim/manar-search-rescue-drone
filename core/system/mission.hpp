@@ -45,6 +45,8 @@ public:
 
     void checksearchlocation();
 
+    void activateRTL();
+
     void lawnmower();
 
     void setwaitingforhelpOFF();

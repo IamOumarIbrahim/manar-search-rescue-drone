@@ -49,26 +49,6 @@ bool readcommands()
         return false;
     }
 }
-void activateRTL(drone &mydrone, home &myhome, mission &mymission)
-{
-    mydrone.comp.turnOffPayload();
-    mymission.setdestinationhomeON();
-    double X = myhome.gethomelat();
-    double Y = myhome.gethomelon();
-    mydrone.mydroneflight.setdestination(X,Y);
-
-    double currentspeed = mydrone.mydroneflight.getspeed();
-    double distance = mydrone.getdistfromhome();
-
-    double estimatedtime = 0;
-        if (currentspeed > 0){
-             estimatedtime = distance / currentspeed;
-        }
-        fout<<"Estimated arrival time: "<<estimatedtime<<" seconds."<<endl;
-    
-        fout<<"----------------------------------"<<endl;
-
-}
 void changeComponent(components &comp, string component, bool enabled)
 {
     int state = enabled ? 1 : 2;
@@ -141,7 +121,7 @@ void checkcommands(mission &mymission)
     }
     else if (command == "RTL")
     {
-        activateRTL(mymission.mydrone,mymission.mydrone.myhome,mymission);
+        mymission.activateRTL();
         fout << "[" << getTimestamp() << "] COMMAND: RTL executed" << endl;
     }
     else if (command == "CHANGE_DEST")

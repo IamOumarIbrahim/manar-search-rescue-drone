@@ -6,8 +6,6 @@
 
 using namespace std;
 
-void activateRTL(drone &mydrone, home &myhome, mission &mymission);
-
 void mission::missionstatusupdater() // CONTROL UNIT
 {
     if (missionstarted == false)
@@ -141,7 +139,7 @@ void mission::batterysystem()
             );
 
             mydrone.transmitinfo();
-            activateRTL(mydrone, mydrone.myhome, *this);
+            activateRTL();
         }
     }
 
@@ -225,6 +223,28 @@ void mission::setdestinationhomeOFF()
     isdestinationhome = false;
     runtime["mission"]["isdestinationhome"] = isdestinationhome;
     saveRuntime();
+}
+void mission::activateRTL()
+{
+    mydrone.comp.turnOffPayload();
+    setdestinationhomeON();
+    double X = mydrone.myhome.gethomelat();
+    double Y = mydrone.myhome.gethomelon();
+    mydrone.mydroneflight.setdestination(X, Y);
+
+    double currentspeed = mydrone.mydroneflight.getspeed();
+    double distance = mydrone.getdistfromhome();
+
+    double estimatedtime = 0;
+    if (currentspeed > 0) {
+        estimatedtime = distance / currentspeed;
+    }
+
+    logEvent(
+        "MISSION",
+        "INFO",
+        "Estimated arrival time: " + to_string(estimatedtime) + " seconds."
+    );
 }
 void mission::checksearchlocation()
 {
