@@ -10,10 +10,10 @@
         "infrared_camera": false,
         "microphone": false,
         "passive_rf": false,
-        "rgb_camera": false,
+        "rgb_camera": true,
         "smoke_marker": false,
         "speaker": false,
-        "thermal_camera": false,
+        "thermal_camera": true,
         "white_strobe": false
     },
     "control": {
