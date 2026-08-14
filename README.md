@@ -60,7 +60,7 @@
 
 Clone MANAR, build the prototype, then launch the control core and operator terminal:
 
-```powershell
+```pwsh
 git clone https://github.com/IamOumarIbrahim/manar-search-rescue-drone.git
 cd manar-search-rescue-drone/core
 
@@ -138,6 +138,6 @@ Selected files, components, or directories may be released under separate
 open-source licenses. Any such license applies only to the material explicitly
 identified as being covered by it.
 
-See the See the [LICENSE](LICENSE.md) and any applicable file or directory license notices for
+See the [LICENSE](LICENSE.md) and any applicable file or directory license notices for
 the complete terms.
 
