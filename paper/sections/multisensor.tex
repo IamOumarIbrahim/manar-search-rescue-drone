@@ -51,6 +51,40 @@ To ensure continuous imaging across diurnal cycles, optical sensors transition d
 \end{cases}
 \end{equation}
 
+\subsection{Visual Candidate Detection \& Empirical Benchmarking}
+MANAR implements a dedicated, high-throughput visual human candidate detector encapsulated in the C++ module \texttt{Yolo11nDetector} using \textbf{ONNX Runtime} (CPU/CUDA EP) and \textbf{OpenCV}. The module receives raw video frames and outputs instantaneous bounding-box candidate detections without embedding tracking heuristics inside the detector itself:
+\begin{equation}
+\mathbf{y}_k = \{\mathcal{B}_i, c_i, \text{class}_i\}_{i=1}^{M}, \quad c_i \ge c_{\mathrm{th}} = 0.50
+\end{equation}
+
+\begin{table}[t]
+\caption{Empirical 26-Video SAR Benchmark (YOLO11n vs.\ D-FINE-N)}
+\label{tab:cv_benchmark_summary}
+\centering
+\scriptsize
+\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}}lrrr@{}}
+\toprule
+\textbf{Evaluation Metric} & \textbf{D-FINE-N} & \textbf{YOLO11n} & \textbf{Delta} \\
+\midrule
+Mean Latency (CPU) & $50.5\text{ ms}$ & $29.2\text{ ms}$ & \textbf{-42.2\%} \\
+Throughput (CPU FPS) & $19.8\text{ FPS}$ & $34.2\text{ FPS}$ & \textbf{+72.7\%} \\
+Model Parameters & $\approx 4.0\text{ M}$ & $\approx 2.6\text{ M}$ & -35.0\% \\
+Model File Size & $14.55\text{ MB}$ & $10.22\text{ MB}$ & -29.8\% \\
+Clutter False Positives & $0\text{ FP}$ & $0\text{ FP}$ & Parity \\
+Concealed Target Detections & $0\text{ hits}$ & $44\text{ hits}$ & Superior \\
+Multi-Rescuee Detections & $531\text{ hits}$ & $858\text{ hits}$ & \textbf{+61.6\%} \\
+\bottomrule
+\end{tabular*}
+\end{table}
+
+\textbf{Empirical SAR Dataset Evaluation:} Both YOLO11n and the reference baseline D-FINE-N were evaluated across all 26 scenario evaluation videos in MANAR's training dataset spanning RGB, low-light IR, and thermal streams under identical parameters ($640 \times 640$ input, $c_{\mathrm{th}} = 0.50$, $\text{IoU}_{\mathrm{NMS}} = 0.45$). As summarized in Table~\ref{tab:cv_benchmark_summary}:
+\begin{enumerate}
+    \item \textbf{Inference Speed:} YOLO11n achieved a $29.2\text{ ms}$ mean latency per frame, running $\approx 1.73\times$ faster than D-FINE-N ($50.5\text{ ms}$), providing real-time $34\text{ FPS}$ throughput on embedded CPU cores.
+    \item \textbf{Negative Rejection:} Both architectures produced zero false positives across all clean-negative and environmental clutter scenes in all three spectral bands.
+    \item \textbf{Concealed \& Multiple Targets:} YOLO11n demonstrated superior detection density on partially concealed subjects ($44$ vs.\ $0$ detections) and multi-rescuee formations ($858$ vs.\ $531$ detections).
+\end{enumerate}
+Consequently, YOLO11n is locked as MANAR's V1 visual detector, while D-FINE-N is retained as the reference evaluation baseline.
+
 \subsection{Acoustic Subsystem and Call-and-Listen Cycle}
 The acoustic payload incorporates a 4--8 digital MEMS microphone array mounted on vibration-isolated damping brackets. Rotor harmonics are actively suppressed using real-time motor RPM references across the $200\text{ Hz}\text{--}8\text{ kHz}$ processing band.
 

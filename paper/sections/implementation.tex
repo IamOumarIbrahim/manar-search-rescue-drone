@@ -3,17 +3,24 @@
 The prototype implementation of MANAR has been built and functionally verified under Windows 11 using GCC 16.1.0 (\texttt{g++}).
 
 \subsection{Build System}
-Core applications are compiled into standalone executables:
-\begin{lstlisting}[language=bash, caption={MANAR compilation commands.}]
-g++ apps/control.cpp system/shared.cpp
+Core control and perception components are compiled into standalone executables and shared/static libraries:
+\begin{lstlisting}[language=bash, caption={MANAR C++ core and computer vision compilation commands.}]
+# 1. C++ Control Core Applications
+cd core && mkdir build
+g++ -std=c++17 apps/control.cpp system/shared.cpp
   system/flight.cpp system/components.cpp
   system/drone.cpp system/mission.cpp
   system/route_optimizer.cpp
   -I. -Ithird_party -o build/control.exe
-g++ apps/terminal.cpp -I. -Ithird_party
+g++ -std=c++17 apps/terminal.cpp -I. -Ithird_party
   -o build/terminal.exe
-g++ apps/setup.cpp -I. -Ithird_party
+g++ -std=c++17 apps/setup.cpp -I. -Ithird_party
   -o build/setup.exe
+
+# 2. Computer Vision Pipeline (CMake / ONNX Runtime)
+cd ../computer_vision && mkdir build && cd build
+cmake .. -DONNXRUNTIME_ROOT_DIR=<path_to_ort>
+cmake --build . --config Release
 \end{lstlisting}
 
 \subsection{Functional Verification Results}
@@ -23,6 +30,7 @@ Functional testing confirmed the following behaviors:
     \item \textbf{Search Plan Locking:} Submitting locations locked \texttt{search\_locations.json}. Subsequent \texttt{SET\_SEARCH\_LOCATIONS} commands were rejected with \texttt{WARN} logs until the prototype reset path cleared the lock.
     \item \textbf{Start Rejection on Empty Plan:} Attempting \texttt{START\_MISSION} without search locations resulted in immediate rejection by both terminal and control core.
     \item \textbf{RTL Precedence:} Triggering \texttt{RTL} during multi-sector search cleared search waypoints, reset \texttt{search\_locations.json} to a single home destination, launched the aircraft if grounded, and initiated return navigation using the configured flight mode.
+    \item \textbf{Visual Inference Verification:} The C++ \texttt{yolo11n\_video} and \texttt{yolo11n\_live} applications were verified against synthetic and empirical SAR video feeds, confirming correct candidate bounding-box extraction, confidence thresholding, letterbox rescaling, and ONNX Runtime session persistence without memory leakage.
 \end{enumerate}
 
 \subsection{Prototype Test Configuration}

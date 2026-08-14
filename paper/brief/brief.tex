@@ -8,10 +8,20 @@
 \usepackage{booktabs}
 \usepackage{pifont}
 \usepackage{tabularx}
+\usepackage{enumitem}
 \usepackage{tikz}
 \usetikzlibrary{shapes.geometric, arrows, positioning, fit, backgrounds}
 \usepackage{microtype}
 \usepackage[hidelinks]{hyperref}
+
+% Float and list spacing optimization for strict 2-page format
+\setlength{\textfloatsep}{4pt plus 1.0pt minus 2.0pt}
+\setlength{\floatsep}{4pt plus 1.0pt minus 2.0pt}
+\setlength{\intextsep}{4pt plus 1.0pt minus 2.0pt}
+\setlength{\dbltextfloatsep}{4pt plus 1.0pt minus 2.0pt}
+\setlength{\abovecaptionskip}{2pt}
+\setlength{\belowcaptionskip}{2pt}
+\setlist{nosep,leftmargin=*}
 
 % Tier status colors
 \definecolor{tagimpl}{RGB}{20, 120, 20}
@@ -62,12 +72,14 @@ To establish rigorous engineering grounding, MANAR categorizes all capabilities 
 \textbf{Route Planner} & $O(n^2)$ Greedy NN + Override & \textcolor{tagimpl}{\textbf{\ding{51} Implemented}} \\
 \textbf{Search Logic} & Lawnmower Grid Sequencing & \textcolor{tagimpl}{\textbf{\ding{51} Implemented}} \\
 \textbf{Safety System} & Battery Failsafe Hierarchy & \textcolor{tagimpl}{\textbf{\ding{51} Implemented}} \\
+\textbf{Visual CV} & YOLO11n + ORT C++ ($29.2\text{ ms}$) & \textcolor{tagimpl}{\textbf{\ding{51} Implemented}} \\
+\textbf{CV Baseline} & D-FINE-N 26-Video Benchmark & \textcolor{tagimpl}{\textbf{\ding{51} Implemented}} \\
 \midrule
 \textbf{Operator GUI} & React / TypeScript Web UI & \textcolor{tagsel}{\textbf{\ding{115} Selected}} \\
 \textbf{IPC Protocol} & WebSocket + JSON Transport & \textcolor{tagsel}{\textbf{\ding{115} Selected}} \\
 \textbf{State Store} & Authoritative C++ Core Sync & \textcolor{tagsel}{\textbf{\ding{115} Selected}} \\
 \midrule
-\textbf{Perception} & PyTorch Vision / Radar / Audio & \textcolor{tagplan}{\textbf{\ding{109} Planned}} \\
+\textbf{Candidate Track} & Kalman / ByteTrack MOT & \textcolor{tagplan}{\textbf{\ding{109} Planned}} \\
 \textbf{Fusion Engine} & Mamba State Space Model & \textcolor{tagplan}{\textbf{\ding{109} Planned}} \\
 \textbf{Autopilot} & PX4 SITL / HITL Simulation & \textcolor{tagplan}{\textbf{\ding{109} Planned}} \\
 \textbf{Airframe} & Physical Flight Deployment & \textcolor{tagplan}{\textbf{\ding{109} Planned}} \\
@@ -91,7 +103,11 @@ To establish rigorous engineering grounding, MANAR categorizes all capabilities 
         {\scriptsize Route Optimization $\cdot$ Components}
     };
     \node [subblock, below left=0.8cm and -0.2cm of core] (autopilot) {\textbf{Autopilot / Dynamics}\\{\scriptsize Flight Loop \textit{(Planned)}}};
-    \node [subblock, below right=0.8cm and -0.2cm of core] (perception) {\textbf{Perception / ML}\\{\scriptsize Python/PyTorch \textit{(Planned)}}};
+    \node [subblock, below right=0.8cm and -0.2cm of core] (perception) {
+        \textbf{Perception / CV}\\
+        {\scriptsize YOLO11n ORT \textit{(V1 Impl.)}}\\[1pt]
+        {\tiny Fusion Engine \textit{(Planned)}}
+    };
     \node [block, below=2.4cm of core] (sensors) {\textbf{Physical Payload Hardware \textit{(Planned / Candidate)}}\\{\scriptsize RGB $\cdot$ Thermal $\cdot$ IR $\cdot$ Radar $\cdot$ RF $\cdot$ Audio}};
 
     \draw [->, line width=0.7pt] (gui.south west) ++(0.8,0) -- ++(0,-0.6) node[left, font=\scriptsize, pos=0.5] {Commands};
@@ -135,17 +151,17 @@ The functional prototype (\texttt{core/}) executes deterministic navigation, rou
 \centering
 \resizebox{\columnwidth}{!}{%
 \begin{tikzpicture}[font=\sffamily\scriptsize]
-    \draw[thick, fill=blue!5, rounded corners=2pt] (0,0) rectangle (2.8,2.3);
-    \node[anchor=south west, font=\tiny\bfseries] at (0,2.3) {Lawnmower Grid ($W \times H$)};
-    \draw[->, thick, red!80!black] (0.2,0.2) -- (2.6,0.2) -- (2.6,0.75) -- (0.2,0.75) -- (0.2,1.35) -- (2.6,1.35) -- (2.6,1.95) -- (0.2,1.95);
-    \draw[<->, dashed, gray] (2.9,0.2) -- (2.9,0.75) node[midway, right, font=\tiny] {$\Delta y$};
+    \draw[thick, fill=blue!5, rounded corners=2pt] (0,0) rectangle (2.5,1.9);
+    \node[anchor=south west, font=\tiny\bfseries] at (0,1.9) {Lawnmower Grid ($W \times H$)};
+    \draw[->, thick, red!80!black] (0.2,0.15) -- (2.3,0.15) -- (2.3,0.65) -- (0.2,0.65) -- (0.2,1.15) -- (2.3,1.15) -- (2.3,1.65) -- (0.2,1.65);
+    \draw[<->, dashed, gray] (2.6,0.15) -- (2.6,0.65) node[midway, right, font=\tiny] {$\Delta y$};
     
-    \begin{scope}[xshift=4.0cm, yshift=0.1cm]
-        \node[draw, circle, fill=green!30, inner sep=1.5pt] (p0) at (0,0.2) {$p_0$};
-        \node[draw, circle, fill=blue!20, inner sep=1.5pt] (L1) at (0.7,1.8) {$L_1$};
-        \node[draw, circle, fill=blue!20, inner sep=1.5pt] (L2) at (2.3,1.4) {$L_2$};
-        \node[draw, circle, fill=blue!20, inner sep=1.5pt] (L3) at (1.8,0.3) {$L_3$};
-        \node[draw, rectangle, fill=red!20, inner sep=2pt] (home) at (3.2,0.1) {$h$};
+    \begin{scope}[xshift=3.6cm, yshift=0.0cm]
+        \node[draw, circle, fill=green!30, inner sep=1.2pt] (p0) at (0,0.2) {$p_0$};
+        \node[draw, circle, fill=blue!20, inner sep=1.2pt] (L1) at (0.6,1.5) {$L_1$};
+        \node[draw, circle, fill=blue!20, inner sep=1.2pt] (L2) at (2.0,1.2) {$L_2$};
+        \node[draw, circle, fill=blue!20, inner sep=1.2pt] (L3) at (1.6,0.25) {$L_3$};
+        \node[draw, rectangle, fill=red!20, inner sep=1.8pt] (home) at (2.8,0.1) {$h$};
         
         \draw[->, thick, blue!70!black] (p0) -- node[left, font=\tiny] {$d_1$} (L1);
         \draw[->, thick, blue!70!black] (L1) -- node[above, font=\tiny] {$d_2$} (L2);
@@ -158,7 +174,7 @@ The functional prototype (\texttt{core/}) executes deterministic navigation, rou
 \label{fig:lawnmower_and_route}
 \end{figure}
 
-\section{Multisensor Payload \& Planned Perception [Tier 3]}
+\section{Multisensor Payload \& Perception [Tier 1 \& 3]}
 MANAR incorporates eleven controllable payload categories for victim search, identification, and signaling (Fig.~\ref{fig:payload_capability_mapping}):
 
 \begin{figure}[t]
@@ -166,26 +182,26 @@ MANAR incorporates eleven controllable payload categories for victim search, ide
 \resizebox{\columnwidth}{!}{%
 \begin{tikzpicture}[
     auto, >=stealth', font=\sffamily\scriptsize,
-    role/.style={draw=blue!60!black, fill=blue!8, rounded corners=2pt, text width=3.8cm, minimum height=0.44cm, align=left, inner sep=3pt, line width=0.5pt},
-    modality/.style={draw=green!60!black, fill=green!8, rounded corners=2pt, text width=3.7cm, minimum height=0.44cm, align=left, inner sep=3pt, line width=0.5pt},
-    guide/.style={draw=orange!80!black, fill=orange!8, rounded corners=2pt, text width=3.7cm, minimum height=0.44cm, align=left, inner sep=3pt, line width=0.5pt},
-    link/.style={->, line width=0.7pt, gray!70!black}
+    role/.style={draw=blue!60!black, fill=blue!8, rounded corners=2pt, text width=3.8cm, minimum height=0.36cm, align=left, inner sep=2pt, line width=0.5pt},
+    modality/.style={draw=green!60!black, fill=green!8, rounded corners=2pt, text width=3.7cm, minimum height=0.36cm, align=left, inner sep=2pt, line width=0.5pt},
+    guide/.style={draw=orange!80!black, fill=orange!8, rounded corners=2pt, text width=3.7cm, minimum height=0.36cm, align=left, inner sep=2pt, line width=0.5pt},
+    link/.style={->, line width=0.6pt, gray!70!black}
 ]
-    \node[role] (r1) at (0, 3.3) {\textbf{Human visual detection}};
-    \node[role] (r2) at (0, 2.75) {\textbf{Heat detection}};
-    \node[role] (r3) at (0, 2.2) {\textbf{Night confirmation}};
-    \node[role] (r4) at (0, 1.65) {\textbf{Motion / breathing detection}};
-    \node[role] (r5) at (0, 1.1) {\textbf{Voice response}};
-    \node[role] (r6) at (0, 0.55) {\textbf{Electronic-device detection}};
-    \node[role] (r7) at (0, 0.0) {\textbf{Rescuee guidance}};
+    \node[role] (r1) at (0, 2.52) {\textbf{Human visual detection}};
+    \node[role] (r2) at (0, 2.10) {\textbf{Heat detection}};
+    \node[role] (r3) at (0, 1.68) {\textbf{Night confirmation}};
+    \node[role] (r4) at (0, 1.26) {\textbf{Motion / breathing detection}};
+    \node[role] (r5) at (0, 0.84) {\textbf{Voice response}};
+    \node[role] (r6) at (0, 0.42) {\textbf{Electronic-device detection}};
+    \node[role] (r7) at (0, 0.00) {\textbf{Rescuee guidance}};
 
-    \node[modality] (m1) at (4.8, 3.3) {Day RGB Camera};
-    \node[modality] (m2) at (4.8, 2.75) {Thermal LWIR Sensor};
-    \node[modality] (m3) at (4.8, 2.2) {Low-Light / IR Camera};
-    \node[modality] (m4) at (4.8, 1.65) {24 GHz FMCW Radar};
-    \node[modality] (m5) at (4.8, 1.1) {Speaker + Microphone Array};
-    \node[modality] (m6) at (4.8, 0.55) {Passive RF SDR ($\le 6\text{ GHz}$)};
-    \node[guide]    (m7) at (4.8, 0.0) {Beacon / Strobe / Light / Smoke};
+    \node[modality] (m1) at (4.8, 2.52) {Day RGB Camera};
+    \node[modality] (m2) at (4.8, 2.10) {Thermal LWIR Sensor};
+    \node[modality] (m3) at (4.8, 1.68) {Low-Light / IR Camera};
+    \node[modality] (m4) at (4.8, 1.26) {24 GHz FMCW Radar};
+    \node[modality] (m5) at (4.8, 0.84) {Speaker + Microphone Array};
+    \node[modality] (m6) at (4.8, 0.42) {Passive RF SDR ($\le 6\text{ GHz}$)};
+    \node[guide]    (m7) at (4.8, 0.00) {Beacon / Strobe / Light / Smoke};
 
     \draw[link] (r1.east) -- (m1.west);
     \draw[link] (r2.east) -- (m2.west);
@@ -201,6 +217,7 @@ MANAR incorporates eleven controllable payload categories for victim search, ide
 \end{figure}
 
 \begin{itemize}
+    \item \textbf{Visual Candidate Detection (YOLO11n):} Evaluated across 26 SAR video datasets. Operates at $29.2\text{ ms}$ average latency ($\approx 34\text{ FPS}$ on CPU, $1.73\times$ faster than $50.5\text{ ms}$ D-FINE-N baseline) with $100\%$ clean negative rejection ($0\text{ FP}$) and superior concealed-target sensitivity.
     \item \textbf{Diurnal Optical Switching:} Sensor modes transition dynamically with hysteresis based on ambient light: $>150\text{ lx}$ (RGB+LWIR), $50\text{--}150\text{ lx}$ (RGB+IR+LWIR), and $<50\text{ lx}$ (IR+LWIR).
     \item \textbf{Acoustic Call-and-Listen Cycle:} $35.4\text{ s}$ sequence ($8.4\text{ s}$ SOS buzzer, $12.0\text{ s}$ Arabic/English voice prompt, $15.0\text{ s}$ silent listening with motor-RPM harmonic cancellation).
     \item \textbf{Passive RF Two-Level Attention ($\le 6\text{ GHz}$):} Level 1 CFAR threshold ($N_{\mathrm{CFAR+}} \ge 3$) triggers Level 2 temporal trend tracking ($\Delta S_k$) in \texttt{Inspect} mode (HOT / STABLE / COLD).
@@ -237,12 +254,12 @@ Diagnostics / Logs / Config & 84 B & Pull & Pull \\
 \end{table}
 
 \section{Verification and System Roadmap}
-\textbf{Functional Verification:} Testing confirmed deterministic C++ control flow, search plan locking, start rejection on empty plans, and Return-to-Launch (RTL) preemption under Windows 11 / GCC.
+\textbf{Functional Verification:} Testing confirmed deterministic C++ control flow, search plan locking, start rejection on empty plans, Return-to-Launch (RTL) preemption, and real-time ONNX Runtime visual candidate detection under Windows 11 / GCC.
 
 \textbf{System Roadmap:}
 \begin{enumerate}
     \item \emph{Interface Layer:} Complete React/TypeScript WebSocket GCS.
-    \item \emph{Perception Training:} Train CNN/Mamba models on SAR datasets.
+    \item \emph{Perception Tracking \& Fusion:} Implement Kalman / ByteTrack tracking and Mamba temporal fusion.
     \item \emph{Autopilot Integration:} PX4 SITL simulation followed by HITL physical airframe flight testing.
 \end{enumerate}
 

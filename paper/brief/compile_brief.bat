@@ -5,6 +5,8 @@ echo ==========================================
 echo        MANAR 2-PAGE BRIEF COMPILER
 echo ==========================================
 
+cd /d "%~dp0"
+
 set "MIKTEX_BIN=C:\Users\omarb\AppData\Local\Programs\MiKTeX\miktex\bin\x64"
 if exist "%MIKTEX_BIN%\pdflatex.exe" (
     set "PATH=%MIKTEX_BIN%;%PATH%"
@@ -17,6 +19,9 @@ if errorlevel 1 goto error
 echo Pass 2: Finalizing cross-references...
 pdflatex -interaction=nonstopmode brief.tex
 if errorlevel 1 goto error
+
+echo Cleaning intermediate build artifacts...
+del /f /q brief.aux brief.log brief.out >nul 2>&1
 
 echo.
 echo ==========================================

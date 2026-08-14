@@ -75,6 +75,7 @@ env/
 *.ckpt
 *.onnx
 *.safetensors
+!computer_vision/models/*.onnx
 
 ml/checkpoints/*
 !ml/checkpoints/README.md

@@ -46,8 +46,21 @@
 | **Heliograph mirrors** | Passive daylight signaling         |
 | **Smoke marker**       | Location/wind marking              |
 
+## Repository Map
+
+| Directory / File | Description |
+| :--- | :--- |
+| [`core/`](core/) | Deterministic C++ control system |
+| [`computer_vision/`](computer_vision/) | Visual detection, models, and benchmarks |
+| [`paper/`](paper/) | LaTeX technical paper |
+| [`manar-landing-page/`](manar-landing-page/) | Project website |
+| [`assets/`](assets/) | Branding, images, and demonstration media |
+| [`DEVLOG.md`](DEVLOG.md) | Development decisions & progress |
+| [`SECURITY.md`](SECURITY.md) | Security policy |
+| [`LICENSE.md`](LICENSE.md) | Licensing terms |
+
 ## Current Status
-> **Current phase:** Developping Computer Vision.
+> **Current phase:** Hardware component sizing, React Operator GUI, and downstream multisensor fusion interface.
 
 <p align="center">
   <img src="assets/Videos/demo2.gif" alt="MANAR Demo 2" width="900">
@@ -104,30 +117,23 @@ start .\build\terminal.exe
 - [x] Explicit mission destination configuration
 - [x] Batch payload component control
 - [x] Ordered multi-location search planning & autonomous sequential area progression
-- [x] Added initial computer vision model 
-> Next steps:
+- [x] Integrated YOLO11n visual detector & benchmarked against D-FINE-N baseline
 
-- [ ] Define MANAR V1 engineering & mission requirements
-- [ ] Research and select candidate hardware components
-- [ ] Establish payload mass, power & interface budgets
-- [ ] Validate aircraft physical feasibility & propulsion requirements
-- [ ] Freeze MANAR V1 simulated aircraft configuration
-- [ ] Define component, power & communication architecture
-- [ ] Build deterministic C++ component subsystem
-- [ ] Expand deterministic flight & mission simulation engine
-- [ ] Model aircraft flight dynamics & simulated sensor behavior
+> Next steps (Roadmap):
+
+- [ ] Ground hardware specs (payload mass, power draw, dimensions) in real components
+- [ ] Calculate propulsion thrust-to-weight and battery capacity for 1-hour active search budget
 - [ ] Create dimensionally grounded 3D drone model in Blender
-- [ ] Develop TypeScript / React Operator GUI
+- [ ] Expand deterministic flight dynamics & simulated sensor physics engine
+- [ ] Build TypeScript / React Operator GUI and connect via WebSocket
 - [ ] Integrate TypeScript GUI with C++ Control Core
-- [ ] Develop Python / PyTorch perception pipeline
-- [ ] Develop multisensor detection & fusion logic
-- [ ] Integrate Python ML pipeline with C++ Control Core & GUI
-- [ ] Train, evaluate & validate perception models
-- [ ] Perform end-to-end simulated mission testing
-- [ ] TBD
+- [ ] Design Python / PyTorch multisensor fusion module interfacing with C++ core
+- [ ] Implement candidate tracking, Kalman filtering & spatial GPS projection
+- [ ] Implement multisensor detection & fusion logic (YOLO11n + FMCW radar + RF anomalies + audio)
+- [ ] Perform end-to-end simulated mission testing & validation
 - [ ] Complete LaTeX report, presentation & technical documentation
 - [ ] Produce final demonstration & portfolio material
-- [ ] Final public launch & repository maintenance
+- [ ] Final public launch & repository release
 
 
 ## Ownership and License

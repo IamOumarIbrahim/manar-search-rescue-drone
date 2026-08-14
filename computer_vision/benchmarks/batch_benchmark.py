@@ -1,7 +1,7 @@
 """
 MANAR Computer Vision - Batch Benchmark Runner
 Processes all videos in Training videos/ through both D-FINE-N and YOLO11n,
-writing annotated results into temp/dfine/ and temp/yollo11n/.
+writing annotated results into temp/dfine/ and temp/yolo11n/.
 """
 
 import os
@@ -22,7 +22,7 @@ YOLO_MODEL_PATH = os.path.join(CV_ROOT, "models", "yolo11n.onnx")
 
 TEMP_DIR = os.path.join(CV_ROOT, "temp")
 TEMP_DFINE_DIR = os.path.join(TEMP_DIR, "dfine")
-TEMP_YOLO_DIR = os.path.join(TEMP_DIR, "yollo11n")
+TEMP_YOLO_DIR = os.path.join(TEMP_DIR, "yolo11n")
 
 INPUT_SIZE = 640
 CONFIDENCE_THRESHOLD = 0.50
@@ -367,7 +367,7 @@ def main():
         })
 
         print(f"    -> D-FINE-N: {frames_d} frames | Latency: {lat_d:.1f} ms | Detections: {det_d} | Output: temp/dfine/{flat_name}")
-        print(f"    -> YOLO11N : {frames_y} frames | Latency: {lat_y:.1f} ms | Detections: {det_y} | Output: temp/yollo11n/{flat_name}")
+        print(f"    -> YOLO11N : {frames_y} frames | Latency: {lat_y:.1f} ms | Detections: {det_y} | Output: temp/yolo11n/{flat_name}")
 
     print("\n" + "=" * 80)
     print("                    BATCH BENCHMARK SUMMARY REPORT                     ")

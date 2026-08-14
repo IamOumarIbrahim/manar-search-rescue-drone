@@ -2,11 +2,11 @@
 
 MANAR is implemented as a modular C++ system structured into standalone applications and decoupled domain subsystems.
 
-\subsection{C++ Core Domain Modules}
-Table~\ref{tab:software_modules} summarizes the architectural responsibilities of the core C++ source modules.
+\subsection{C++ Core \& Perception Domain Modules}
+Table~\ref{tab:software_modules} summarizes the architectural responsibilities of the core C++ source modules across control and perception subsystems.
 
 \begin{table}[t]
-\caption{MANAR C++ Core Module Architecture}
+\caption{MANAR C++ Module Architecture}
 \label{tab:software_modules}
 \centering
 \footnotesize
@@ -21,17 +21,23 @@ Table~\ref{tab:software_modules} summarizes the architectural responsibilities o
 \texttt{mission.cpp} & Core & Lawnmower sweep progression, search plan locking, RTL preemption. \\
 \texttt{drone.cpp} & Core & Geodetic kinematics, distance-to-home, discrete battery simulation. \\
 \texttt{flight.cpp} & Core & Velocity/altitude clamps, flight modes (\texttt{Quick}, \texttt{Active}, \texttt{Inspect}, \texttt{Hover}). \\
-\texttt{route\_opt.cpp} & Core & Haversine geodetics, $O(n^2)$ greedy nearest-neighbor solver. \\
+\texttt{route\_optimizer.cpp} & Core & Haversine geodetics, $O(n^2)$ greedy nearest-neighbor solver. \\
 \texttt{components.cpp} & Core & State control for 11 controllable payload categories. \\
-\texttt{shared.cpp} & Core & Timestamped structured plain-text logging to \texttt{runtime/logs.txt}. \\
+\texttt{shared.cpp} & Core & Timestamped structured plain-text event logging. \\
+\midrule
+\texttt{yolo11n\_detector.cpp} & CV & Reusable YOLO11n ONNX Runtime inference wrapper, letterbox preprocessing, NMS. \\
+\texttt{yolo11n\_video.cpp} & CV App & Video file evaluation harness with annotated frame output. \\
+\texttt{yolo11n\_live.cpp} & CV App & Live camera / RTSP stream detection test application. \\
+\texttt{dfine\_video.cpp} & CV App & D-FINE-N reference baseline video evaluation harness. \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \subsection{Separation of Software Layers}
-MANAR enforces architectural separation across three distinct operational layers:
+MANAR enforces architectural separation across decoupled operational layers:
 \begin{itemize}
-    \item \textbf{C++ Control Core (\texttt{control.exe}):} Operational prototype. Executes deterministic control, kinematic safety clamps, and route planning.
-    \item \textbf{Operator Interface (React/TypeScript):} Selected GUI. Communicates asynchronously via WebSocket + JSON IPC protocol.
-    \item \textbf{Perception Pipeline (Python/PyTorch):} Planned ML perception models and multisensor evidence fusion.
+    \item \textbf{C++ Control Core (\texttt{core/}):} Executes deterministic mission state machine, kinematic flight bounds, and greedy route optimization.
+    \item \textbf{Visual Perception Library (\texttt{computer\_vision/}):} High-performance ONNX Runtime C++ detector module producing instantaneous candidate detections.
+    \item \textbf{Operator Interface (React/TypeScript):} Selected web-based operator terminal communicating via WebSocket + JSON IPC protocol.
+    \item \textbf{Temporal Fusion Engine (Mamba SSM):} Planned multi-modal evidence association and candidate alert escalation filter.
 \end{itemize}

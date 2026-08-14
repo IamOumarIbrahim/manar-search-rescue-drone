@@ -45,16 +45,12 @@ computer_vision/
 │   └── results.md             # Complete empirical benchmark records
 │
 ├── tests/
-│   ├── test_pipeline.py       # Quick Python verification harness
-│   └── sample_test.mp4        # Synthetic sensor verification video
+│   └── test_pipeline.py       # Quick Python verification harness
 │
-├── scripts/
-│   └── run_test.bat           # Quick test runner script
-│
-├── output/                    # Annotated test runs
-├── temp/                      # Batch evaluation output repositories
-│   ├── dfine/                 # D-FINE-N batch run outputs (26 videos)
-│   └── yollo11n/              # YOLO11n batch run outputs (26 videos)
+├── output/
+│   └── .gitkeep               # Generated test run directory
+├── temp/
+│   └── .gitkeep               # Generated evaluation artifacts directory
 │
 ├── CMakeLists.txt             # CMake build configuration for library & test targets
 └── README.md                  # Subsystem guide and model specifications
@@ -64,7 +60,7 @@ computer_vision/
 
 ## Integration Module: `Yolo11nDetector`
 
-The detector is encapsulated in [`include/yolo11n_detector.hpp`](file:///c:/Dev/repos/Public%20repos/manar-search-rescue-drone/computer_vision/include/yolo11n_detector.hpp) and [`src/yolo11n_detector.cpp`](file:///c:/Dev/repos/Public%20repos/manar-search-rescue-drone/computer_vision/src/yolo11n_detector.cpp). It has a narrow responsibility: receiving an external `cv::Mat` frame and returning a list of `PersonDetection` structs.
+The detector is encapsulated in [`include/yolo11n_detector.hpp`](include/yolo11n_detector.hpp) and [`src/yolo11n_detector.cpp`](src/yolo11n_detector.cpp). It has a narrow responsibility: receiving an external `cv::Mat` frame and returning a list of `PersonDetection` structs.
 
 ### Data Structure
 ```cpp
@@ -87,7 +83,7 @@ if (!detector.isLoaded()) {
 }
 
 // 2. Pass any incoming frame from camera or sensor pipeline
-cv::Mat frame = ...; 
+cv::Mat frame = ...;
 double inferMs = 0.0;
 std::vector<PersonDetection> candidates = detector.detect(frame, &inferMs);
 

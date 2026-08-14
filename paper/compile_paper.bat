@@ -46,6 +46,9 @@ if not exist main.pdf (
     exit /b 1
 )
 
+echo Cleaning intermediate build artifacts...
+del /f /q main.aux main.bbl main.blg main.log main.out >nul 2>&1
+
 echo.
 echo ==========================================
 echo       PAPER BUILD SUCCESSFUL
