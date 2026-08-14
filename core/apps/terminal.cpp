@@ -11,6 +11,7 @@
     #include <cstdio>
     #include <sstream>
     #include <cctype>
+    #include <vector>
     #include <nlohmann/json.hpp>
 
 using namespace std;
@@ -94,6 +95,59 @@ bool parseCoordinates(string input, double &lat, double &lon)
 
     return true;
 }
+
+bool parseComponentSelection(string input, vector<int>& selected)
+{
+    stringstream ss(input);
+    string token;
+
+    bool alreadySelected[12] = {false};
+
+    while (getline(ss, token, ','))
+    {
+        try
+        {
+            size_t dash = token.find('-');
+
+            if (dash != string::npos)
+            {
+                int start = stoi(token.substr(0, dash));
+                int end = stoi(token.substr(dash + 1));
+
+                if (start < 1 || end > 11 || start > end)
+                    return false;
+
+                for (int i = start; i <= end; i++)
+                {
+                    if (!alreadySelected[i])
+                    {
+                        selected.push_back(i);
+                        alreadySelected[i] = true;
+                    }
+                }
+            }
+            else
+            {
+                int option = stoi(token);
+
+                if (option < 1 || option > 11)
+                    return false;
+
+                if (!alreadySelected[option])
+                {
+                    selected.push_back(option);
+                    alreadySelected[option] = true;
+                }
+            }
+        }
+        catch (...)
+        {
+            return false;
+        }
+    }
+
+    return !selected.empty();
+}
 void loadlastcommandid() // DONT TOUCH
 {
     ifstream in("runtime/commands.json");
@@ -135,6 +189,23 @@ void sendcommand(string command, string component, bool enabled)
     commands["command"] = command;
 
     commands["arguments"]["component"] = component;
+    commands["arguments"]["enabled"] = enabled;
+
+    savecommands();
+}
+void sendcommand(
+    string command,
+    vector<string> components,
+    bool enabled
+)
+{
+    commands.clear();
+    commandID++;
+
+    commands["id"] = commandID;
+    commands["command"] = command;
+
+    commands["arguments"]["components"] = components;
     commands["arguments"]["enabled"] = enabled;
 
     savecommands();
@@ -396,218 +467,81 @@ int main()
             }
             case 6:
             {
-                int User_Option = -1;
+                string input;
                 int User_Option2 = -1;
 
-                cout << "Select a payload option:\n"
-                    << "1. Thermal\n"
-                    << "2. RGB\n"
-                    << "3. Infrared\n"
-                    << "4. FMCW\n"
-                    << "5. Speaker\n"
-                    << "6. Mic\n"
-                    << "7. RF\n"
-                    << "8. Beacon\n"
-                    << "9. Strobe\n"
-                    << "10. Spotlight\n"
-                    << "11. Smoke\n\n"
-                    << "Select an option (1-11): ";
+                vector<int> selected;
+                vector<string> selectedComponents;
 
-                cin >> User_Option;
+                vector<string> componentNames = {
+                    "",
+                    "thermal_camera",
+                    "rgb_camera",
+                    "infrared_camera",
+                    "fmcw_radar",
+                    "speaker",
+                    "microphone",
+                    "passive_rf",
+                    "amber_beacon",
+                    "white_strobe",
+                    "downward_spotlight",
+                    "smoke_marker"
+                };
+
+                cout << "Select payload components:\n"
+                     << "1. Thermal\n"
+                     << "2. RGB\n"
+                     << "3. Infrared\n"
+                     << "4. FMCW\n"
+                     << "5. Speaker\n"
+                     << "6. Mic\n"
+                     << "7. RF\n"
+                     << "8. Beacon\n"
+                     << "9. Strobe\n"
+                     << "10. Spotlight\n"
+                     << "11. Smoke\n\n"
+                     << "Examples: 1-5,9 or 1,3,7\n"
+                     << "Select components: ";
+
+                cin >> input;
+
+                if (!parseComponentSelection(input, selected))
+                {
+                    cout << "Invalid component selection." << endl;
+                    break;
+                }
 
                 cout << "----------------------------------" << endl;
 
-                cout << "Select an option:\n"
-                    << "1. TURN IT ON\n"
-                    << "2. TURN IT OFF\n"
-                    << "Select an option (1-2): ";
+                cout << "Select state:\n"
+                     << "1. TURN ON\n"
+                     << "2. TURN OFF\n"
+                     << "Select an option (1-2): ";
 
                 cin >> User_Option2;
 
-                switch (User_Option)
+                if (User_Option2 != 1 && User_Option2 != 2)
                 {
-                    case 1:
-                    {
-                        if (User_Option2 == 1)
-                        {
-                            sendcommand("CHANGE_COMPONENT", "thermal_camera", true);
-                            cout<<"Change thermal camera request sent."<<endl;
-                        }
-                        else if (User_Option2 == 2)
-                        {
-                            sendcommand("CHANGE_COMPONENT", "thermal_camera", false);
-                            cout<<"Change thermal camera request sent."<<endl;
-                        }
-
-                        break;
-                    }
-
-                    case 2:
-                    {
-                        if (User_Option2 == 1)
-                        {
-                            sendcommand("CHANGE_COMPONENT", "rgb_camera", true);
-                            cout<<"Change RGB camera request sent."<<endl;
-                        }
-                        else if (User_Option2 == 2)
-                        {
-                            sendcommand("CHANGE_COMPONENT", "rgb_camera", false);
-                            cout<<"Change RGB camera request sent."<<endl;
-                        }
-
-                        break;
-                    }
-
-                    case 3:
-                    {
-                        if (User_Option2 == 1)
-                        {
-                            sendcommand("CHANGE_COMPONENT", "infrared_camera", true);
-                            cout<<"Change infrared camera request sent."<<endl;
-                        }
-                        else if (User_Option2 == 2)
-                        {
-                            sendcommand("CHANGE_COMPONENT", "infrared_camera", false);
-                            cout<<"Change infrared camera request sent."<<endl;
-                        }
-
-                        break;
-                    }
-
-                    case 4:
-                    {
-                        if (User_Option2 == 1)
-                        {
-                            sendcommand("CHANGE_COMPONENT", "fmcw_radar", true);
-                            cout<<"Change FMCW radar request sent."<<endl;
-                        }
-                        else if (User_Option2 == 2)
-                        {
-                            sendcommand("CHANGE_COMPONENT", "fmcw_radar", false);
-                            cout<<"Change FMCW radar request sent."<<endl;
-                        }
-
-                        break;
-                    }
-
-                    case 5:
-                    {
-                        if (User_Option2 == 1)
-                        {
-                            sendcommand("CHANGE_COMPONENT", "speaker", true);
-                            cout<<"Change speaker request sent."<<endl;
-                        }
-                        else if (User_Option2 == 2)
-                        {
-                            sendcommand("CHANGE_COMPONENT", "speaker", false);
-                            cout<<"Change speaker request sent."<<endl;
-                        }
-
-                        break;
-                    }
-
-                    case 6:
-                    {
-                        if (User_Option2 == 1)
-                        {
-                            sendcommand("CHANGE_COMPONENT", "microphone", true);
-                            cout<<"Change microphone request sent."<<endl;
-                        }
-                        else if (User_Option2 == 2)
-                        {
-                            sendcommand("CHANGE_COMPONENT", "microphone", false);
-                            cout<<"Change microphone request sent."<<endl;
-                        }
-
-                        break;
-                    }
-
-                    case 7:
-                    {
-                        if (User_Option2 == 1)
-                        {
-                            sendcommand("CHANGE_COMPONENT", "passive_rf", true);
-                            cout<<"Change passive RF request sent."<<endl;
-                        }
-                        else if (User_Option2 == 2)
-                        {
-                            sendcommand("CHANGE_COMPONENT", "passive_rf", false);
-                            cout<<"Change passive RF request sent."<<endl;
-                        }
-
-                        break;
-                    }
-
-                    case 8:
-                    {
-                        if (User_Option2 == 1)
-                        {
-                            sendcommand("CHANGE_COMPONENT", "amber_beacon", true);
-                            cout<<"Change amber beacon request sent."<<endl;
-                        }
-                        else if (User_Option2 == 2)
-                        {
-                            sendcommand("CHANGE_COMPONENT", "amber_beacon", false);
-                            cout<<"Change amber beacon request sent."<<endl;
-                        }
-
-                        break;
-                    }
-
-                    case 9:
-                    {
-                        if (User_Option2 == 1)
-                        {
-                            sendcommand("CHANGE_COMPONENT", "white_strobe", true);
-                            cout<<"Change white strobe request sent."<<endl;
-                        }
-                        else if (User_Option2 == 2)
-                        {
-                            sendcommand("CHANGE_COMPONENT", "white_strobe", false);
-                            cout<<"Change white strobe request sent."<<endl;
-                        }
-
-                        break;
-                    }
-
-                    case 10:
-                    {
-                        if (User_Option2 == 1)
-                        {
-                            sendcommand("CHANGE_COMPONENT", "downward_spotlight", true);
-                            cout<<"Change downward spotlight request sent."<<endl;
-                        }
-                        else if (User_Option2 == 2)
-                        {
-                            sendcommand("CHANGE_COMPONENT", "downward_spotlight", false);
-                            cout<<"Change downward spotlight request sent."<<endl;
-                        }
-
-                        break;
-                    }
-
-                    case 11:
-                    {
-                        if (User_Option2 == 1)
-                        {
-                            sendcommand("CHANGE_COMPONENT", "smoke_marker", true);
-                            cout<<"Change smoke marker request sent."<<endl;
-                        }
-                        else if (User_Option2 == 2)
-                        {
-                            sendcommand("CHANGE_COMPONENT", "smoke_marker", false);
-                            cout<<"Change smoke marker request sent."<<endl;
-                        }
-
-                        break;
-                    }
-
-                    default:
-                    {
-                        cout << "Invalid payload option." << endl;
-                        break;
-                    }
+                    cout << "Invalid component state." << endl;
+                    break;
                 }
+
+                for (int option : selected)
+                {
+                    selectedComponents.push_back(
+                        componentNames[option]
+                    );
+                }
+
+                bool enabled = (User_Option2 == 1);
+
+                sendcommand(
+                    "CHANGE_COMPONENTS",
+                    selectedComponents,
+                    enabled
+                );
+
+                cout << "Component change request sent." << endl;
 
                 break;
             }

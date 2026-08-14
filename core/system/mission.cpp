@@ -224,6 +224,10 @@ void mission::setdestinationhomeOFF()
     runtime["mission"]["isdestinationhome"] = isdestinationhome;
     saveRuntime();
 }
+void mission::setdestinationconfiguredON()
+{
+    destinationconfigured = true;
+}
 void mission::activateRTL()
 {
     mydrone.comp.turnOffPayload();
@@ -252,6 +256,9 @@ void mission::checksearchlocation()
         return;
 
     if (isdestinationhome == true)
+        return;
+
+    if (destinationconfigured == false)
         return;
 
     // Do NOT start lawnmower operation if destination is home.
@@ -401,6 +408,7 @@ void mission::resetRuntime()
         searchrow = 0;
 
         // RESET DESTINATION
+        destinationconfigured = false;
         // Current aircraft position becomes the neutral destination.
         mydrone.mydroneflight.setdestination(
             mydrone.getdronelat(),

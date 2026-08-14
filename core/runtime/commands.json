@@ -1,4 +1,14 @@
 {
-    "command": "RESET_MISSION",
-    "id": 9
+    "arguments": {
+        "components": [
+            "thermal_camera",
+            "rgb_camera",
+            "infrared_camera",
+            "fmcw_radar",
+            "microphone"
+        ],
+        "enabled": true
+    },
+    "command": "CHANGE_COMPONENTS",
+    "id": 5
 }

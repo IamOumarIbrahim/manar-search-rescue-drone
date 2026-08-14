@@ -130,6 +130,7 @@ void checkcommands(mission &mymission)
         double lon = commands["arguments"]["longitude"];
 
         mymission.setdestinationhomeOFF();
+        mymission.setdestinationconfiguredON();
 
         mymission.mydrone.mydroneflight.setdestination(lat,lon);
 
@@ -171,6 +172,24 @@ void checkcommands(mission &mymission)
         fout << "[" << getTimestamp()
             << "] COMMAND: CHANGE_COMPONENT executed"
             << endl;
+    }
+    else if (command == "CHANGE_COMPONENTS")
+    {
+        bool enabled = commands["arguments"]["enabled"];
+
+        for (const auto& component :
+             commands["arguments"]["components"])
+        {
+            changeComponent(
+                mymission.mydrone.comp,
+                component.get<string>(),
+                enabled
+            );
+        }
+
+        fout << "[" << getTimestamp()
+             << "] COMMAND: CHANGE_COMPONENTS executed"
+             << endl;
     }
     else if (command == "RESCUEE_FOUND")
     {

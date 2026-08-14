@@ -19,6 +19,8 @@ private:
 
     bool waitingforhelp = false;
 
+    bool destinationconfigured = false;
+
     bool lawnmowerstarted = false;
     bool horizontalmove = true;
     bool moveeast = true;
@@ -42,6 +44,7 @@ public:
 
     void setdestinationhomeON();
     void setdestinationhomeOFF();
+    void setdestinationconfiguredON();
 
     void checksearchlocation();
 
