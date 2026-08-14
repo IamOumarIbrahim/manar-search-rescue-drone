@@ -137,6 +137,33 @@ void checkcommands(mission &mymission)
         fout << "[" << getTimestamp()
             << "] COMMAND: CHANGE_DEST executed" << endl;
     }
+    else if (command == "SET_SEARCH_LOCATIONS")
+    {
+        json searchPlan = json::object();
+        json locArray = json::array();
+
+        int id = 1;
+        for (const auto& loc : commands["arguments"]["locations"])
+        {
+            locArray.push_back({
+                {"id", id++},
+                {"latitude", loc["latitude"]},
+                {"longitude", loc["longitude"]}
+            });
+        }
+
+        searchPlan["locations"] = locArray;
+
+        ofstream out("runtime/search_locations.json");
+        out << searchPlan.dump(4);
+        out.close();
+
+        mymission.setsearchlocations(searchPlan);
+
+        fout << "[" << getTimestamp()
+             << "] COMMAND: SET_SEARCH_LOCATIONS executed ("
+             << locArray.size() << " locations)" << endl;
+    }
     else if (command == "LAUNCH_DRONE")
     {
         mymission.setwaitingforhelpOFF();

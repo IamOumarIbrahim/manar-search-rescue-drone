@@ -42,5 +42,10 @@
         "rescueefound": false,
         "started": true,
         "waitingforhelp": false
+    },
+    "search": {
+        "current_location_id": 0,
+        "destination_searched": false,
+        "total_locations": 0
     }
 }

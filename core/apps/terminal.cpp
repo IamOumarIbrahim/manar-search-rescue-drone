@@ -234,6 +234,18 @@ void sendcommand(string command, double lat, double lon)
 
     savecommands();
 }
+void sendcommand(string command, json locations)
+{
+    commands.clear();
+    commandID++;
+
+    commands["id"] = commandID;
+    commands["command"] = command;
+
+    commands["arguments"]["locations"] = locations;
+
+    savecommands();
+}
 void sendcommand(string command) // DONT TOUCH
 {
     commands.clear();
@@ -298,7 +310,7 @@ int main()
 
         cout << "- 1. DISPLAY RUNTIME STATUS" << endl;
         cout << "- 2. START MISSION" << endl;
-        cout << "- 3. SET DESTINATION" << endl;
+        cout << "- 3. SET SEARCH LOCATIONS" << endl;
         cout << "- 4. LAUNCH DRONE" << endl;
         cout << "- 5. CONFIGURE FLIGHT OPTIONS" << endl;
         cout << "- 6. CONFIGURE COMPONENTS" << endl;
@@ -376,25 +388,64 @@ int main()
             }
             case 3:
             {
-                string coordinateinput;
-                double destlatset, destlongset;
+                json locations = json::array();
 
-                cout << "Enter destination coordinates:\n";
-                cout << "Examples:\n";
-                cout << "25.336421, 55.344471\n";
-                cout << "25°13'05.40\"N 55°27'09.67\"E\n";
+                cout << "Enter search locations:\n";
+                cout << "Format: 25.336421, 55.344471 or DMS\n";
+                cout << "Enter F when finished.\n\n";
 
-                getline(cin >> ws, coordinateinput);
-
-                if (parseCoordinates(coordinateinput, destlatset, destlongset))
+                while (true)
                 {
-                    sendcommand("CHANGE_DEST",destlatset,destlongset);
-                    cout<<"Change destination request sent."<<endl;
+                    string input;
 
+                    cout << "Enter search location "
+                         << locations.size() + 1
+                         << " or F to finish: ";
+
+                    getline(cin >> ws, input);
+
+                    if (input == "F" || input == "f")
+                        break;
+
+                    double lat, lon;
+
+                    if (!parseCoordinates(input, lat, lon))
+                    {
+                        cout << "Invalid coordinates." << endl;
+                        continue;
+                    }
+
+                    // Duplicate check
+                    bool duplicate = false;
+                    for (const auto& loc : locations)
+                    {
+                        if (loc["latitude"] == lat && loc["longitude"] == lon)
+                        {
+                            duplicate = true;
+                            break;
+                        }
+                    }
+
+                    if (duplicate)
+                    {
+                        cout << "Duplicate location ignored." << endl;
+                        continue;
+                    }
+
+                    locations.push_back({
+                        {"latitude", lat},
+                        {"longitude", lon}
+                    });
+                }
+
+                if (!locations.empty())
+                {
+                    sendcommand("SET_SEARCH_LOCATIONS", locations);
+                    cout << "Set search locations request sent (" << locations.size() << " locations)." << endl;
                 }
                 else
                 {
-                    cout << "Invalid coordinate format." << endl;
+                    cout << "No search locations added." << endl;
                 }
 
                 break;

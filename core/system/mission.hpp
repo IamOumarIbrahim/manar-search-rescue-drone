@@ -21,6 +21,10 @@ private:
 
     bool destinationconfigured = false;
 
+    bool destinationsearched = false;
+    int currentSearchLocation = 0;
+    nlohmann::json searchlocations;
+
     bool lawnmowerstarted = false;
     bool horizontalmove = true;
     bool moveeast = true;
@@ -45,6 +49,9 @@ public:
     void setdestinationhomeON();
     void setdestinationhomeOFF();
     void setdestinationconfiguredON();
+
+    void loadSearchLocations();
+    void setsearchlocations(const nlohmann::json& searchPlan);
 
     void checksearchlocation();
 

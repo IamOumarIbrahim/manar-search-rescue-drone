@@ -84,13 +84,22 @@ start .\build\terminal.exe
 - [x] Brand visual identity & asset guidelines
 - [x] Scope definition & operational constraint hardening
 - [x] Prototype web dashboard (v1.0) & landing page
-- [x] Deterministic C++ control system design
-- [x] JSON runtime configuration & `setup.exe` utility
-- [x] Decouple terminal interface from control logic
-- [x] Allow for multiple initial configuration slots
-- [x] Split classes into header and cpp files
-- [x] Improve logging
-- [x] Restructure directories
+- [x] Deterministic C++ control-system prototype
+- [x] JSON command, runtime & configuration system
+- [x] `setup.exe` configuration utility
+- [x] Decoupled operator terminal from control logic
+- [x] Modularized control, mission, flight, drone & component systems
+- [x] Split system classes into header & implementation files
+- [x] Restructured core directories
+- [x] Structured subsystem & event logging
+- [x] Multiple named configuration slots with active-slot selection
+- [x] Configurable flight modes & payload state control
+- [x] Battery monitoring, battery-save behavior & emergency RTL/landing logic
+- [x] Mission-owned RTL behavior & return-to-home navigation
+- [x] Deterministic search-area lawnmower navigation
+- [x] Mission reset while preserving physical aircraft state
+- [x] Explicit mission destination configuration
+- [x] Batch payload component control
 
 > Next steps:
 

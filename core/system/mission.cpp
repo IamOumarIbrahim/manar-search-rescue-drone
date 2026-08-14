@@ -72,6 +72,47 @@ void mission::missionstatusupdater() // CONTROL UNIT
     runtime["mission"]["isdestinationhome"] = isdestinationhome;
     saveRuntime();
 
+    if (destinationsearched == true)
+    {
+        currentSearchLocation++;
+
+        if (searchlocations.contains("locations") &&
+            searchlocations["locations"].is_array() &&
+            currentSearchLocation < searchlocations["locations"].size())
+        {
+            destinationsearched = false;
+
+            lawnmowerstarted = false;
+            horizontalmove = true;
+            moveeast = true;
+            searchrow = 0;
+
+            double lat = searchlocations["locations"][currentSearchLocation]["latitude"];
+            double lon = searchlocations["locations"][currentSearchLocation]["longitude"];
+
+            mydrone.mydroneflight.setdestination(lat, lon);
+
+            runtime["destination"]["latitude"] = lat;
+            runtime["destination"]["longitude"] = lon;
+
+            runtime["search"]["current_location_id"] = currentSearchLocation + 1;
+            runtime["search"]["destination_searched"] = false;
+
+            saveRuntime();
+
+            logEvent(
+                "MISSION",
+                "INFO",
+                "Moving to search location " + to_string(currentSearchLocation + 1)
+            );
+
+            return;
+        }
+
+        activateRTL();
+        return;
+    }
+
     checksearchlocation();
 }
 void mission::configurerescueestate() // MANUALLY SET BY THE OPERATOR (USED)
@@ -84,14 +125,68 @@ void mission::configurerescueestate() // MANUALLY SET BY THE OPERATOR (USED)
     }
 
 }
+void mission::loadSearchLocations()
+{
+    ifstream in("runtime/search_locations.json");
+    if (in.is_open())
+    {
+        try
+        {
+            in >> searchlocations;
+        }
+        catch (...)
+        {
+            searchlocations = json::object();
+            searchlocations["locations"] = json::array();
+        }
+        in.close();
+    }
+    else
+    {
+        searchlocations = json::object();
+        searchlocations["locations"] = json::array();
+    }
+}
+void mission::setsearchlocations(const json& searchPlan)
+{
+    searchlocations = searchPlan;
+}
 void mission::startmission() // MANUALL LAUNCH (USED)
 {
     missionstarted = true;
+
+    currentSearchLocation = 0;
+    destinationsearched = false;
+
+    lawnmowerstarted = false;
+    horizontalmove = true;
+    moveeast = true;
+    searchrow = 0;
+
+    loadSearchLocations();
+
+    if (searchlocations.contains("locations") &&
+        searchlocations["locations"].is_array() &&
+        !searchlocations["locations"].empty())
+    {
+        double lat = searchlocations["locations"][0]["latitude"];
+        double lon = searchlocations["locations"][0]["longitude"];
+
+        mydrone.mydroneflight.setdestination(lat, lon);
+        setdestinationconfiguredON();
+    }
+
     missionstatusupdater();
     mydrone.mydroneflight.printdest();
     runtime["mission"]["started"] = missionstarted; 
     runtime["destination"]["latitude"] = mydrone.mydroneflight.getdestlat();
     runtime["destination"]["longitude"] = mydrone.mydroneflight.getdestlong();
+
+    int totalLocs = (searchlocations.contains("locations") && searchlocations["locations"].is_array()) ? searchlocations["locations"].size() : 0;
+    runtime["search"]["current_location_id"] = (totalLocs > 0) ? 1 : 0;
+    runtime["search"]["total_locations"] = totalLocs;
+    runtime["search"]["destination_searched"] = destinationsearched;
+
     saveRuntime();
 }
 void mission::batterysystem()
@@ -330,24 +425,15 @@ void mission::lawnmower()
         // ENTIRE SEARCH AREA HAS BEEN COMPLETED
         if (searchrow >= maxrows)
         {
-            isdestinationhome = true;
-            enroute = false;
+            destinationsearched = true;
 
-            runtime["mission"]["isdestinationhome"] = isdestinationhome;
-            runtime["mission"]["enroute"] = enroute;
+            runtime["search"]["destination_searched"] = destinationsearched;
             saveRuntime();
-
-            double X, Y;
-
-            X = mydrone.myhome.gethomelat();
-            Y = mydrone.myhome.gethomelon();
-
-            mydrone.mydroneflight.setdestination(X, Y);
 
             logEvent(
                 "MISSION",
                 "INFO",
-                "Lawnmower search completed | returning to base"
+                "Search location " + to_string(currentSearchLocation + 1) + " completed"
             );
 
             return;
@@ -402,13 +488,23 @@ void mission::resetRuntime()
         rescueefound = false;
 
         // RESET SEARCH STATE
+        destinationsearched = false;
+        currentSearchLocation = 0;
+        destinationconfigured = false;
+
         lawnmowerstarted = false;
         horizontalmove = true;
         moveeast = true;
         searchrow = 0;
 
+        searchlocations = json::object();
+        searchlocations["locations"] = json::array();
+
+        ofstream searchOut("runtime/search_locations.json", ios::trunc);
+        searchOut << searchlocations.dump(4);
+        searchOut.close();
+
         // RESET DESTINATION
-        destinationconfigured = false;
         // Current aircraft position becomes the neutral destination.
         mydrone.mydroneflight.setdestination(
             mydrone.getdronelat(),
@@ -439,6 +535,13 @@ void mission::resetRuntime()
             {"rescueefound", rescueefound},
             {"last_saved_latitude", 0},
             {"last_saved_longitude", 0}
+        };
+
+        // SEARCH PROGRESS - RESET
+        runtime["search"] = {
+            {"current_location_id", 0},
+            {"total_locations", 0},
+            {"destination_searched", false}
         };
 
 
