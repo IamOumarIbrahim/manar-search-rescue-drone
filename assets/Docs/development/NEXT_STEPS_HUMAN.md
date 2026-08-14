@@ -14,15 +14,7 @@
     - RTL only defines the destination location
 
 > [x] Fixed at: 13/08
- 
----
 
-- change rescuees:
-    - allow for more than one rescuee
-    - allow different states for different rescuees
-    - allow the operator to set a list of locations to be searched. save them as a list of locations
-    - allow operator to set different statuses to different rescuees.
-> [ ] Fixed at: TBD
 ---
 - speed:
     - remove manual speed alteration.
@@ -59,6 +51,17 @@
     - mission start doesn't need the drone to be launched
     - configuring the components and destination and others doesn't need the drone to be launched
 > [ ] Fixed at: TBD
+
+- search locations:
+    - allow the operator to set multiple locations to be searched
+    - save the locations as an ordered list
+    - allow the control system to move through the locations sequentially
+> [ ] Fixed at: TBD
 ---
 # Laid off til later
     - calculate time until CRITICAL through current power usage statistics
+    - multi-rescuee support:
+        - allow for more than one rescuee
+        - allow different states for different rescuees
+        - allow operator to set different statuses to different rescuees
+> [ ] V2

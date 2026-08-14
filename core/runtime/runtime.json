@@ -1,0 +1,46 @@
+{
+    "battery": {
+        "mode": "normal",
+        "percentage": 100.0
+    },
+    "components": {
+        "amber_beacon": false,
+        "downward_spotlight": false,
+        "fmcw_radar": false,
+        "infrared_camera": false,
+        "microphone": false,
+        "passive_rf": false,
+        "rgb_camera": false,
+        "smoke_marker": false,
+        "speaker": false,
+        "thermal_camera": false,
+        "white_strobe": false
+    },
+    "control": {
+        "last_processed_command": 0
+    },
+    "destination": {
+        "latitude": 25.276987,
+        "longitude": 55.296249
+    },
+    "drone": {
+        "latitude": 0.0,
+        "longitude": 0.0
+    },
+    "flight": {
+        "altitude": 0.0,
+        "launched": false,
+        "mode": "Stall",
+        "speed": 0.0
+    },
+    "mission": {
+        "enroute": false,
+        "finished": false,
+        "isdestinationhome": false,
+        "last_saved_latitude": 0,
+        "last_saved_longitude": 0,
+        "rescueefound": false,
+        "started": false,
+        "waitingforhelp": false
+    }
+}

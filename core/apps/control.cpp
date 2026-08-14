@@ -12,6 +12,10 @@
     #include <nlohmann/json.hpp>
     #include <cctype>
     #include <sstream>
+    #include "system/flight.hpp"
+    #include "system/components.hpp"
+    #include "system/drone.hpp"
+    #include "system/mission.hpp"
     using namespace std;
 
 
@@ -23,13 +27,13 @@ json runtime;
 json commands;
 json battery;
 int lastProcessedCommandID = 0;
-ofstream fout("logs.txt",ios::trunc);
+ofstream fout("runtime/logs.txt",ios::trunc);
 /* RESPONSIBILITY
     According to Section 2.4 (Responsibility Allocation) of the Version 1 specification,
     the human operator must be capable of executing all of these tasks if required
 
     - Defines the search area, objective, launch point, route, altitude, geofence, and safety limits.
-    - Approves takeoff and may start, pause, abort, command RTL, or manually control the aircraft.
+    - Approves takeoff and may start, pause, command RTL, or manually control the aircraft.
     - Monitors flight status, map position, and sensor feeds.
     - May cancel any automatic candidate approach or verification sequence.
     - Reviews Mamba-triggered alerts and makes the final Probable rescuee determination.
@@ -124,13 +128,13 @@ bool parseCoordinates(string input, double &lat, double &lon)
 }
 void saveRuntime()
 {
-    ofstream out("runtime.json");
+    ofstream out("runtime/runtime.json");
     out << runtime.dump(4);
     out.close();
 }
 bool readcommands()
 {
-    ifstream in("commands.json");
+    ifstream in("runtime/commands.json");
 
     if (!in.is_open())
         return false;
@@ -662,11 +666,20 @@ class drone
     {
         if (amount <= 0 || battery <= 0)
             return;
+        if (mydroneflight.getlaunched())
+        {
+            if (mydroneflight.getmodename() == "Hover")
+            battery -= amount;
+            else if (mydroneflight.getmodename() == "Inspect")
+            battery = battery - 2 * amount;
+            else if (mydroneflight.getmodename() == "Active")
+            battery = battery - 3 * amount;
+            else if (mydroneflight.getmodename() == "Quick")
+            battery = battery - 5 * amount;
 
-        battery -= amount;
-
-        if (battery < 0)
-            battery = 0;
+            if (battery < 0)
+                battery = 0;
+        }
 
         runtime["battery"]["percentage"] = battery;
         saveRuntime();
@@ -682,7 +695,7 @@ class mission
 
         bool missionfinished = false;
         bool enroute = false;
-        bool returning = false;
+        bool isdestinationhome = false;
         bool batterySaveTriggered = false;
         bool rtlWarningTriggered = false;
         bool emergencyRTL = false;
@@ -704,12 +717,12 @@ class mission
 
 
             // RETURNING / RTL HAS PRIORITY
-            if (returning == true)
+            if (isdestinationhome == true)
             {
                 enroute = false;
                 waitingforhelp = false;
                 runtime["mission"]["waitingforhelp"] = waitingforhelp;
-                runtime["mission"]["returning"] = returning;
+                runtime["mission"]["isdestinationhome"] = isdestinationhome;
                 runtime["mission"]["enroute"] = enroute;
                 saveRuntime();
 
@@ -739,14 +752,14 @@ class mission
             if (rescueefound == true)
             {
                 enroute = false;
-                returning = false;
+                isdestinationhome = false;
 
                 mydrone.stopflight();
 
                 waitingforhelp = true;
 
                 runtime["mission"]["enroute"] = enroute;
-                runtime["mission"]["returning"] = returning;
+                runtime["mission"]["isdestinationhome"] = isdestinationhome;
                 runtime["mission"]["waitingforhelp"] = waitingforhelp;
                 saveRuntime();
 
@@ -758,7 +771,7 @@ class mission
             enroute = true;
 
             runtime["mission"]["enroute"] = enroute;
-            runtime["mission"]["returning"] = returning;
+            runtime["mission"]["isdestinationhome"] = isdestinationhome;
             saveRuntime();
 
             checksearchlocation();
@@ -844,7 +857,7 @@ class mission
         }
         void printflightpath()
         {
-            if (returning == true)
+            if (isdestinationhome == true)
             {
                 fout<<"Current flight status: Returning.\n";
             }
@@ -861,17 +874,24 @@ class mission
         {
             return missionstarted;
         }
-        void setreturningON()
+        void setdestinationhomeON()
         {
-            returning = true;
-            runtime["mission"]["returning"] = returning; saveRuntime();
+            isdestinationhome = true;
+            runtime["mission"]["isdestinationhome"] = isdestinationhome;
+            saveRuntime();
+        }
+        void setdestinationhomeOFF()
+        {
+            isdestinationhome = false;
+            runtime["mission"]["isdestinationhome"] = isdestinationhome;
+            saveRuntime();
         }
         void checksearchlocation()
         {
             if (rescueefound == true)
                 return;
 
-            if (returning == true)
+            if (isdestinationhome == true)
                 return;
 
             // Do NOT start lawnmower operation if destination is home.
@@ -943,10 +963,10 @@ class mission
                 // ENTIRE SEARCH AREA HAS BEEN COMPLETED
                 if (searchrow >= maxrows)
                 {
-                    returning = true;
+                    isdestinationhome = true;
                     enroute = false;
 
-                    runtime["mission"]["returning"] = returning;
+                    runtime["mission"]["isdestinationhome"] = isdestinationhome;
                     runtime["mission"]["enroute"] = enroute;
                     saveRuntime();
 
@@ -976,17 +996,104 @@ class mission
             mydrone.mydroneflight.setdestination(nextlat, nextlon);
         }
         void setwaitingforhelpOFF()
-        {
-            waitingforhelp = false;
-            runtime["mission"]["waitingforhelp"] = waitingforhelp;
-            saveRuntime();
-        }
+            {
+                waitingforhelp = false;
+                runtime["mission"]["waitingforhelp"] = waitingforhelp;
+                saveRuntime();
+            }
+        void resetRuntime()
+            {
+                        runtime = json::object();
+
+                        // CONTROL
+                        runtime["control"]["last_processed_command"] = 0;
+
+                        // MISSION
+                        runtime["mission"]["started"] = missionstarted;
+                        runtime["mission"]["finished"] = missionfinished;
+                        runtime["mission"]["enroute"] = enroute;
+                        runtime["mission"]["isdestinationhome"] = isdestinationhome;
+                        runtime["mission"]["waitingforhelp"] = waitingforhelp;
+                        runtime["mission"]["rescueefound"] = rescueefound;
+
+                        runtime["mission"]["last_saved_latitude"] = 0;
+                        runtime["mission"]["last_saved_longitude"] = 0;
+
+                        // FLIGHT
+                        runtime["flight"]["launched"] =
+                            mydrone.mydroneflight.getlaunched();
+
+                        runtime["flight"]["speed"] =
+                            mydrone.mydroneflight.getspeed();
+
+                        runtime["flight"]["altitude"] =
+                            mydrone.mydroneflight.getaltitude();
+
+                        runtime["flight"]["mode"] =
+                            mydrone.mydroneflight.getmodename();
+
+                        // DESTINATION
+                        runtime["destination"]["latitude"] =
+                            mydrone.mydroneflight.getdestlat();
+
+                        runtime["destination"]["longitude"] =
+                            mydrone.mydroneflight.getdestlong();
+
+                        // DRONE LOCATION
+                        runtime["drone"]["latitude"] =
+                            mydrone.getdronelat();
+
+                        runtime["drone"]["longitude"] =
+                            mydrone.getdronelong();
+
+                        // BATTERY
+                        runtime["battery"]["percentage"] =
+                            mydrone.getbattery();
+
+                        runtime["battery"]["mode"] = "normal";
+
+                        // COMPONENTS
+                        runtime["components"]["thermal_camera"] =
+                            mydrone.comp.thermal_camera_status;
+
+                        runtime["components"]["rgb_camera"] =
+                            mydrone.comp.RGB_camera_status;
+
+                        runtime["components"]["infrared_camera"] =
+                            mydrone.comp.infrared_camera_status;
+
+                        runtime["components"]["fmcw_radar"] =
+                            mydrone.comp.fmcw_status;
+
+                        runtime["components"]["speaker"] =
+                            mydrone.comp.speaker_status;
+
+                        runtime["components"]["microphone"] =
+                            mydrone.comp.microphone_status;
+
+                        runtime["components"]["passive_rf"] =
+                            mydrone.comp.passive_rf_status;
+
+                        runtime["components"]["amber_beacon"] =
+                            mydrone.comp.amber_beacon_status;
+
+                        runtime["components"]["white_strobe"] =
+                            mydrone.comp.white_strobe_status;
+
+                        runtime["components"]["downward_spotlight"] =
+                            mydrone.comp.downward_spotlight_status;
+
+                        runtime["components"]["smoke_marker"] =
+                            mydrone.comp.smoke_marker_status;
+
+                        saveRuntime();
+                    
+            }
 };
 void activateRTL(drone &mydrone, home &myhome, mission &mymission)
 {
-    fout << "[" << getTimestamp() << "] RTL: disabled -> enabled" << endl;
     mydrone.comp.turnOffPayload();
-    mymission.setreturningON();
+    mymission.setdestinationhomeON();
     double X,Y;
     X = myhome.gethomelat();
     Y = myhome.gethomelon();
@@ -1045,8 +1152,13 @@ void checkcommands(mission &mymission)
     {
         double lat = commands["arguments"]["latitude"];
         double lon = commands["arguments"]["longitude"];
+
+        mymission.setdestinationhomeOFF();
+
         mymission.mydrone.mydroneflight.setdestination(lat,lon);
-        fout << "[" << getTimestamp() << "] COMMAND: CHANGE_DEST executed" << endl;
+
+        fout << "[" << getTimestamp()
+            << "] COMMAND: CHANGE_DEST executed" << endl;
     }
     else if (command == "LAUNCH_DRONE")
     {
@@ -1182,13 +1294,23 @@ void checkcommands(mission &mymission)
     runtime["control"]["last_processed_command"] = lastProcessedCommandID;
     saveRuntime();
 }
+void resetCommands()
+{
+    commands = json::object();
+
+    ofstream out("runtime/commands.json", ios::trunc);
+    out << commands.dump(4);
+    out.close();
+
+    lastProcessedCommandID = 0;
+}
 // MAIN METHOD-------------------------------------
 int main()
 {
     ifstream activefile("configs/activeconfig.json");
     json active;
     activefile >> active;
-
+    
     int slot = active["slot"];
 
     if (slot < 1 || slot > 3)
@@ -1208,12 +1330,13 @@ int main()
     ifstream batterysavemode(batteryFile);
     batterysavemode >> battery;
 
-    runtime = json::object();
-    saveRuntime();
+    resetCommands();
 
     setlocale(LC_ALL, ".UTF-8");
 
     mission mymission;
+
+    mymission.resetRuntime();
 
     fout << "[" << getTimestamp() << "] Control Launched" << endl;
     cout<<"Control launched."<<endl;

@@ -15,7 +15,7 @@
 
 using namespace std;
 using json = nlohmann::json;
-ofstream fout("logs.txt");
+ofstream fout("runtime/logs.txt");
 json commands;
 json runtime;
 json config;
@@ -96,7 +96,7 @@ bool parseCoordinates(string input, double &lat, double &lon)
 }
 void loadlastcommandid() // DONT TOUCH
 {
-    ifstream in("commands.json");
+    ifstream in("runtime/commands.json");
 
     if (in.is_open())
     {
@@ -121,7 +121,7 @@ void loadlastcommandid() // DONT TOUCH
 }
 void savecommands() // DONT TOUCH
 {
-    ofstream out("commands.json");
+    ofstream out("runtime/commands.json");
     out << commands.dump(4);
     out.close();
 }
@@ -177,7 +177,7 @@ void sendcommand(string command) // DONT TOUCH
 
 void readruntime() // DONT TOUCH
 {
-    ifstream in("runtime.json");
+    ifstream in("runtime/runtime.json");
 
     if (in.is_open())
     {
@@ -229,6 +229,8 @@ int main()
         cout << "- 6. CONFIGURE COMPONENTS" << endl;
         cout << "- 7. FOUND RESCUEE?" << endl;
         cout << "- 8. TRANSMIT LOCATION" << endl;
+        cout << "----------------------------------" << endl;
+
         cout << "- 0. ACTIVATE RTL" << endl;
         cout << "- 10. EXIT TERMINAL" << endl;
 
@@ -265,12 +267,35 @@ int main()
                 break;
             }
 
-
             case 2:
             {
-                sendcommand("START_MISSION");
+                readruntime();
 
-                cout << "Start mission command sent." << endl;
+                if (runtime["mission"]["started"] == true)
+                {
+                    string confirmation;
+
+                    cout << "A mission is already active." << endl;
+                    cout << "Starting a new mission will reset current mission state." << endl;
+                    cout << "Continue? (Y/N): ";
+
+                    cin >> confirmation;
+
+                    if (confirmation == "Y" || confirmation == "y")
+                    {
+                        sendcommand("START_MISSION");
+                        cout << "Start mission command sent." << endl;
+                    }
+                    else
+                    {
+                        cout << "Start mission cancelled." << endl;
+                    }
+                }
+                else
+                {
+                    sendcommand("START_MISSION");
+                    cout << "Start mission command sent." << endl;
+                }
 
                 break;
             }
