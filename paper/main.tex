@@ -1,0 +1,66 @@
+\documentclass[conference]{IEEEtran}
+
+% --- PACKAGES ---
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{pifont}
+\usepackage{url}
+\usepackage{listings}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows, positioning, fit, backgrounds}
+\usepackage[hidelinks]{hyperref}
+
+% --- LISTINGS CONFIGURATION ---
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  breaklines=true,
+  captionpos=b,
+  frame=single,
+  keywordstyle=\color{blue},
+  stringstyle=\color{red},
+  commentstyle=\color{green!60!black}
+}
+
+\begin{document}
+
+\title{MANAR: Supervised Autonomy, Deterministic Control, and Greedy Search Route Optimization for Aerial Search-and-Rescue}
+
+\author{\IEEEauthorblockN{Oumar Ibrahim}
+\IEEEauthorblockA{\textit{MANAR Search-and-Rescue Project}\\
+United Arab Emirates}
+}
+
+\maketitle
+
+\begin{abstract}
+Aerial Search-and-Rescue (SAR) operations require systematic area coverage, dependable navigation, and robust operational safety considerations. This paper presents the architecture, mathematical design, and functional prototype of MANAR (Multi-sensor Autonomous Navigation and Aerial Rescue), a supervised-autonomy SAR system. We draw a clear distinction across three system maturity tiers: the currently implemented C++ functional prototype, the selected closed software architecture, and planned future perception extensions. The core technical contribution focuses on MANAR's deterministic control flow, Haversine geographic navigation, and an $O(n^2)$ greedy nearest-neighbor search route optimizer. Crucially, the system enforces operator override privilege: automated route optimization assists the operator without overriding manually entered sector sequences when tactical domain knowledge dictates search ordering. We present parameterized mathematical models for mode-dependent velocity profiles, simulated battery failsafe progression, and systematic lawnmower grid search. Functional prototype verification confirms deterministic control behavior, search-plan locking, and Return-to-Launch (RTL) navigation preemption.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Search-and-Rescue UAVs, Deterministic Control, Supervised Autonomy, Greedy Route Optimization, Haversine Navigation, Autonomous Systems.
+\end{IEEEkeywords}
+
+% --- SECTION INPUTS ---
+\input{sections/introduction.tex}
+\input{sections/requirements.tex}
+\input{sections/architecture.tex}
+\input{sections/mission.tex}
+\input{sections/mathematics.tex}
+\input{sections/route_optimization.tex}
+\input{sections/multisensor.tex}
+\input{sections/safety.tex}
+\input{sections/software.tex}
+\input{sections/implementation.tex}
+\input{sections/limitations.tex}
+\input{sections/conclusion.tex}
+
+% --- BIBLIOGRAPHY ---
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

@@ -1,0 +1,25 @@
+\section{Software Architecture}
+
+MANAR is implemented as a modular C++ system structured into system domain modules and standalone application executables.
+
+\subsection{C++ Core Submodules}
+The core repository (\texttt{core/}) comprises:
+\begin{itemize}
+    \item \texttt{apps/control.cpp}: Control loop, command parser (\texttt{checkcommands}), runtime serialization (\texttt{saveRuntime}), and command dispatch.
+    \item \texttt{apps/terminal.cpp}: Operator terminal interface supporting coordinate entry, DMS parsing, optimization toggling, and manual commands.
+    \item \texttt{apps/setup.cpp}: Utility for selecting active configuration slots and parameter templates.
+    \item \texttt{system/mission.cpp}: Implements \texttt{mission} class, lawnmower sweep progression, search plan locking, and \texttt{activateRTL()}.
+    \item \texttt{system/drone.cpp}: Implements \texttt{drone} and \texttt{home} classes, distance logic, and battery simulation rules.
+    \item \texttt{system/flight.cpp}: Implements \texttt{flight} class, altitude/velocity clamps, and mode handling.
+    \item \texttt{system/components.cpp}: Manages states for 11 controllable payload categories.
+    \item \texttt{system/route\_optimizer.cpp}: Haversine distance calculator and greedy nearest-neighbor route optimizer.
+    \item \texttt{system/shared.cpp}: Timestamped structured plain-text event logger (\texttt{logEvent}) writing to \texttt{runtime/logs.txt}.
+\end{itemize}
+
+\subsection{Separation of Software Layers}
+MANAR's architecture clearly separates the current functional C++ prototype from planned future interface and perception layers:
+\begin{itemize}
+    \item \textbf{C++ Control Core (\texttt{control.exe}):} Currently operational. Executes control logic, route planning, and state management.
+    \item \textbf{Operator Interface (React/TypeScript):} Selected target GUI framework. Will communicate asynchronously with the C++ control core via WebSocket + JSON IPC protocol.
+    \item \textbf{Perception Pipeline (Python/PyTorch):} Reserved for future ML target detection and multisensor evidence fusion development.
+\end{itemize}

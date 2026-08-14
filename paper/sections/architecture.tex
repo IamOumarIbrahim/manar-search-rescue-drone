@@ -1,0 +1,49 @@
+\section{System Architecture}
+
+MANAR's architecture establishes clear functional boundaries across operational layers. Fig.~\ref{fig:system_architecture} illustrates core components and data flows.
+
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tikzpicture}[node distance=0.8cm, auto, >=stealth', font=\sffamily\footnotesize]
+    % Styles
+    \tikzstyle{block} = [draw, rectangle, fill=blue!8, text width=5.8cm, text centered, rounded corners=3pt, minimum height=0.9cm, line width=0.6pt]
+    \tikzstyle{coreblock} = [draw, rectangle, fill=red!10, text width=5.8cm, text centered, rounded corners=3pt, minimum height=1.6cm, line width=1.0pt]
+    \tikzstyle{subblock} = [draw, rectangle, fill=green!8, text width=2.6cm, text centered, rounded corners=3pt, minimum height=0.9cm, line width=0.6pt]
+
+    % Nodes
+    \node [block] (gui) {\textbf{Operator Interface Layer}\\{\scriptsize React/TypeScript Web GUI \& Terminal}};
+    \node [coreblock, below=0.7cm of gui] (core) {
+        \textbf{C++ Control Core}\\
+        {\scriptsize\textit{Authoritative State Owner}}\\[2pt]
+        {\scriptsize Mission Control $\cdot$ Flight $\cdot$ Safety}\\
+        {\scriptsize Route Optimization $\cdot$ Components}
+    };
+    \node [subblock, below left=0.9cm and -0.2cm of core] (autopilot) {\textbf{Autopilot / Dynamics}\\{\scriptsize Flight Loop \textit{(Planned)}}};
+    \node [subblock, below right=0.9cm and -0.2cm of core] (perception) {\textbf{Perception / ML}\\{\scriptsize Python/PyTorch \textit{(Planned)}}};
+    \node [block, below=2.6cm of core] (sensors) {\textbf{Physical Payload Hardware \textit{(Planned / Candidate)}}\\{\scriptsize RGB $\cdot$ Thermal $\cdot$ IR $\cdot$ Radar $\cdot$ RF $\cdot$ Audio}};
+
+    % Arrows
+    \draw [->, line width=0.7pt] (gui.south west) ++(0.8,0) -- ++(0,-0.7) node[left, font=\scriptsize, pos=0.5] {Commands};
+    \draw [<-, line width=0.7pt] (gui.south east) ++(-0.8,0) -- ++(0,-0.7) node[right, font=\scriptsize, pos=0.5] {Telemetry};
+    \draw [->, line width=0.7pt] (core) -- (autopilot) node[left, font=\scriptsize, pos=0.45] {Targets};
+    \draw [->, line width=0.7pt] (core) -- (perception) node[right, font=\scriptsize, pos=0.45] {Queries};
+    \draw [->, line width=0.7pt] (sensors) -- (perception) node[right, font=\scriptsize, pos=0.5] {};
+    \draw [->, line width=0.7pt] (perception.north) ++(0,0) -- ++(0,0.35) -| ([xshift=2.2cm]core.south) node[right, font=\scriptsize, pos=0.15] {Evidence};
+\end{tikzpicture}%
+}
+\caption{MANAR system architecture. The C++ Control Core is the selected authoritative state owner.}
+\label{fig:system_architecture}
+\end{figure}
+
+\subsection{Selected State Ownership Architecture}
+MANAR's selected final architecture establishes that the C++ Control Core owns authoritative runtime state. Under this design, state modifications requested by operators or triggered by safety rules are evaluated and committed exclusively by the C++ control layer (\texttt{control.exe}). Subsystem modules update internal state variables and report telemetry to the core rather than directly mutating shared state structures.
+
+\textit{Implementation Status Note:} In the current software prototype, several subsystem functions still persist runtime data directly to disk via \texttt{saveRuntime()}. These calls are being systematically refactored toward the centralized state-ownership model.
+
+\subsection{Communication \& IPC Architecture}
+The communication architecture distinguishes between current prototype IPC and the selected final interface design:
+\begin{itemize}
+    \item \textbf{Current Prototype Data Flow:} File-backed JSON contracts under \texttt{runtime/} handle prototype communication and state persistence: \texttt{commands.json} serves as the command/request transport from the terminal to the control application, \texttt{runtime.json} provides the live prototype status representation, and \texttt{search\_locations.json} stores the persisted locked search-plan representation written by \texttt{control.cpp} upon processing location entry commands.
+    \item \textbf{Selected Final Architecture:} Real-time WebSocket + JSON protocol between the React/TypeScript GUI and C++ control core. In this target model, \texttt{runtime.json} is retained as an on-demand snapshot export rather than the live transport.
+\end{itemize}

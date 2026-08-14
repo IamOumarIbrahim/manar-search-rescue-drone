@@ -1,0 +1,51 @@
+\section{Search Route Optimization}
+
+When operators enter multiple search locations, search order directly impacts total flight distance and mission duration. MANAR incorporates a mathematically independent greedy nearest-neighbor route optimizer.
+
+\subsection{Problem Formulation}
+Let the operator define a set of $n$ search locations:
+\begin{equation}
+L = \{L_1, L_2, \dots, L_n\}, \qquad L_i = (\phi_i, \lambda_i)
+\end{equation}
+Let $p_0 = (\phi_{\mathrm{drone}}, \lambda_{\mathrm{drone}})$ denote the aircraft's position at plan lock time, and let $h = (\phi_{\mathrm{home}}, \lambda_{\mathrm{home}})$ denote home base coordinates.
+
+Evaluating exact Traveling Salesman Problem (TSP) solutions via naive exhaustive permutation enumeration requires evaluating all $n!$ waypoint orderings~\cite{applegate2006traveling}, which grows factorially and is inefficient for embedded execution.
+
+\subsection{Greedy Nearest-Neighbor Algorithm}
+MANAR implements an $O(n^2)$ greedy nearest-neighbor algorithm in \texttt{route\_optimizer.cpp}. Starting from initial position $p_0$, the algorithm iteratively selects the closest unvisited search location.
+
+Let $U_k$ denote the set of unvisited locations at step $k$, with $U_0 = L$. For $k = 0, 1, \dots, n-1$:
+\begin{equation}
+p_{k+1} = \underset{x \in U_k}{\operatorname{argmin}} \; d(p_k, x)
+\end{equation}
+The selected location $p_{k+1}$ is appended to the ordered route sequence, and the unvisited set is updated:
+\begin{equation}
+U_{k+1} = U_k \setminus \{p_{k+1}\}
+\end{equation}
+
+Home location $h$ is excluded from greedy candidate selection iterations. The final search-to-home leg distance $d(p_n, h)$ is included when calculating total planned transit distance $d_{\mathrm{total}}$, but home is not inserted as an entry into the ordered search location list:
+\begin{equation}
+d_{\mathrm{total}} = d(p_0, p_1) + \sum_{k=1}^{n-1} d(p_k, p_{k+1}) + d(p_n, h)
+\end{equation}
+
+\subsection{Combinatorial Analysis}
+The computational complexity of the greedy route optimizer is $O(n^2)$. At step $k$, evaluating distance to remaining candidates requires $|U_k| = n - k$ Haversine calculations. The total number of distance evaluations $N_{\mathrm{eval}}$ is:
+\begin{equation}
+N_{\mathrm{eval}} = \sum_{k=0}^{n-1} (n - k) = \frac{n(n+1)}{2} = O(n^2)
+\end{equation}
+
+For $n = 8$ search locations, nearest-neighbor selection performs 36 candidate distance evaluations ($8 + 7 + 6 + 5 + 4 + 3 + 2 + 1 = 36$), whereas naive exhaustive permutation enumeration considers $8! = 40\,320$ possible waypoint orderings. This reduces route-ordering work to quadratic candidate-distance evaluations and avoids factorial route enumeration.
+
+\subsection{Operator Override Privilege}
+In tactical SAR operations, human operators may possess domain knowledge (e.g., wind drift estimates, high-probability intelligence, terrain barriers) that renders geometric nearest-neighbor routes suboptimal. MANAR enforces operator override privilege:
+\begin{equation}
+\text{Route} = \begin{cases}
+\operatorname{GreedyOpt}(p_0, L, h), & \text{if operator selects } Y \\
+L, & \text{if operator selects } N
+\end{cases}
+\end{equation}
+
+When optimization is disabled ($N$), the input ordering entered by the operator is preserved identically ($p_k = L_k$). In both modes, execution IDs ($1, 2, \dots, n$) are assigned to the final sequence, while original entry indices are preserved under \texttt{input\_id}.
+
+\subsection{Search Plan Locking}
+Once submitted, \texttt{control.exe} freezes the search plan (\texttt{searchplanlocked = true}). In the current prototype, a locked search plan remains immutable until the prototype reset path clears the lock.

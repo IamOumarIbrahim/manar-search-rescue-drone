@@ -1,0 +1,10 @@
+\section{Limitations and Future Work}
+
+MANAR's current implementation establishes a deterministic C++ baseline, but several limitations warrant future development:
+\begin{itemize}
+    \item \textbf{Heuristic Optimality Bounds:} The greedy nearest-neighbor algorithm provides efficient $O(n^2)$ execution but does not guarantee global route optimality. Local improvement heuristics (e.g., 2-opt) or exact MILP optimization can be investigated where problem size permits.
+    \item \textbf{Software Battery Simulation:} The current prototype uses a discrete mode-dependent battery simulation rule to exercise failsafe logic. Future revisions will integrate realistic electro-aerodynamic battery discharge models based on voltage, current, and wind drag.
+    \item \textbf{Airspace and Wind Dynamics:} Velocity calculations assume still air. Incorporating wind vector estimation and dynamic 3D geofencing will improve navigation accuracy in real-world environments.
+\end{itemize}
+
+Future work will focus on implementing the React/TypeScript GUI, developing Python/PyTorch perception models, integrating PX4 Software-in-the-Loop (SITL) simulation, and conducting field deployment validation.

@@ -1,0 +1,28 @@
+\section{Safety and Software Failsafes}
+
+Safety rules and monitoring logic are enforced directly within the C++ control core.
+
+\subsection{Supervised Operator Control}
+Mission-critical state modifications—such as starting search missions (\texttt{START\_MISSION}), initiating RTL (\texttt{RTL}), or launching the aircraft (\texttt{LAUNCH\_DRONE})—are operator initiated. Autonomous control logic enforces safety-oriented responses, such as battery failsafe triggers.
+
+\subsection{Battery Failsafe Hierarchy}
+The control core monitors simulated battery percentage $B_k$ on every loop iteration:
+\begin{equation}
+\operatorname{Action}(B) = \begin{cases}
+\text{Emergency Land} & B_k \le B_{\mathrm{land}} \\
+\text{Emergency RTL} & B_k \le B_{\mathrm{emergency\_rtl}} \\
+\text{Recommend RTL} & B_k \le B_{\mathrm{rtl\_warn}} \\
+\text{Warning} & B_k \le B_{\mathrm{warn}} \\
+\text{Normal Operation} & \text{otherwise}
+\end{cases}
+\end{equation}
+
+When $B_k \le B_{\mathrm{emergency\_rtl}}$, \texttt{activateRTL()} is invoked automatically to command Return-to-Launch navigation to home base. When $B_k \le B_{\mathrm{land}}$, the control core executes the prototype stop-flight routine, records aircraft coordinates, and sets flight mode to stopped.
+
+\subsection{Software Command Clamps}
+All incoming velocity and altitude command arguments are validated against software safety clamps prior to execution:
+\begin{align}
+v_{\mathrm{cmd}} &\le v_{\max} \\
+H_{\mathrm{cmd}} &\le H_{\max}
+\end{align}
+Commands exceeding these bounds are clamped or rejected, logging \texttt{WARN} event entries to \texttt{runtime/logs.txt}.

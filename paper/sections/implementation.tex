@@ -1,0 +1,60 @@
+\section{Functional Prototype Verification}
+
+The prototype implementation of MANAR has been built and functionally verified under Windows 11 using GCC 16.1.0 (\texttt{g++}).
+
+\subsection{Build System}
+Core applications are compiled into standalone executables:
+\begin{lstlisting}[language=bash, caption={MANAR compilation commands.}]
+g++ apps/control.cpp system/shared.cpp
+  system/flight.cpp system/components.cpp
+  system/drone.cpp system/mission.cpp
+  system/route_optimizer.cpp
+  -I. -Ithird_party -o build/control.exe
+g++ apps/terminal.cpp -I. -Ithird_party
+  -o build/terminal.exe
+g++ apps/setup.cpp -I. -Ithird_party
+  -o build/setup.exe
+\end{lstlisting}
+
+\subsection{Functional Verification Results}
+Functional testing confirmed the following behaviors:
+\begin{enumerate}
+    \item \textbf{Route Optimization vs.\ Manual Order:} For three search coordinates ($L_1, L_2, L_3$) entered in non-optimal geometric order relative to start position $p_0$, enabling optimization ($Y$) produced a shorter planned transit distance than the entered manual ordering ($d_{\mathrm{greedy}} < d_{\mathrm{manual}}$), while disabling optimization ($N$) preserved exact entry order.
+    \item \textbf{Search Plan Locking:} Submitting locations locked \texttt{search\_locations.json}. Subsequent \texttt{SET\_SEARCH\_LOCATIONS} commands were rejected with \texttt{WARN} logs until the prototype reset path cleared the lock.
+    \item \textbf{Start Rejection on Empty Plan:} Attempting \texttt{START\_MISSION} without search locations resulted in immediate rejection by both terminal and control core.
+    \item \textbf{RTL Precedence:} Triggering \texttt{RTL} during multi-sector search cleared search waypoints, reset \texttt{search\_locations.json} to a single home destination, launched the aircraft if grounded, and initiated return navigation using the configured flight mode.
+\end{enumerate}
+
+\subsection{Prototype Test Configuration}
+Table~\ref{tab:prototype_config} lists the configuration parameters used during functional verification. These values are implementation-specific test inputs and do not constitute finalized MANAR operational limits.
+
+\begin{table}[t]
+\caption{Prototype Verification Test Parameters}
+\label{tab:prototype_config}
+\centering
+\footnotesize
+\begin{tabular}{@{}llr@{}}
+\toprule
+\textbf{Symbol} & \textbf{Parameter} & \textbf{Value} \\
+\midrule
+$v_Q$ & Quick velocity & $15.0$ m/s \\
+$v_A$ & Active velocity & $8.0$ m/s \\
+$v_I$ & Inspect velocity & $2.0$ m/s \\
+$v_H$ & Hover velocity & $0.0$ m/s \\
+$H_{\mathrm{launch}}$ & Launch altitude & $10.0$ m \\
+$H_{\max}$ & Altitude ceiling & $2000$ m \\
+$v_{\max}$ & Speed ceiling & $15.0$ m/s \\
+$W \times H$ & Sector dimensions & $100 \times 100$ m \\
+$\Delta y$ & Row spacing & $20.0$ m \\
+$R_{\mathrm{reach}}$ & Waypoint arrival radius & $5.0$ m \\
+$R_{\mathrm{home}}$ & Home arrival radius & $100$ m \\
+\midrule
+$B_{\mathrm{warn}}$ & Warning threshold & $30\%$ \\
+$B_{\mathrm{rtl\_w}}$ & Recommend RTL & $25\%$ \\
+$B_{\mathrm{emg}}$ & Emergency RTL & $15\%$ \\
+$B_{\mathrm{land}}$ & Emergency Land & $5\%$ \\
+\midrule
+$\alpha_m$ & Battery sim.\ coefficients & $5,3,2,1$ \\
+\bottomrule
+\end{tabular}
+\end{table}

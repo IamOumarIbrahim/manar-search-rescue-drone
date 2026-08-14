@@ -1,56 +1,102 @@
+# ==========================================
+# Environment & Secrets
+# ==========================================
 .env
 .env.*
 !.env.example
 
-# Python
-__pycache__/
-*.pyc
-.venv/
-venv/
+# ==========================================
+# C / C++ & Binaries
+# ==========================================
+*.o
+*.obj
+*.pdb
+*.ilk
+*.idb
+*.exe
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+build/
+core/build/
 
-# Node / Web GUI
+# ==========================================
+# MANAR Runtime Execution Logs
+# ==========================================
+core/runtime/logs.txt
+core/logs.txt
+
+# ==========================================
+# LaTeX Paper Build Artifacts (paper/)
+# ==========================================
+*.aux
+*.bbl
+*.blg
+*.out
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.toc
+*.lof
+*.lot
+*.nav
+*.snm
+*.vrb
+*_test.*
+
+# ==========================================
+# Node / Web Interfaces (React / Vite / Next)
+# ==========================================
 node_modules/
 .next/
 dist/
-build/
+.cache/
+.turbo/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
-# IDE / Logs
-*.log
-.vscode/
-.idea/
+# ==========================================
+# Python & Machine Learning
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
 
-# Executables
-*.exe
-
-# Machine Learning Checkpoints & Datasets
+# ML Model Weights & Large Checkpoints
 *.pt
 *.pth
 *.ckpt
-# ML datasets
-ml/data/*
-!ml/data/README.md
-
-# Model checkpoints / weights
-ml/checkpoints/*
-!ml/checkpoints/README.md
-
-# PyTorch model artifacts
-ml/**/*.pt
-ml/**/*.pth
-ml/**/*.ckpt
-ml/**/*.onnx
-ml/**/*.safetensors
+*.onnx
 *.safetensors
+
 ml/checkpoints/*
 !ml/checkpoints/README.md
 ml/data/*
 !ml/data/README.md
 
+# ==========================================
+# IDE & System Files
+# ==========================================
+*.log
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+*~
 
+# ==========================================
+# Ignored Assets & Documentation
+# ==========================================
 assets/Images/Visualization/
-assets/Docs/archive/initial
-
-core/logs.txt
-core/runtime.json
-core/config.json
-core/commands.json
+assets/Docs/
+assets/Temp/

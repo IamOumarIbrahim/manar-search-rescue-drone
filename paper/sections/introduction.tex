@@ -1,0 +1,53 @@
+\section{Introduction}
+
+Search-and-Rescue (SAR) missions represent a critical operational domain for unmanned aerial systems~\cite{silvagni2017multipurpose}. When disoriented personnel, disaster survivors, or missing individuals are stranded in vast or remote environments, emergency response windows are severely constrained by environmental conditions and terrain access. Unmanned Aerial Vehicles (UAVs) provide rapid deployment capabilities, flexible sensor mobility, and elevated aerial coverage.
+
+MANAR (Multi-sensor Autonomous Navigation and Aerial Rescue) is a supervised-autonomy aerial search-and-rescue system designed to balance human oversight against automated execution~\cite{goodrich2008towards}. The term \emph{Autonomous} in MANAR refers to autonomous navigation capabilities within a supervised-autonomy system, maintaining explicit human supervisory authority over high-risk mission actions. Fully manual teleoperation imposes heavy cognitive workloads on operators, while black-box autonomous systems introduce risks of uncoordinated behavior during sensor dropouts or communication loss. In MANAR, human operators maintain supervisory authority over mission configuration and target verification, while a C++ control core executes deterministic navigation, route optimization, and safety monitoring.
+
+This paper categorizes MANAR's design across three distinct system maturity tiers:
+\begin{enumerate}
+    \item \textbf{Implemented Functional Prototype:} C++ application logic (\texttt{control.exe}, \texttt{terminal.exe}), Haversine geographic distance calculations, $O(n^2)$ greedy nearest-neighbor route optimization with operator override, search plan locking, sequential lawnmower search progression, discrete battery simulation rules, and timestamped structured plain-text event logging.
+    \item \textbf{Selected Closed Architecture:} Centralized authoritative state ownership by the C++ control layer, React/TypeScript operator interface communicating via WebSocket + JSON, and on-demand Return-to-Launch (RTL) navigation semantics.
+    \item \textbf{Planned Future Work:} Automated Python/PyTorch perception models, multi-sensor evidence fusion algorithms, physical SITL/HITL flight controller integration, and field deployment testing.
+\end{enumerate}
+
+Table~\ref{tab:implementation_status} summarizes the implementation maturity of MANAR's core capabilities.
+
+\begin{table}[t]
+\caption{MANAR Capability Implementation Status}
+\label{tab:implementation_status}
+\centering
+\footnotesize
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Capability} & \textbf{Status} \\
+\midrule
+Deterministic C++ control core & \ding{51} Implemented \\
+Haversine navigation geometry & \ding{51} Implemented \\
+Multi-location sector sequencing & \ding{51} Implemented \\
+Greedy route optimization ($O(n^2)$) & \ding{51} Implemented \\
+Operator optimization toggle & \ding{51} Implemented \\
+Lawnmower search grid logic & \ding{51} Implemented \\
+Payload component state controls & \ding{51} Implemented \\
+Structured event logging & \ding{51} Implemented \\
+\midrule
+React / TypeScript Web GUI & Selected \\
+WebSocket + JSON IPC & Selected \\
+Centralized state persistence & Refactoring \\
+\midrule
+Automated perception pipeline & Planned \\
+Multi-sensor evidence fusion & Planned \\
+PX4 SITL / HITL simulation & Planned \\
+Physical flight deployment & Planned \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Key Contributions}
+The main contributions of this work are:
+\begin{itemize}
+    \item Formulation and implementation of an $O(n^2)$ greedy nearest-neighbor route optimizer using Haversine geodetics~\cite{sinnott1984haversine}, explicitly incorporating an operator override mechanism to preserve human domain knowledge.
+    \item Formalization of parameterized motion and simulated battery failsafe progression models governing deterministic mission execution.
+    \item Specification of MANAR's selected software architecture separating C++ control logic, web-based operator interfaces, and future perception pipelines.
+    \item Functional verification of search plan locking, sequential sector progression, and Return-to-Launch navigation preemption.
+\end{itemize}

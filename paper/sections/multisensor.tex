@@ -1,0 +1,47 @@
+\section{Multisensor Payload Architecture}
+
+MANAR incorporates a software model representing eleven controllable payload categories for victim search, identification, and signaling.
+
+\subsection{Payload Categories}
+The prototype models eleven controllable component categories in \texttt{components.cpp}. The descriptions below indicate their intended subsystem roles; sensing and processing functionality is not yet implemented:
+\begin{enumerate}
+    \item \textbf{Thermal LWIR Camera:} Body heat detection.
+    \item \textbf{Day RGB Camera:} Visual inspection and terrain validation.
+    \item \textbf{Low-Light / IR Camera:} Low ambient light sensitivity.
+    \item \textbf{FMCW Radar:} Range, velocity, and micro-motion detection.
+    \item \textbf{Passive RF Sensor:} Mobile signal uplink detection.
+    \item \textbf{Public Address Emitter:} Audible instruction broadcast.
+    \item \textbf{Microphone Array:} Acoustic monitoring for vocal signals.
+    \item \textbf{Amber Beacon:} Visual alerting for ground teams.
+    \item \textbf{White Guidance Strobe:} Visual orientation strobe.
+    \item \textbf{Downward Spotlight:} Ground illumination.
+    \item \textbf{Smoke Marker Canister:} Visual smoke signaling.
+\end{enumerate}
+
+\subsection{Candidate Hardware Mapping}
+Table~\ref{tab:hardware_mapping} maps software payload categories to candidate hardware under evaluation. Rows marked TBD indicate categories where hardware selection has not been evaluated.
+
+\begin{table}[t]
+\caption{Candidate Payload Hardware (Non-Final)}
+\label{tab:hardware_mapping}
+\centering
+\footnotesize
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Category} & \textbf{Candidate Hardware} \\
+\midrule
+Thermal LWIR & FLIR Boson+ 640 \\
+Day RGB & Sony FCB-EV9500L \\
+Low-Light IR & SiOnyx Aurora \\
+FMCW Radar & TBD (band not finalized) \\
+Passive RF & TBD \\
+PA Emitter & TBD \\
+Microphone Array & ReSpeaker v2.0 \\
+Visual Alerting & TBD \\
+Smoke Marker & TBD \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Perception Pipeline Integration}
+In the current prototype, payload component states can be commanded individually via \texttt{CHANGE\_COMPONENTS} or toggled automatically during mission hold states. Automated sensor fusion algorithms and ML perception models are reserved for future work.

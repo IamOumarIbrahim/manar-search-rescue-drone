@@ -1,0 +1,40 @@
+\section{System Requirements}
+
+MANAR is engineered to fulfill operational constraints tailored for aerial search-and-rescue. This section documents the operational envelope, symbolic flight parameters, search geometry, and safety monitoring rules.
+
+\subsection{Operational Velocity Presets}
+The flight system defines four discrete velocity presets ($v(m)$) suited for distinct mission phases:
+\begin{itemize}
+    \item \textbf{Quick Mode ($v_Q$):} High-speed transit between distant search sectors or rapid return to base.
+    \item \textbf{Active Mode ($v_A$):} Baseline search velocity during systematic lawnmower sector sweeps.
+    \item \textbf{Inspect Mode ($v_I$):} Low-speed visual inspection of candidate detection sites.
+    \item \textbf{Hover Mode ($v_H$):} Stationary hold over candidate locations ($v_H = 0$).
+    \end{itemize}
+
+Velocity presets are configurable parameters governed by configuration profiles. The software enforces a configurable altitude ceiling clamp $H_{\max}$ and maximum velocity clamp $v_{\max}$. Default takeoff climb target is specified by $H_{\mathrm{launch}}$.
+
+\subsection{Operator Supervision Principles}
+In accordance with supervised autonomy design:
+\begin{itemize}
+    \item The system retains human supervisory authority over high-risk mission actions and physical state changes.
+    \item The human operator maintains real-time override authority to trigger Return-to-Launch (RTL) or issue manual waypoint updates.
+    \item The operator retains explicit authority over whether automated search route optimization is applied to entered locations.
+\end{itemize}
+
+\subsection{Search Grid Parameters}
+Systematic sector coverage requires structured grid patterns. Search sectors are parameterized by:
+\begin{itemize}
+    \item Lawnmower search sector dimensions: Width $W$ and Height $H$.
+    \item Parallel sweep row spacing: $\Delta y$.
+    \item Waypoint arrival acceptance radius: $R_{\mathrm{reach}}$.
+    \item Home base arrival acceptance radius: $R_{\mathrm{home}}$.
+\end{itemize}
+
+\subsection{Battery Failsafe Hierarchy}
+To exercise deterministic safety monitoring, the system defines four configurable battery percentage thresholds ($B_{\mathrm{warn}}, B_{\mathrm{rtl\_warn}}, B_{\mathrm{emergency\_rtl}}, B_{\mathrm{land}}$):
+\begin{itemize}
+    \item \textbf{Battery Warning ($B \le B_{\mathrm{warn}}$):} Logs a warning and activates configured battery-save mode.
+    \item \textbf{Recommend RTL ($B \le B_{\mathrm{rtl\_warn}}$):} Recommends Return-to-Launch navigation and transmits aircraft status and location.
+    \item \textbf{Emergency RTL ($B \le B_{\mathrm{emergency\_rtl}}$):} Automatically overrides active search patterns and commands Return-to-Launch navigation via \texttt{activateRTL()}.
+    \item \textbf{Emergency Land ($B \le B_{\mathrm{land}}$):} Invokes the prototype stop-flight path, records the current position, and transitions simulated flight state to stopped.
+\end{itemize}
