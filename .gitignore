@@ -29,7 +29,7 @@ core/runtime/logs.txt
 core/logs.txt
 
 # ==========================================
-# LaTeX Paper Build Artifacts (paper/)
+# LaTeX Paper Build Artifacts (docs/paper/)
 # ==========================================
 *.aux
 *.bbl
@@ -75,7 +75,7 @@ env/
 *.ckpt
 *.onnx
 *.safetensors
-!computer_vision/models/*.onnx
+!perception/vision/models/*.onnx
 
 ml/checkpoints/*
 !ml/checkpoints/README.md
@@ -94,6 +94,7 @@ desktop.ini
 *.swp
 *.swo
 *~
+tmp/
 
 # ==========================================
 # Ignored Assets & Documentation
@@ -103,9 +104,9 @@ assets/Docs/
 assets/Temp/
 
 # ==========================================
-# Computer Vision Generated Artifacts
+# Perception Generated Artifacts
 # ==========================================
-computer_vision/output/*
-!computer_vision/output/.gitkeep
-computer_vision/temp/*
-!computer_vision/temp/.gitkeep
+perception/vision/output/*
+!perception/vision/output/.gitkeep
+perception/vision/temp/*
+!perception/vision/temp/.gitkeep

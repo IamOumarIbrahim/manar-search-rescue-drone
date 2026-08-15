@@ -1,0 +1,53 @@
+\section{Introduction}
+
+\IEEEPARstart{S}{earch-and-rescue} (SAR) operations in wilderness, desert, and mountainous terrain are time-critical and cognitively demanding. Unmanned aerial vehicles (UAVs) can extend visual coverage and reduce responder exposure, but field experience shows that autonomy must be coordinated with human judgment rather than treated as a substitute for it~\cite{goodrich2008towards,silvagni2017multipurpose,alotaibi2019lsar}. A vehicle may be able to generate a sweep, reorder sectors, or produce a person detection while still lacking the evidence required to declare a rescue target or command a safety-critical maneuver.
+
+MANAR (Multi-sensor Autonomous Navigation and Aerial Rescue) is developed around this distinction. The project combines a deterministic C++ control prototype, route-ordering logic, and a zero-shot aerial-perception harness, while reserving target confirmation and guidance authorization for a human operator. The research question in this paper is therefore not whether MANAR is already an autonomous rescue aircraft. It is: \emph{what credible pre-flight evidence can the present software artifact provide, and where must its claims stop before simulation, hardware integration, annotation, and flight trials?}
+
+This framing matters because a software repository can easily mix three different types of statement. Source code can establish that a mechanism is present; an experiment can establish behavior under a defined protocol; and a design document can specify a future capability. None is interchangeable with another. Table~\ref{tab:evidence_scope} defines the vocabulary used throughout this paper.
+
+\begin{table}[t]
+\caption{Evidence Scope Used for MANAR Claims}
+\label{tab:evidence_scope}
+\centering
+\footnotesize
+\begin{tabularx}{\columnwidth}{@{}lX@{}}
+\toprule
+\textbf{Status} & \textbf{Meaning in this paper} \\
+\midrule
+\textbf{Implemented} & Source and configuration artifacts are present in the repository; this does not by itself prove flight readiness. \\
+\textbf{Measured} & A stated script, input corpus, aggregation rule, and result artifact support the observation. \\
+\textbf{Planned} & A design target or selected architecture has not yet been demonstrated end to end. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Related Work and Research Gap}
+
+\textbf{Human-supervised SAR robotics:} Wilderness SAR studies emphasize operator workload, search-pattern support, and human interpretation of ambiguous imagery~\cite{goodrich2008towards}. Integrated urban SAR platforms likewise separate flight stabilization from higher-level mission and perception software so that failures remain contained~\cite{tomic2012autonomous}. MANAR adopts the same authority boundary but focuses on making the maturity of each software claim explicit.
+
+\textbf{Coverage and route planning:} UAV coverage planning commonly uses parallel-track or Boustrophedon sweeps, with orientation and energy constraints affecting mission cost~\cite{lin2009uav,torres2016coverage,otto2018optimization}. Ordering disconnected sectors is related to the metric Traveling Salesperson Problem (TSP)~\cite{applegate2006traveling}. MANAR uses nearest-neighbor construction because its behavior is deterministic and easy to inspect, but evaluates it only against a specified 2-opt local-search reference rather than calling that reference globally optimal.
+
+\textbf{Aerial and multispectral perception:} Aerial detection is dominated by small targets, oblique viewpoints, motion, and clutter~\cite{du2018uavdt,zhu2021visdrone}. Slicing can preserve small targets that would otherwise disappear during resizing~\cite{akyon2022sahi}. Thermal and multispectral pedestrian research demonstrates the value of complementary channels while also requiring calibrated sensors, synchronized data, and valid annotation~\cite{portmann2014thermal,hwang2015multispectral}. The present MANAR clip corpus uses RGB-, infrared-, and thermal-labeled conditions, but the repository does not yet document calibrated physical sensor provenance; this paper therefore treats it as a diagnostic multi-condition corpus rather than a validated multispectral benchmark.
+
+\textbf{Real-time edge inference:} YOLO-style dense detectors and real-time transformer detectors offer different accuracy--latency tradeoffs~\cite{jocher2023yolo,zhao2024detrs,peng2024dfine}. Deployment also depends on preprocessing, graph export, postprocessing, and target hardware. A two-model zero-shot comparison cannot isolate a universal architectural cause, so MANAR reports an observed difference and a hypothesis to test rather than a general verdict on convolutional and transformer detectors.
+
+The gap addressed here is consequently narrower than a new detector or flight controller: a reproducible, evidence-scoped account of what a pre-flight SAR software testbed presently establishes, including negative results and threats to validity.
+
+\subsection{Research Questions and Contributions}
+
+The paper evaluates three research questions:
+\begin{itemize}
+    \item \textbf{RQ1---Route quality:} How much longer is deterministic nearest-neighbor ordering than a 2-opt-refined tour on fixed-seed synthetic sector layouts?
+    \item \textbf{RQ2---Diagnostic perception behavior:} Under a fixed zero-shot protocol, how do YOLO11n and D-FINE-N differ in model-session latency, raw detection-event count, and positive-scenario coverage?
+    \item \textbf{RQ3---Evidence boundary:} Which MANAR mechanisms are represented in source, which observations are measured, and which operational capabilities remain planned?
+\end{itemize}
+
+The contributions are:
+\begin{enumerate}
+    \item an explicit evidence taxonomy applied to a human-supervised SAR software architecture, preventing source presence, diagnostic measurement, and future design from being conflated;
+    \item a fixed-seed, 500-instance reference evaluation of nearest-neighbor sector ordering against best-improvement 2-opt, with the script and machine-readable results included in \texttt{docs/paper/reproducibility/}; and
+    \item a corrected diagnostic report for 26 local clips (6,240 frames) that uses only metrics supported by the benchmark artifact and explicitly identifies missing ground truth, timing asymmetry, and external-validity limits.
+\end{enumerate}
+
+No physical airframe performance, flight endurance, calibrated multisensor fusion, bounding-box accuracy, or operational rescue success is claimed.

@@ -1,0 +1,67 @@
+\section{Mission Architecture and Verification Policy}
+
+MANAR separates mission navigation from candidate verification. Sector progression, rectangular sweeps, manual rescue-state entry, and RTL state changes are represented in the C++ source. The end-to-end candidate approach and synchronized multisensor sequence in this section is a target control policy and has not yet been executed by a flight controller.
+
+\subsection{Navigation vs.\ Mission Perception Layering}
+To protect core vehicle stability, MANAR strictly separates flight-critical navigation telemetry from mission perception and payload subsystems:
+\begin{itemize}
+    \item \textbf{Navigation Sensor Interface (planned):} Standardized interfaces for GNSS, IMU, magnetometer, barometric altitude, and local clearance sensing require Pixhawk/PX4 integration.
+    \item \textbf{Payload Perception Suite (mixed maturity):} ONNX Runtime visual inference is implemented on recorded RGB-, infrared-, and thermal-labeled clips. Calibrated physical cameras, acoustic sensing, emergency RF, and temporal fusion remain planned.
+\end{itemize}
+
+\subsection{Conceptual Mission Lifecycle}
+Fig.~\ref{fig:conceptual_lifecycle} depicts the 10-stage conceptual mission lifecycle from deployment to recovery.
+
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tikzpicture}[node distance=0.55cm, auto, >=stealth', font=\sffamily\scriptsize]
+    \tikzstyle{block} = [draw=blue!70!black, fill=blue!8, rectangle, rounded corners=2pt, text width=2.5cm, text centered, minimum height=0.46cm, line width=0.5pt]
+    \tikzstyle{detect} = [draw=orange!80!black, fill=orange!10, rectangle, rounded corners=2pt, text width=2.5cm, text centered, minimum height=0.46cm, line width=0.6pt]
+    \tikzstyle{human} = [draw=green!60!black, fill=green!10, rectangle, rounded corners=2pt, text width=2.5cm, text centered, minimum height=0.46cm, line width=0.6pt]
+    \tikzstyle{arrow} = [->, line width=0.6pt, gray!80!black]
+
+    % Nodes
+    \node [block] (takeoff) {1. Takeoff \& Climb};
+    \node [block, right=0.6cm of takeoff] (search) {2. Systematic Search};
+    \node [detect, below=0.4cm of search] (cand) {3. Candidate Detected};
+    \node [detect, left=0.6cm of cand] (approach) {4. Automatic Approach};
+    \node [detect, below=0.4cm of approach] (hover) {5. Hover \& Aim Sensors};
+    \node [detect, right=0.6cm of hover] (mamba) {6. Verification Gate};
+    \node [human, below=0.4cm of mamba] (review) {7. Human Review};
+    \node [human, left=0.6cm of review] (guide) {8. Mark / Guide};
+    \node [block, below=0.4cm of guide] (rtl) {9. Resume / RTL};
+    \node [block, right=0.6cm of rtl] (land) {10. Recovery / Land};
+
+    % Flow
+    \draw [arrow] (takeoff) -- (search);
+    \draw [arrow] (search) -- (cand);
+    \draw [arrow] (cand) -- (approach);
+    \draw [arrow] (approach) -- (hover);
+    \draw [arrow] (hover) -- (mamba);
+    \draw [arrow] (mamba) -- (review);
+    \draw [arrow] (review) -- (guide);
+    \draw [arrow] (guide) -- (rtl);
+    \draw [arrow] (rtl) -- (land);
+\end{tikzpicture}%
+}
+\caption{Conceptual 10-stage search, verification, and rescue lifecycle.}
+\label{fig:conceptual_lifecycle}
+\end{figure}
+
+\subsection{Target 9-Step Candidate Verification Policy}
+The selected design requires a future integrated controller to execute the following inspect-and-review policy. The sequence is presented as a testable specification, not as a verified current behavior:
+\begin{enumerate}
+    \item \textbf{Evidence Registration:} Record candidate geodetic coordinates and optical detection confidence.
+    \item \textbf{Constraint Validation:} Validate geofence boundaries, minimum terrain clearance, and remaining battery margin.
+    \item \textbf{Velocity Deceleration:} Automatically ramp down horizontal speed to \texttt{Inspect} mode ($v_I = 2.0\text{ m/s}$).
+    \item \textbf{Altitude Transition:} Descend to designated inspection altitude $H_{\mathrm{inspect}}$.
+    \item \textbf{Positioning Orbit:} Execute bounded inspection loiter if required.
+    \item \textbf{Sensor Aiming:} Orient payload cameras toward target geodetic coordinates.
+    \item \textbf{Hover Stabilization:} Transition to stationary hover ($v_H = 0.0\text{ m/s}$).
+    \item \textbf{Synchronized Inspection:} Evaluate high-resolution optical frames and acoustic listening window.
+    \item \textbf{Supervisory Alert Escalation:} Transmit a high-priority advisory; the human operator assigns the final probable-rescue classification.
+\end{enumerate}
+
+\subsection{Prototype Control Flow \& RTL Semantics}
+In the C++ prototype, multi-location search plans execute sequentially via \texttt{mission.cpp}. When sector $k$ completes ($1 \le k \le N$), the control loop advances $k \leftarrow k+1$ and re-initializes sweep counters. Upon completion of all $N$ sectors or upon failsafe trigger, Return-to-Launch (\texttt{activateRTL()}) is commanded, resetting navigation destination to home coordinates (\texttt{isdestinationhome = true}).

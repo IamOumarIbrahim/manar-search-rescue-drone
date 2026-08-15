@@ -1,0 +1,48 @@
+\section{System Requirements}
+
+MANAR uses the following operational and safety requirements to drive software design. Values in this section are \emph{design targets or simulated configuration limits}, not measured airframe capabilities.
+
+\subsection{Operational Envelope and Performance Targets}
+The system targets an operational flight envelope tailored for rugged wilderness and desert environments:
+\begin{itemize}
+    \item \textbf{Search Endurance Target ($SYS\text{-}G\text{-}02$):} At least 1.0 hour of continuous active search under a nominal payload and representative sensor duty cycle; physical endurance has not been measured.
+    \item \textbf{Configured Altitude Limit ($SYS\text{-}G\text{-}01$):} The software test configuration clamps commanded altitude at $2000.0\text{ m}$. This is not evidence of climb, hover, regulatory, or propulsion capability at that altitude.
+    \item \textbf{Speed Presets and Limits:} Four discrete velocity presets ($v_Q, v_A, v_I, v_H$) bounded by software velocity clamp $v_{\max}$ and altitude ceiling $H_{\max}$. Takeoff climb target is specified by $H_{\mathrm{launch}}$.
+\end{itemize}
+
+\subsection{Terrain-Adaptive Search Strategy}
+Search path generation adapts to local terrain geometry:
+\begin{itemize}
+    \item \textbf{Open / Flat Terrain (implemented source):} Parallel-track rectangular sweeps parameterized by sector width $W$, height $H$, and row spacing $\Delta y$.
+    \item \textbf{Mountainous / Steep Terrain (planned):} Terrain-aware contour following with a verified digital elevation model and sensor standoff constraint.
+\end{itemize}
+
+\subsection{Supervised-Autonomy Responsibility Allocation}
+Table~\ref{tab:responsibility_allocation} delineates the functional boundaries between the human operator, deterministic control logic, and machine learning pipelines.
+
+\begin{table}[t]
+\caption{Supervised-Autonomy Responsibility Allocation}
+\label{tab:responsibility_allocation}
+\centering
+\footnotesize
+\begin{tabularx}{\columnwidth}{@{}lX@{}}
+\toprule
+\textbf{Layer} & \textbf{Core Responsibilities} \\
+\midrule
+\textbf{Human Operator} & Mission definition, geofencing, takeoff approval, real-time RTL/waypoint override, alert review, final probable-rescue classification, and guidance authorization. \\
+\midrule
+\textbf{Deterministic Core} & Implemented prototype navigation, route ordering, configuration clamps, plan locking, and RTL state changes; future autopilot integration remains planned. \\
+\midrule
+\textbf{Machine Learning} & Implemented raw visual candidate detections; planned acoustic/radar classification and temporal fusion. Machine-learning output is advisory and does not directly command actuators. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Deterministic Contingency and Failsafe Rules}
+The target flight system defines deterministic contingency responses. Only software mechanisms explicitly identified elsewhere as implemented should be read as present in the current artifact:
+\begin{itemize}
+    \item \textbf{Command-Link Loss ($SYS\text{-}R\text{-}01$, planned integration):} Hold, timeout, and RTL behavior requires autopilot and communication-link simulation before verification.
+    \item \textbf{Energy Failsafe ($SYS\text{-}R\text{-}02$, simulated source):} Threshold-driven warning, RTL, and landing states can be exercised with the discrete battery test variable; return-energy sufficiency is not physically modeled.
+    \item \textbf{GNSS Degradation (planned):} Attitude hold and local clearance sensing depend on future autopilot and sensor integration.
+    \item \textbf{Environmental Limits (planned):} Wind, icing, and propulsion abort logic requires measured sensors and flight testing.
+\end{itemize}

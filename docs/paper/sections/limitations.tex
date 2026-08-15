@@ -1,0 +1,35 @@
+\section{Threats to Validity and Future Work}
+
+\subsection{Construct Validity}
+
+The vision study measures emitted events, not correct detections. One visible person may generate events on many adjacent frames, and a clip with one event counts as covered regardless of localization. Without boxes and an IoU matching rule, true positives, false negatives, precision, recall, AP, F1, and unique-person counts are undefined. Likewise, the route study compares greedy construction with a 2-opt local optimum; its relative excess is not a global optimality gap.
+
+\subsection{Internal Validity}
+
+The committed detector record contains one aggregate latency per model--clip pair, not raw repeated measurements. Warm-up, processor state, thread settings, run order, and clock variability are not preserved. The session graphs also have asymmetric boundaries: YOLO host-side NMS is outside the timer, while the D-FINE export can include different graph-side operations. The 0.50 confidence threshold is not calibrated per model. Therefore the observed $1.73\times$ latency ratio and event-count difference are diagnostic, not causal evidence about detector families.
+
+The fixed-seed route script is reproducible but samples one square geometry and one start/home rule. Different spatial distributions, separated start and home, priority weights, obstacles, wind, and energy costs may change the ranking. The Python study also does not establish C++ execution time.
+
+\subsection{External Validity and Data Provenance}
+
+The 26 clips are short, locally stored, temporally autocorrelated, and not divided into development and held-out test sites. Their filenames describe RGB, infrared, and thermal conditions, but the repository does not document camera models, spectral bands, calibration, altitude, date, location protocol, postprocessing, subject consent, or data license. Results cannot be generalized to physical LWIR payloads, other terrain, weather, altitudes, cameras, or populations until this provenance and independent testing exist.
+
+\subsection{Software and Operational Validity}
+
+Source presence is not equivalent to verified behavior. The repository does not yet include an automated suite reproducing the previously claimed route, plan-lock, clamp, IPC, memory, and RTL pass rates. No claim is made for memory-leak freedom, real-time scheduling, communication loss recovery, collision avoidance, geofencing, airworthiness, regulatory compliance, or all-weather operation. The analytical battery and telemetry models are test/design aids rather than physical models.
+
+Environmental hazards remain substantial: precipitation and obscurants degrade optics; thermal crossover and sun-heated terrain create clutter; wind and rotor vibration affect acoustics and control; terrain and structures create RF multipath; and icing or dust can threaten propulsion. None has been validated in flight.
+
+\subsection{Priority Evidence Milestones}
+
+The next work should proceed in evidentiary order:
+\begin{enumerate}
+    \item publish a data manifest, lawful provenance, and bounding-box annotations with target size and occlusion attributes;
+    \item create development/site-held-out splits and evaluate AP, recall, false positives per image, and confidence intervals;
+    \item add matched detector baselines, threshold/resolution/tiling ablations, and frame-aligned failure cases;
+    \item benchmark end-to-end latency and power on the intended onboard computer with raw repeated samples;
+    \item add exact TSP comparisons for small $n$ and a compiled C++ timing harness;
+    \item check in unit/integration tests and expected/observed state traces for plan locking, clamps, malformed IPC, battery transitions, and RTL precedence;
+    \item progress through PX4 SITL, HITL, tethered tests, controlled outdoor flight, and only then operationally representative trials; and
+    \item evaluate operator workload, alert review time, missed candidates, and false dispatches before claiming human-supervision benefit.
+\end{enumerate}

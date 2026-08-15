@@ -1,0 +1,83 @@
+\documentclass[journal]{IEEEtran}
+
+% --- PACKAGES ---
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{pifont}
+\usepackage{tabularx}
+\usepackage{url}
+\usepackage{listings}
+\usepackage{balance}
+\usepackage{microtype}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows, positioning, fit, backgrounds}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{
+  pdftitle={MANAR: An Evidence-Scoped Software Testbed for Human-Supervised Aerial Search and Rescue},
+  pdfauthor={Oumar Ibrahim},
+  pdfsubject={Technical preprint on pre-flight software evidence for aerial search and rescue},
+  pdfkeywords={search and rescue, supervised autonomy, route planning, aerial perception, reproducibility}
+}
+
+\hyphenation{multi-condition nearest-neighbor search-and-rescue}
+
+% --- LISTINGS CONFIGURATION ---
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  breaklines=true,
+  captionpos=b,
+  frame=single,
+  keywordstyle=\color{blue},
+  stringstyle=\color{red},
+  commentstyle=\color{green!60!black}
+}
+
+\begin{document}
+
+\title{MANAR: An Evidence-Scoped Software Testbed for Human-Supervised Aerial Search and Rescue}
+
+\author{Oumar Ibrahim%
+\thanks{O. Ibrahim is with the MANAR Search-and-Rescue Project, United Arab Emirates. This manuscript is a technical preprint and has not undergone peer review.}}
+
+\markboth{MANAR Technical Preprint}{Ibrahim: MANAR---An Evidence-Scoped Software Testbed for Human-Supervised Aerial Search and Rescue}
+
+\maketitle
+
+\begin{abstract}
+\normalfont\small
+Search-and-rescue unmanned aircraft must automate repetitive search tasks without allowing uncertain perception to make high-consequence decisions. This paper presents MANAR (Multi-sensor Autonomous Navigation and Aerial Rescue), an evidence-scoped software testbed that separates implemented source, measured software behavior, and planned flight capabilities. The current artifact contains a C++ control core with Haversine navigation, nearest-neighbor sector ordering, operator-preserved manual ordering, plan locking, and Return-to-Launch semantics, together with ONNX Runtime detector harnesses. A fixed-seed study of 500 synthetic sector layouts finds that greedy tours are $4.6\%$--$11.1\%$ longer on average than tours refined by 2-opt; 2-opt is treated as a local-search reference, not a global optimum. A diagnostic zero-shot comparison on 26 ten-second clips (6,240 frames) reports mean model-session latency of $29.25\pm0.85$ ms for YOLO11n and $50.53\pm3.15$ ms for D-FINE-N across clip means. At least one person event occurs in 12 of 15 positive-designated clips for YOLO11n and 6 of 15 for D-FINE-N; neither produces an event in 11 negative-designated clips. Because the corpus lacks bounding-box ground truth, these counts are not precision, recall, or average precision. No physical flight, calibrated multisensor fusion, or operational rescue performance is claimed.
+\end{abstract}
+
+\begin{IEEEkeywords}
+\normalfont\small
+Search and rescue, supervised autonomy, route planning, aerial perception, software testbed, reproducibility.
+\end{IEEEkeywords}
+
+% --- SECTION INPUTS ---
+\input{sections/introduction.tex}
+\input{sections/requirements.tex}
+\input{sections/architecture.tex}
+\input{sections/mission.tex}
+\input{sections/mathematics.tex}
+\input{sections/route_optimization.tex}
+\input{sections/multisensor.tex}
+\input{sections/telemetry.tex}
+\input{sections/safety.tex}
+\input{sections/software.tex}
+\input{sections/implementation.tex}
+\input{sections/limitations.tex}
+\input{sections/conclusion.tex}
+
+% --- BIBLIOGRAPHY ---
+\balance
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

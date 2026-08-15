@@ -1,0 +1,64 @@
+\section{Artifact and Reproducibility Evidence}
+
+The public repository is the evidence boundary for this pre-flight paper. Table~\ref{tab:artifact_evidence} maps the central claims to present artifacts and names the evidence still missing. This replaces earlier percentage pass-rate claims for which no matching automated test suite or raw logs were checked in.
+
+\begin{table*}[t]
+\caption{Claim-to-Artifact Evidence Map}
+\label{tab:artifact_evidence}
+\centering
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}lXX@{}}
+\toprule
+\textbf{Claim area} & \textbf{Present artifact and supported statement} & \textbf{Evidence not yet present} \\
+\midrule
+Route ordering & \texttt{core/system/route\_optimizer.cpp} implements Haversine distance and nearest-neighbor ordering with a return leg. & C++ timing harness, exact-optimum comparison, and automated edge-case tests. \\
+Mission state & \texttt{mission.cpp} contains sector progression, plan-lock state, manual rescue-state input, and RTL state changes. & Machine-readable expected/observed traces, fault injection, SITL/HITL, and flight execution. \\
+Command and battery safeguards & Source contains configuration clamps and a discrete battery variable used to trigger state changes. & Unit tests, energy model calibration, autopilot enforcement, and physical battery telemetry. \\
+Visual inference & \texttt{perception/vision/} contains ONNX models, harnesses, source, and \texttt{benchmarks/results.md}. & Ground-truth annotations, environment manifest, raw timing samples, threshold sweeps, and independent test split. \\
+Route reference study & \path{docs/paper/reproducibility/route_benchmark.py} and its CSV reproduce Table~\ref{tab:route_benchmark} with a fixed seed. & Exact TSP baseline for small $n$ and compiled C++ runtime measurements. \\
+Recorded clip corpus & 26 local MP4 files provide 6,240 frames at $1280\times720$ and 24 frames/s. & Public license/provenance, capture metadata, calibration, subject documentation, and bounding boxes. \\
+Physical system & Architecture and requirements specify selected interfaces and safety policies. & Integrated airframe, calibrated payload, legal/operational approvals, and controlled flight trials. \\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+\subsection{Reproduction Entry Points}
+
+The route table is reproduced with:
+\begin{lstlisting}[language=bash]
+python docs/paper/reproducibility/route_benchmark.py
+\end{lstlisting}
+The diagnostic vision pipeline is implemented by \path{perception/vision/benchmarks/batch_benchmark.py}; it requires the local clip corpus, the two committed ONNX graphs, OpenCV, NumPy, and ONNX Runtime. A publication artifact should add a lockfile, complete model hashes, a hardware/OS manifest, raw per-frame timing output, and a non-interactive command that regenerates every table and figure.
+
+\subsection{Simulated Configuration}
+
+Table~\ref{tab:prototype_config} lists parameters used by the software prototype. They exercise state and geometry logic and do not constitute validated aircraft limits.
+
+\begin{table}[t]
+\caption{Prototype Configuration Values}
+\label{tab:prototype_config}
+\centering
+\footnotesize
+\begin{tabular}{@{}llr@{}}
+\toprule
+\textbf{Symbol} & \textbf{Parameter} & \textbf{Value} \\
+\midrule
+$v_Q$ & Quick velocity & $15.0$ m/s \\
+$v_A$ & Active velocity & $8.0$ m/s \\
+$v_I$ & Inspect velocity & $2.0$ m/s \\
+$v_H$ & Hover velocity & $0.0$ m/s \\
+$H_{\mathrm{launch}}$ & Launch altitude & $10.0$ m \\
+$H_{\max}$ & Configured altitude clamp & $2000$ m \\
+$v_{\max}$ & Configured speed clamp & $15.0$ m/s \\
+$W \times H$ & Rectangular sector & $100\times100$ m \\
+$\Delta y$ & Sweep spacing & $20.0$ m \\
+$R_{\mathrm{reach}}$ & Waypoint radius & $5.0$ m \\
+$R_{\mathrm{home}}$ & Home radius & $100$ m \\
+\midrule
+$B_{\mathrm{warn}}$ & Warning threshold & $30\%$ \\
+$B_{\mathrm{rtl\_w}}$ & Recommend RTL & $25\%$ \\
+$B_{\mathrm{emg}}$ & Emergency RTL & $15\%$ \\
+$B_{\mathrm{land}}$ & Emergency land & $5\%$ \\
+\bottomrule
+\end{tabular}
+\end{table}

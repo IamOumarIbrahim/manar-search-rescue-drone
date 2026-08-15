@@ -1,0 +1,29 @@
+\section{Safety, Authorization, and Deterministic Failsafes}
+
+The repository contains source-level command clamps, simulated battery thresholds, payload state toggles, plan locking, and RTL state transitions. The broader operational rules below are safety requirements for future integrated testing; they are not certified flight protections.
+
+\subsection{Supervised Operator Authorization Rules}
+The target system is required to enforce six supervisory rules:
+\begin{enumerate}
+    \item \textbf{Human Confirmation Authority:} Machine-learning models may gate candidate alerts, but only the human operator may assign a probable-rescue classification.
+    \item \textbf{Multi-Sensor Consensus:} No single sensor modality dominates victim confirmation; multi-modal evidence correlation is required.
+    \item \textbf{Supporting Modality Principle:} Thermal LWIR and emergency RF detections are treated strictly as supporting cues, avoiding false alarms from heated terrain or abandoned beacon devices.
+    \item \textbf{Guidance Authorization:} Future physical signaling devices (beacon, strobe, spotlight, smoke) require explicit operator authorization before activation.
+    \item \textbf{Restricted Smoke Deployment:} Smoke marker release is strictly prohibited near fire-prone vegetation, fuel storage, crowds, or adverse wind conditions.
+    \item \textbf{Safety Precedence:} Vehicle safety limits, structural thresholds, icing risk, and minimum return energy strictly override search or detection confidence.
+\end{enumerate}
+
+\subsection{Communications Resilience and Link-Loss Logging}
+The selected architecture separates low-bandwidth state telemetry from high-bandwidth video ($SYS\text{-}R\text{-}03$). Link-loss detection, onboard non-volatile logging, and autonomous return behavior require communication and autopilot integration and remain planned.
+
+\subsection{Battery Failsafe Hierarchy}
+The control core evaluates simulated battery percentage $B_k$ on each loop iteration against a 4-tier threshold hierarchy:
+\begin{itemize}
+    \item \textbf{Battery Warning ($B_k \le 30\%$):} Emits a non-preemptive advisory warning to the ground station.
+    \item \textbf{Recommend RTL ($B_k \le 25\%$):} Advises the operator to terminate search sweeps and initiate return transit.
+    \item \textbf{Emergency RTL ($B_k \le 15\%$):} Automatically preempts active search sweeps, clears pending waypoints, and engages Return-to-Launch navigation to home base.
+    \item \textbf{Emergency Land ($B_k \le 5\%$):} Commands an immediate controlled vertical landing at the current coordinate position.
+\end{itemize}
+
+\subsection{Software Command Clamps}
+All velocity and altitude command arguments are validated against software bounds prior to state mutation: $v_{\mathrm{cmd}} \le v_{\max} = 15.0\text{ m/s}$ and $H_{\mathrm{cmd}} \le H_{\max} = 2000.0\text{ m}$. Commands exceeding these limits are automatically clamped, logging warning events to \texttt{runtime/logs.txt}.

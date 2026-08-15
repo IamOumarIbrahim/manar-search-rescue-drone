@@ -1,0 +1,31 @@
+\section{Navigation Geometry and Kinematic Models}
+
+MANAR incorporates geodetic navigation calculations, simulated kinematic bounds, and grid coverage geometry within the C++ control core.
+
+\subsection{Geographic Distance (Haversine Formulation)}
+To evaluate spatial relationships over spherical coordinates without a local planar projection, MANAR implements the standard double-precision Haversine formula~\cite{sinnott1984haversine} in \texttt{route\_optimizer.cpp} and \texttt{drone.cpp}.
+
+Let two points on the Earth's surface be defined by latitude and longitude in radians: $P_1 = (\phi_1, \lambda_1)$ and $P_2 = (\phi_2, \lambda_2)$. The angular differences are $\Delta\phi = \phi_2 - \phi_1$ and $\Delta\lambda = \lambda_2 - \lambda_1$. The square of half the chord length between the points is:
+\begin{equation}
+a = \sin^2\left(\frac{\Delta\phi}{2}\right) + \cos\phi_1 \cos\phi_2 \sin^2\left(\frac{\Delta\lambda}{2}\right)
+\end{equation}
+The angular distance in radians is $c = 2 \operatorname{atan2}\left(\sqrt{a}, \sqrt{1 - a}\right)$, yielding surface distance:
+\begin{equation}
+d(P_1, P_2) = R_E \cdot c
+\end{equation}
+where $R_E = 6\,371\,000.0\text{ m}$ is the mean Earth radius.
+
+\subsection{Kinematic Presets and Estimated Time of Arrival}
+The simulated aircraft translates at horizontal velocities defined by four operational flight modes: \texttt{Quick} ($v_Q = 15.0\text{ m/s}$ for transit), \texttt{Active} ($v_A = 8.0\text{ m/s}$ for lawnmower grid sweeps), \texttt{Inspect} ($v_I = 2.0\text{ m/s}$ for candidate approach), and \texttt{Hover} ($v_H = 0.0\text{ m/s}$ for stationary verification).
+
+For current simulated coordinates $P_{\mathrm{drone}}$ and target waypoint $P_{\mathrm{dest}}$, remaining distance is $d = d(P_{\mathrm{drone}}, P_{\mathrm{dest}})$. For active velocity $v(m) > 0$, Estimated Time of Arrival ($t_{\mathrm{ETA}}$) is calculated as $t_{\mathrm{ETA}} = d / v(m)$.
+
+\subsection{Discrete Battery Simulation Logic}
+To exercise safety state transitions and failsafe triggering in software without requiring physical telemetry, battery percentage $B_k \in [0, 100]$ decrements on each simulation tick by $B_{k+1} = \max(0.0, B_k - \alpha_m \Delta B)$, where $\Delta B > 0$ is a step constant and $\alpha_m$ is a mode multiplier ($\alpha_{\text{Quick}}=5, \alpha_{\text{Active}}=3, \alpha_{\text{Inspect}}=2, \alpha_{\text{Hover}}=1$). This discrete simulation rule functions strictly as a software-level unit test driver for failsafe validation, not an electro-chemical battery model.
+
+\subsection{Lawnmower Search Grid Geometry}
+For a sector centered at $(\phi_c, \lambda_c)$ with dimensions $W \times H$ (meters), local coordinate conversions use standard meridian and parallel scaling factors: $M_{\mathrm{lat}} = 111\,320.0\text{ m/deg}$ and $M_{\mathrm{lon}}(\phi_c) = 111\,320.0 \cos(\phi_c \pi / 180.0)\text{ m/deg}$. The southwest origin corner $(\phi_0, \lambda_0)$ is computed as:
+\begin{equation}
+\phi_0 = \phi_c - \frac{H / 2.0}{M_{\mathrm{lat}}}, \qquad \lambda_0 = \lambda_c - \frac{W / 2.0}{M_{\mathrm{lon}}(\phi_c)}
+\end{equation}
+Parallel sweep tracks are generated along longitude separated by row spacing $\Delta y$.
