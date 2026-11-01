@@ -80,118 +80,27 @@
 
 ---
 
-## Multimodal Sensing & Target Verification
-
-<p align="center">
-  <img
-    src="assets/Images/Visualization/RGB, IR, and Thermal Multisensor Detection.png"
-    alt="RGB, IR, and Thermal Multisensor Detection"
-    width="650"
-  />
-  <br />
-  <em>Synchronized Day RGB, Low-Light IR, and Long-Wave Thermal (LWIR) target verification across diurnal and environmental extremes.</em>
-</p>
-
----
-
-## Fig. 2. Conceptual 10-stage search, verification, and rescue lifecycle.
-
-MANAR coordinates flight execution through a modular navigation hierarchy and deterministic mission logic.
-
-<p align="center">
-  <img
-    src="assets/Images/Paper/fig2_conceptual_lifecycle.png"
-    alt="Fig. 2. Conceptual 10-stage search, verification, and rescue lifecycle."
-    width="480"
-  />
-  <br />
-  <em>Fig. 2. Conceptual 10-stage search, verification, and rescue lifecycle.</em>
-</p>
-
----
-
-## Perception & Sensor-Fusion Pipeline
-
-Synchronized feature vectors $\mathbf{x}_t \in \mathbb{R}^D$ sampled at $10\text{ Hz}$ across $20\text{--}50$ time steps ($2\text{--}5\text{ s}$ window) are evaluated by a Mamba State Space Model (SSM). Mamba acts strictly as an alert escalation filter (Reject candidate, Continue verification, or Alert operator), while final rescue determination is reserved exclusively for the human operator.
-
-<p align="center">
-  <img
-    src="assets/Images/Visualization/CNN and Mamba Sensor-Fusion Architecture.png"
-    alt="Fig. 5. Planned multisensor perception and Mamba hover verification pipeline"
-    width="900"
-  />
-  <br />
-  <em>Fig. 5. Planned multisensor perception and Mamba hover verification pipeline.</em>
-</p>
-
----
-
-## Fig. 3. Spatial geometry: Lawnmower sweep coverage pattern (left) and sequential greedy route progression with RTL return leg (right).
-
-When operators specify multiple search sectors, MANAR executes an $O(n^2)$ greedy nearest-neighbor route optimizer to minimize travel transit distance, combined with systematic lawnmower sweeps.
-
-<p align="center">
-  <img
-    src="assets/Images/Paper/fig3_lawnmower_and_route.png"
-    alt="Fig. 3. Spatial geometry: Lawnmower sweep coverage pattern (left) and sequential greedy route progression with RTL return leg (right)."
-    width="540"
-  />
-  <br />
-  <em>Fig. 3. Spatial geometry: Lawnmower sweep coverage pattern (left) and sequential greedy route progression with RTL return leg (right).</em>
-</p>
-
----
-
-## System Demonstrations
-
-> **Current status:** Hardware component sizing, React Operator GUI, and downstream multisensor fusion interface.
-
 <div align="center">
 
-### Autonomous Flight Core & Lawnmower Search
 <img src="assets/Videos/demo.gif" alt="MANAR Autonomous Flight and Terminal Demo" width="900">
 <br/><br/>
-
-### YOLO11n Real-Time Target Detection
 <img src="assets/Videos/demo2.gif" alt="MANAR Visual Detection Demo" width="900">
 
 </div>
 
 ---
 
-## Try It Yourself (Quick Start)
+## Quick Start
 
-> **Requirements:** C++17 compliant compiler (`g++` / MinGW-w64, Clang, or MSVC) on Windows 10/11, Linux, or macOS.
-
-### 1. Build the Core Applications
-
-Open PowerShell or terminal in the repository root:
+> **Requirements:** C++17 compliant compiler (`g++` / MinGW-w64, Clang, or MSVC) on Windows 10/11, Linux, or macOS. See the **[Operator Guide](docs/OPERATOR_GUIDE.md)** for a full mission walkthrough.
 
 ```powershell
-cd core
-mkdir -p build
-
+cd core && mkdir -p build
 g++ -std=c++17 apps/control.cpp system/shared.cpp system/flight.cpp system/components.cpp system/drone.cpp system/mission.cpp system/route_optimizer.cpp -I. -Ithird_party -o build/control.exe
 g++ -std=c++17 apps/terminal.cpp -I. -Ithird_party -o build/terminal.exe
-g++ -std=c++17 apps/setup.cpp -I. -Ithird_party -o build/setup.exe
+g++ -std=c++17 apps/setup.cpp   -I. -Ithird_party -o build/setup.exe
+# Terminal 1: .\build\control.exe  |  Terminal 2: .\build\terminal.exe
 ```
-
-### 2. Launch the Control Core & Operator Terminal
-
-In **Terminal 1** (Flight Control Engine):
-```powershell
-cd core
-.\build\control.exe
-```
-
-In **Terminal 2** (Interactive Operator Command Station):
-```powershell
-cd core
-.\build\terminal.exe
-```
-
-> [!TIP]
-> For a full mission simulation walkthrough (setting search waypoints, greedy route optimization, sensor toggles, and RTL failsafes) as well as pre-flight parameter configuration (`setup.exe`), see the **[Operator Guide](docs/OPERATOR_GUIDE.md)**.
 
 ---
 
